@@ -4,7 +4,7 @@ Este repositório contém o código fonte do meu TFC de gestão de residências 
 
 ## Tecnologias utilizadas
 
-* React: Biblioteca JavaScript para a criação de interfaces de usuário interativas.
+* React: Biblioteca JavaScript para a criação de interfaces de utilizador interativas.
 * Django: Framework web Python para o desenvolvimento de aplicações web.
 * PostgreSQL: Sistema de gerenciamento de banco de dados relacional.
 
@@ -45,6 +45,6 @@ Este projeto está licenciado sob a licença MIT.
 
 ## Autor
 
-Andreia Semedo
-andreiasemedo81@gmail.com
-Andreia797
+- Andreia Semedo
+- andreiasemedo81@gmail.com
+- Andreia797
