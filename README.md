@@ -6,7 +6,7 @@ Este repositório contém o código fonte do meu TFC de gestão de residências 
 
 * React: Biblioteca JavaScript para a criação de interfaces de utilizador interativas.
 * Django: Framework web Python para o desenvolvimento de aplicações web.
-* PostgreSQL: Sistema de gerenciamento de banco de dados relacional.
+* PostgreSQL: Sistema de gerenciamento de base de dados relacional.
 
 ## Instalação
 
@@ -20,7 +20,7 @@ Para instalar o projeto, siga as etapas abaixo:
 6. Configure as variáveis de ambiente.
 7. Execute o servidor Django.
 
-## Uso
+## Utilização
 
 Para usar o projeto, siga as etapas abaixo:
 
