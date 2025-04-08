@@ -45,6 +45,6 @@ Este projeto está licenciado sob a licença MIT.
 
 ## Autor
 
-Andreia Semedo
-andreiasemedo81@gmail.com
-Andreia797
+-Andreia Semedo
+-andreiasemedo81@gmail.com
+-Andreia797
