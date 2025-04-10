@@ -59,7 +59,7 @@ function CamasLista() {
 
     const camasFiltradas = camas.filter((cama) =>
         cama.numero?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-        cama.quarto?.toString().toLowerCase().includes(pesquisa.toLowerCase()) ||
+        cama.quarto?.edificio?.nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
         cama.status?.toLowerCase().includes(pesquisa.toLowerCase())
     );
 
@@ -76,7 +76,7 @@ function CamasLista() {
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
             <TextField
-                label="Pesquisar"
+                label="Pesquisar por número, quarto ou estado"
                 value={pesquisa}
                 onChange={(e) => setPesquisa(e.target.value)}
                 className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -92,8 +92,8 @@ function CamasLista() {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quarto</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número da Cama</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edifício</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                             </tr>

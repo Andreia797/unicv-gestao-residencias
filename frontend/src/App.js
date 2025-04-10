@@ -31,6 +31,8 @@ import GerirResidentes from './components/residente/GerirResidentes';
 import GerirQuartos from './components/quartos/GerirQuartos';
 import GerirEdificios from './components/edificios/GerirEdificios';
 import PrivateRoute from './components/PrivateRoute'; 
+import GerirCandidaturas from './components/candidaturas/GerirCandidaturas';
+import AssociarCama from './components/camas/AssociarCama';
 
 function App() {
     return (
@@ -52,7 +54,7 @@ function App() {
                         <Route path="candidaturas" element={<CandidaturasLista />} />
                         <Route path="candidaturas/:id" element={<CandidaturaDetalhes />} />
                         <Route path="admin/candidaturas" element={<AdminCandidaturas />} />
-                        <Route path="gerircandidaturas" element={<CandidaturasLista />} />
+                        <Route path="gerircandidaturas" element={<GerirCandidaturas />} />
 
                         {/* Rotas de Residentes */}
                         <Route path="residentes" element={<ResidentesLista />} />
@@ -77,6 +79,7 @@ function App() {
                         <Route path="camas/:id" element={<CamaDetalhes />} />
                         <Route path="camas/editar/:id" element={<FormularioCama />} />
                         <Route path="gerircamas" element={<GerirCamas />} />
+                        <Route path="associarcama" element={<AssociarCama />} />
 
                         {/* Rotas de Utilizadores */}
                         <Route path="users" element={<UserList />} />

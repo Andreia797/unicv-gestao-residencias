@@ -61,16 +61,19 @@ function CandidaturasLista() {
         setMensagem(null);
     };
 
+    const formatarData = (dataISO) => {
+        const data = new Date(dataISO);
+        return data.toLocaleDateString(); 
+    };
+
     const filtrarCandidaturas = () =>
         candidaturas.filter(
             (candidatura) =>
                 (filtroStatus === '' || candidatura.status?.toLowerCase() === filtroStatus.toLowerCase()) &&
                 (pesquisa === '' ||
-                    candidatura.nome_completo?.toLowerCase().includes(pesquisa.toLowerCase()) || // Assuming 'nome_completo' exists
-                    candidatura.email?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-                    candidatura.telefone?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-                    candidatura.curso?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-                    candidatura.data_submissao?.toLowerCase().includes(pesquisa.toLowerCase()))
+                    candidatura.estudante?.Nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
+                    candidatura.DataSubmissao?.toLowerCase().includes(pesquisa.toLowerCase()) ||
+                    candidatura.residencia?.Nome?.toLowerCase().includes(pesquisa.toLowerCase()))
         );
 
     const candidaturasFiltradas = filtrarCandidaturas();
@@ -93,7 +96,7 @@ function CandidaturasLista() {
                     value={pesquisa}
                     onChange={(e) => setPesquisa(e.target.value)}
                     className="flex-grow rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    placeholder="Pesquisar por nome, email, telefone, curso ou data"
+                    placeholder="Pesquisar por nome do estudante, residência ou data"
                     variant="outlined"
                     size="small"
                 />
@@ -104,11 +107,11 @@ function CandidaturasLista() {
                     variant="outlined"
                     size="small"
                 >
-                    <MenuItem value="">Todos os Status</MenuItem>
+                    <MenuItem value="">Todos os Estados</MenuItem>
                     <MenuItem value="pendente">Pendente</MenuItem>
                     <MenuItem value="aprovado">Aprovado</MenuItem>
                     <MenuItem value="rejeitado">Rejeitado</MenuItem>
-                    <MenuItem value="em_analise">Em Análise</MenuItem> 
+                    <MenuItem value="em_analise">Em Análise</MenuItem>
                 </Select>
             </div>
             {loading ? (
@@ -120,10 +123,9 @@ function CandidaturasLista() {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Curso</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Estudante</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Residência</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edifício</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Submissão</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
@@ -135,10 +137,9 @@ function CandidaturasLista() {
                                 .map((candidatura) => (
                                     <tr key={candidatura.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.estudante.Nome}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.email}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.telefone}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.curso}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.data_submissao}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.residencia.Nome}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.residencia.edificio}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatarData(candidatura.DataSubmissao)}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <Tooltip title="Detalhes">

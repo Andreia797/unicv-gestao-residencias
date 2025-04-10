@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService';// Importe o AuthService
+import AuthService from '../../services/AuthService';
 
 function GerirCandidaturas() {
     const [candidaturas, setCandidaturas] = useState([]);
@@ -76,7 +76,13 @@ function GerirCandidaturas() {
 
     const handleEdit = (candidatura) => {
         setEditCandidaturaId(candidatura.id);
-        setEditFormData({ ...candidatura });
+        // Assumindo que você quer editar esses campos. Adapte conforme necessário.
+        setEditFormData({
+            nome: candidatura.nome || '',
+            descricao: candidatura.descricao || '',
+            estado: candidatura.status || '', // Usando 'status' do seu JSON como 'estado'
+            utilizadorId: candidatura.utilizadorId || null, // Se existir
+        });
     };
 
     const handleUpdate = async () => {
@@ -108,6 +114,11 @@ function GerirCandidaturas() {
 
     const limparMensagem = () => {
         setMensagem(null);
+    };
+
+    const formatarData = (dataISO) => {
+        const data = new Date(dataISO);
+        return data.toLocaleDateString();
     };
 
     const handleChangePage = (event, novaPagina) => {
@@ -144,10 +155,11 @@ function GerirCandidaturas() {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Estudante</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Residência</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edifício</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Submissão</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilizador ID</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                 </tr>
                             </thead>
@@ -156,10 +168,11 @@ function GerirCandidaturas() {
                                     .slice(pagina * resultadosPorPagina, pagina * resultadosPorPagina + resultadosPorPagina)
                                     .map((candidatura) => (
                                         <tr key={candidatura.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.nome}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-900">{candidatura.descricao}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.estado}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.utilizadorId}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.estudante?.Nome}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.residencia?.Nome}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.residencia?.edificio}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatarData(candidatura.DataSubmissao)}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.status}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <Tooltip title="Detalhes">
                                                     <IconButton component={React.forwardRef((props, ref) => <Link to={`/candidaturas/${candidatura.id}`} {...props} ref={ref} />)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">

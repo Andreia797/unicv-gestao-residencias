@@ -22,13 +22,13 @@ function GerirCamas() {
     const [novaCama, setNovaCama] = useState({
         numero: "",
         tipo: "",
-        quartoId: null,
+        quarto: { id: null }, // Ajustado para a estrutura do JSON (enviando objeto)
     });
     const [editCamaId, setEditCamaId] = useState(null);
     const [editFormData, setEditFormData] = useState({
         numero: "",
         tipo: "",
-        quartoId: null,
+        quarto: { id: null }, // Ajustado para a estrutura do JSON (enviando objeto)
     });
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState("success");
@@ -55,13 +55,17 @@ function GerirCamas() {
     }, []);
 
     const handleInputChange = (e) => {
-        setNovaCama({ ...novaCama, [e.target.name]: e.target.value });
+        if (e.target.name === 'quartoId') {
+            setNovaCama({ ...novaCama, quarto: { id: parseInt(e.target.value) || null } });
+        } else {
+            setNovaCama({ ...novaCama, [e.target.name]: e.target.value });
+        }
     };
 
     const handleCriarCama = async () => {
         try {
             await AuthService.authenticatedRequest("post", "relatorios", "/camas/", novaCama);
-            setNovaCama({ numero: "", tipo: "", quartoId: null });
+            setNovaCama({ numero: "", tipo: "", quarto: { id: null } });
             fetchCamas();
             setMensagem("Cama criada com sucesso.");
             setTipoMensagem("success");
@@ -75,6 +79,14 @@ function GerirCamas() {
     const handleEdit = (cama) => {
         setEditCamaId(cama.id);
         setEditFormData({ ...cama });
+    };
+
+    const handleEditInputChange = (e) => {
+        if (e.target.name === 'quartoId') {
+            setEditFormData({ ...editFormData, quarto: { id: parseInt(e.target.value) || null } });
+        } else {
+            setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+        }
     };
 
     const handleUpdate = async () => {
@@ -151,7 +163,7 @@ function GerirCamas() {
                         label="Quarto ID"
                         name="quartoId"
                         type="number"
-                        value={novaCama.quartoId || ""}
+                        value={novaCama.quarto.id || ""}
                         onChange={handleInputChange}
                         className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         fullWidth
@@ -191,7 +203,7 @@ function GerirCamas() {
                                         <tr key={cama.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.numero}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.tipo}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.quartoId}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.quarto.id}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <Tooltip title="Detalhes">
                                                     <IconButton component={Link} to={`/camas/${cama.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
@@ -236,9 +248,7 @@ function GerirCamas() {
                         label="Número"
                         name="numero"
                         value={editFormData.numero}
-                        onChange={(e) =>
-                            setEditFormData({ ...editFormData, numero: e.target.value })
-                        }
+                        onChange={handleEditInputChange}
                         className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         fullWidth
                         variant="outlined"
@@ -248,9 +258,7 @@ function GerirCamas() {
                         label="Tipo"
                         name="tipo"
                         value={editFormData.tipo}
-                        onChange={(e) =>
-                            setEditFormData({ ...editFormData, tipo: e.target.value })
-                        }
+                        onChange={handleEditInputChange}
                         className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         fullWidth
                         variant="outlined"
@@ -260,10 +268,8 @@ function GerirCamas() {
                         label="Quarto ID"
                         name="quartoId"
                         type="number"
-                        value={editFormData.quartoId || ""}
-                        onChange={(e) =>
-                            setEditFormData({ ...editFormData, quartoId: e.target.value })
-                        }
+                        value={editFormData.quarto?.id || ""}
+                        onChange={handleEditInputChange}
                         className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         fullWidth
                         variant="outlined"

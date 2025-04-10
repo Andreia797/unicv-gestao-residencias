@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
+import { CircularProgress } from '@mui/material';
+import AuthService from '../../services/AuthService'; 
 
 function AssociarCama({ camaId }) {
     const [residentes, setResidentes] = useState([]);
@@ -34,7 +35,7 @@ function AssociarCama({ camaId }) {
             });
             setMensagem('Residente associado com sucesso.');
             setTipoMensagem('success');
-            // Opcional: Recarregar a lista de residentes ou camas após a associação
+            
         } catch (error) {
             console.error('Erro ao associar residente:', error.response?.data);
             setMensagem(error.response?.data?.message || 'Erro ao associar residente.');
@@ -68,7 +69,9 @@ function AssociarCama({ camaId }) {
                     </div>
                 )}
                 {loading ? (
-                    <p>Carregando...</p>
+                    <div className="flex justify-center items-center">
+                        <CircularProgress />
+                    </div>
                 ) : (
                     <>
                         <div className="mb-4">

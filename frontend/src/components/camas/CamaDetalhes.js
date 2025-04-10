@@ -66,15 +66,46 @@ function CamaDetalhes() {
                         <strong>ID:</strong> {cama.id}
                     </Typography>
                     <Typography variant="body1" className="mb-2">
-                        <strong>Número:</strong> {cama.numero}
+                        <strong>Número da Cama:</strong> {cama.numero}
                     </Typography>
-                    <Typography variant="body1" className="mb-2">
-                        <strong>Quarto:</strong> {cama.quarto}
-                    </Typography>
+                    {cama.quarto && (
+                        <>
+                            <Typography variant="body1" className="mb-2">
+                                <strong>Número do Quarto:</strong> {cama.quarto.numero}
+                            </Typography>
+                            {cama.quarto.edificio && (
+                                <Typography variant="body1" className="mb-2">
+                                    <strong>Edifício:</strong> {cama.quarto.edificio.nome}
+                                </Typography>
+                            )}
+                            <Typography variant="body1" className="mb-2">
+                                <strong>Capacidade do Quarto:</strong> {cama.quarto.capacidade}
+                            </Typography>
+                        </>
+                    )}
                     <Typography variant="body1" className="mb-4">
                         <strong>Estado:</strong> {cama.status}
                     </Typography>
-                    <div className="flex space-x-2">
+                    {cama.residente && (
+                        <>
+                            <Typography variant="h6" className="mt-4 mb-2 font-semibold">
+                                Residente
+                            </Typography>
+                            <Typography variant="body1" className="mb-1">
+                                <strong>Nome:</strong> {cama.residente.nome}
+                            </Typography>
+                            <Typography variant="body1" className="mb-1">
+                                <strong>Email:</strong> {cama.residente.email}
+                            </Typography>
+                            <Typography variant="body1" className="mb-1">
+                                <strong>Telefone:</strong> {cama.residente.telefone}
+                            </Typography>
+                            <Typography variant="body1" className="mb-1">
+                                <strong>Endereço:</strong> {cama.residente.endereco}
+                            </Typography>
+                        </>
+                    )}
+                    <div className="flex space-x-2 mt-4">
                         <Button component={Link} to="/camas" variant="contained" color="primary">
                             Voltar
                         </Button>

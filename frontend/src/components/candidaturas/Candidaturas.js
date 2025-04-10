@@ -57,8 +57,8 @@ function Candidaturas() {
     };
 
     const candidaturasFiltradas = candidaturas.filter((candidatura) =>
-        candidatura.nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-        candidatura.descricao?.toLowerCase().includes(pesquisa.toLowerCase()) ||
+        candidatura.estudante?.Nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
+        candidatura.residencia?.Nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
         candidatura.status?.toLowerCase().includes(pesquisa.toLowerCase())
     );
 
@@ -76,7 +76,7 @@ function Candidaturas() {
             <h2 className="text-2xl font-bold mb-4">Lista de Candidaturas</h2>
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
             <TextField
-                label="Pesquisar"
+                label="Pesquisar por nome do estudante, residência ou estado"
                 value={pesquisa}
                 onChange={(e) => setPesquisa(e.target.value)}
                 className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -92,8 +92,8 @@ function Candidaturas() {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Estudante</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Residência</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                             </tr>
@@ -103,8 +103,8 @@ function Candidaturas() {
                                 .slice(pagina * resultadosPorPagina, pagina * resultadosPorPagina + resultadosPorPagina)
                                 .map((candidatura) => (
                                     <tr key={candidatura.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.nome}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">{candidatura.descricao}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.estudante?.Nome}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">{candidatura.residencia?.Nome}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <StatusCandidatura status={candidatura.status} />
                                         </td>

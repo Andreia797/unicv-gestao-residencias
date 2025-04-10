@@ -40,6 +40,15 @@ function CandidaturaDetalhes() {
         setMensagem(null);
     };
 
+    const formatarData = (dataISO) => {
+        try {
+            return format(new Date(dataISO), 'dd/MM/yyyy HH:mm', { locale: ptBR });
+        } catch (error) {
+            console.error('Erro ao formatar data:', error);
+            return 'Data inválida';
+        }
+    };
+
     if (loading) {
         return (
             <div className="p-4 flex justify-center items-center h-32">
@@ -65,13 +74,16 @@ function CandidaturaDetalhes() {
                         Detalhes da Candidatura
                     </Typography>
                     <Typography variant="body1" className="mb-2">
-                        <strong>Nome:</strong> {candidatura.nome}
+                        <strong>Nome do Estudante:</strong> {candidatura.estudante?.Nome}
                     </Typography>
                     <Typography variant="body1" className="mb-2">
-                        <strong>Descrição:</strong> {candidatura.descricao}
+                        <strong>Residência:</strong> {candidatura.residencia?.Nome}
                     </Typography>
                     <Typography variant="body1" className="mb-2">
-                        <strong>Data de Criação:</strong> {format(new Date(candidatura.data_criacao), 'dd/MM/yyyy', { locale: ptBR })}
+                        <strong>Edifício:</strong> {candidatura.residencia?.edificio}
+                    </Typography>
+                    <Typography variant="body1" className="mb-2">
+                        <strong>Data de Submissão:</strong> {formatarData(candidatura.DataSubmissao)}
                     </Typography>
                     <Typography variant="body1" className="mb-4">
                         <strong>Estado:</strong> {candidatura.status}
@@ -80,7 +92,7 @@ function CandidaturaDetalhes() {
                         <Button component={Link} to="/candidaturas" variant="contained" color="primary">
                             Voltar
                         </Button>
-                        <Button component={Link} to={`/candidaturas/editar/${candidatura.id}`} variant="contained" color="secondary">
+                        <Button component={Link} to={`/candidaturas/editar/${id}`} variant="contained" color="secondary">
                             Editar
                         </Button>
                     </div>

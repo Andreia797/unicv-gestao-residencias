@@ -2,7 +2,7 @@ import React from 'react';
 
 function StatusCandidatura({ status }) {
     let statusColor = 'gray';
-    switch (status?.toLowerCase()) { // Convertendo para lowercase para comparação
+    switch (status?.toLowerCase()) { 
         case 'aprovada':
             statusColor = 'green';
             break;

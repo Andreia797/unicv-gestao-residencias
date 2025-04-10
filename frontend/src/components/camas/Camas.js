@@ -57,7 +57,7 @@ function Camas() {
 
     const camasFiltradas = camas.filter((cama) =>
         String(cama.numero)?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-        String(cama.quarto)?.includes(pesquisa) ||
+        String(cama.quarto?.numero)?.toLowerCase().includes(pesquisa.toLowerCase()) ||
         cama.status?.toLowerCase().includes(pesquisa.toLowerCase())
     );
 
@@ -75,7 +75,7 @@ function Camas() {
             <h2 className="text-2xl font-bold mb-4">Lista de Camas</h2>
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
             <TextField
-                label="Pesquisar"
+                label="Pesquisar por número da cama, quarto ou estado"
                 value={pesquisa}
                 onChange={(e) => setPesquisa(e.target.value)}
                 className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -91,7 +91,7 @@ function Camas() {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número da Cama</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quarto</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
@@ -103,7 +103,7 @@ function Camas() {
                                 .map((cama) => (
                                     <tr key={cama.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.numero}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.quarto}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.quarto?.numero}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <Tooltip title="Detalhes">
