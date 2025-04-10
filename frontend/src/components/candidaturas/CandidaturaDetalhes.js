@@ -9,8 +9,8 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
-import Notificacoes from '../Notificacoes'; // Importe o componente de Notificações
+import AuthService from '../../services/AuthService'; 
+import Notificacoes from '../Notificacoes';
 
 function CandidaturaDetalhes() {
     const { id } = useParams();

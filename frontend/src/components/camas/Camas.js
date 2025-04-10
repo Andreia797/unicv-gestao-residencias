@@ -103,7 +103,7 @@ function Camas() {
                                 .map((cama) => (
                                     <tr key={cama.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.numero}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.quarto?.numero}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.quarto.id}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <Tooltip title="Detalhes">

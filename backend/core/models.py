@@ -19,12 +19,20 @@ class Edificio(models.Model):
         return f"{self.nome} ({self.get_tipo_display()})"
 
 class Quarto(models.Model):
+    TIPO_CHOICES = [
+        ('individual', 'Individual'),
+        ('duplo', 'Duplo'),
+        ('triplo', 'Triplo'),
+    ]
+
     numero = models.CharField(max_length=50, unique=True)
     capacidade = models.IntegerField()
     edificio = models.ForeignKey(Edificio, on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='individual')
 
     def __str__(self):
-        return f"{self.numero} - {self.edificio.nome}"
+        return f"{self.numero} - {self.edificio.nome} ({self.get_tipo_display()})"
+
 
 class Residente(models.Model):
     nome = models.CharField(max_length=255)
@@ -46,7 +54,7 @@ class Cama(models.Model):
     residente = models.ForeignKey(Residente, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
-        unique_together = ('numero', 'quarto') 
+        unique_together = ('numero', 'quarto')
 
     def __str__(self):
         return f"{self.numero} - {self.quarto}"

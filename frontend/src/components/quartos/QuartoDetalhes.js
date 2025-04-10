@@ -10,7 +10,7 @@ import {
     ListItem,
     ListItemText,
 } from '@mui/material';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
+import AuthService from '../../services/AuthService'; 
 
 function QuartoDetalhes() {
     const { id } = useParams();
@@ -83,9 +83,11 @@ function QuartoDetalhes() {
                             <ListItemText primary="Tipo" secondary={quarto.tipo} />
                         </ListItem>
                         <ListItem>
-                            <ListItemText primary="Edifício ID" secondary={quarto.edificioId} />
+                            <ListItemText primary="Edifício" secondary={`${quarto.edificio?.nome} (ID: ${quarto.edificio?.id})`} />
                         </ListItem>
-                        {/* Adicione mais informações aqui, se a API retornar mais detalhes */}
+                        <ListItem>
+                            <ListItemText primary="Capacidade" secondary={quarto.capacidade} />
+                        </ListItem>
                     </List>
                     <div className="mt-6">
                         <Button component={Link} to="/quartos" variant="contained" color="primary" className="mr-2">

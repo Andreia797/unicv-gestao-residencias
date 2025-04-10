@@ -56,7 +56,8 @@ function UserList() {
     };
 
     const usersFiltrados = users.filter((user) =>
-        user.username?.toLowerCase().includes(pesquisa.toLowerCase())
+        user.username?.toLowerCase().includes(pesquisa.toLowerCase()) ||
+        user.email?.toLowerCase().includes(pesquisa.toLowerCase()) // Adicionada pesquisa por email
     );
 
     const handleChangePage = (event, novaPagina) => {
@@ -90,6 +91,7 @@ function UserList() {
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
@@ -100,6 +102,7 @@ function UserList() {
                                     <tr key={user.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.id}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <Tooltip title="Detalhes">
                                                 <IconButton component={Link} to={`/users/${user.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">

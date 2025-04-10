@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
+import AuthService from '../../services/AuthService'; 
 
 function QuartosLista() {
     const [quartos, setQuartos] = useState([]);
@@ -41,7 +41,7 @@ function QuartosLista() {
     const excluirQuarto = async (id) => {
         try {
             await AuthService.authenticatedRequest('delete', 'relatorios', `/quartos/${id}/`);
-            // Atualiza a lista localmente após a exclusão
+           
             setQuartos(quartos.filter((quarto) => quarto.id !== id));
             setMensagem('Quarto excluído com sucesso.');
             setTipoMensagem('success');
@@ -60,7 +60,7 @@ function QuartosLista() {
         return (
             quarto.numero?.toLowerCase().includes(pesquisa.toLowerCase()) ||
             String(quarto.capacidade)?.includes(pesquisa.toLowerCase()) ||
-            String(quarto.edificio)?.toLowerCase().includes(pesquisa.toLowerCase()) // Assuming edificio is an ID or string
+            quarto.edificio?.nome?.toLowerCase().includes(pesquisa.toLowerCase()) 
         );
     });
 
@@ -106,7 +106,7 @@ function QuartosLista() {
                                     <tr key={quarto.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.numero}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.capacidade}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.edificio.nome}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.edificio?.nome}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <Tooltip title="Detalhes">
                                                 <IconButton component={Link} to={`/quartos/${quarto.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">

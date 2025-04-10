@@ -17,19 +17,19 @@ import {
     IconButton,
     Tooltip,
     TablePagination,
-    Typography,
     FormControl,
     InputLabel,
     FormHelperText,
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
+import AuthService from '../../services/AuthService'; 
 
 function GerirUtilizadores() {
     const [utilizadores, setUtilizadores] = useState([]);
     const [editUtilizadorId, setEditUtilizadorId] = useState(null);
     const [formData, setFormData] = useState({
-        nome: '',
+        username: '', 
+        name: '',
         permissao: '',
         permissoesDetalhadas: [],
     });
@@ -51,7 +51,7 @@ function GerirUtilizadores() {
             const response = await AuthService.authenticatedRequest('get', 'accounts', '/users/');
             setUtilizadores(response.data.map(user => ({
                 ...user,
-                username: user.profile?.username || '',
+                username: user.username || '', 
                 name: user.profile?.name || '',
                 permissao: user.profile?.permissao || '',
                 permissoesDetalhadas: user.profile?.permissoes_detalhadas || [],
@@ -110,21 +110,20 @@ function GerirUtilizadores() {
         try {
             await AuthService.authenticatedRequest('post', 'accounts', '/users/create/', {
                 username: formData.username,
-                name: formData.name, // Usando nome como username para simplificar a criação
-                email: '', // Adicione um campo de email se necessário
-                password: 'passwordpadrao', // Implemente uma forma segura de definir a senha
+                name: formData.name, 
+                email: '', 
+                password: 'passwordpadrao', 
                 profile: {
-                    username: formData.username,
-                    name: formData.name, 
+                    name: formData.name,
                     permissao: formData.permissao,
                     permissoes_detalhadas: formData.permissoesDetalhadas,
                 },
             });
-            setFormData({ username:'',name: '', permissao: '', permissoesDetalhadas: [] });
+            setFormData({ username: '', name: '', permissao: '', permissoesDetalhadas: [] });
             fetchUtilizadores();
             setMensagem('Utilizador criado com sucesso.');
             setTipoMensagem('success');
-            setEditUtilizadorId(null); // Fechar o diálogo após criar
+            setEditUtilizadorId(null); 
         } catch (error) {
             console.error('Erro ao criar utilizador:', error);
             setMensagem('Erro ao criar utilizador.');
@@ -132,13 +131,7 @@ function GerirUtilizadores() {
         }
     };
 
-    const handlePermissaoChange = (permissao) => {
-        if (formData.permissoesDetalhadas.includes(permissao)) {
-            setFormData({ ...formData, permissoesDetalhadas: formData.permissoesDetalhadas.filter((p) => p !== permissao) });
-        } else {
-            setFormData({ ...formData, permissoesDetalhadas: [...formData.permissoesDetalhadas, permissao] });
-        }
-    };
+  
 
     const handleChangePage = (event, novaPagina) => {
         setPagina(novaPagina);
@@ -167,6 +160,7 @@ function GerirUtilizadores() {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome de Utilizador</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permissão</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
@@ -178,6 +172,7 @@ function GerirUtilizadores() {
                                     .map((utilizador) => (
                                         <tr key={utilizador.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{utilizador.id}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-900">{utilizador.username}</td>
                                             <td className="px-6 py-4 text-sm text-gray-900">{utilizador.name}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{utilizador.permissao}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

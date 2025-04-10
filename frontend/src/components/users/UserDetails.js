@@ -53,7 +53,10 @@ function UserDetails() {
                     <ListItemText primary="ID" secondary={user.id} />
                 </ListItem>
                 <ListItem>
-                    <ListItemText primary="Nome" secondary={user.profile?.nome} />
+                    <ListItemText primary="Nome de Utilizador" secondary={user.username} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Nome" secondary={user.profile?.name} />
                 </ListItem>
                 <ListItem>
                     <ListItemText primary="Permissão" secondary={user.profile?.permissao} />

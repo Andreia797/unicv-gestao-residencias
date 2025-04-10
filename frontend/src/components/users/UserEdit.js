@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import AuthService from '../../services/AuthService';// Use AuthService para requisições autenticadas
+import AuthService from '../../services/AuthService';
 import { TextField,Typography, Button, Paper, Container, Alert, CircularProgress, FormControl, InputLabel, Select, MenuItem, FormHelperText, Checkbox, FormControlLabel } from '@mui/material';
 
 function UserEdit() {
     const { id } = useParams();
     const [formData, setFormData] = useState({
-        nome: '',
+        name: '', 
         permissao: '',
         permissoesDetalhadas: [],
     });
@@ -22,7 +22,7 @@ function UserEdit() {
             try {
                 const response = await AuthService.authenticatedRequest('get', 'accounts', `/users/${id}/`);
                 setFormData({
-                    nome: response.data.profile?.nome || '',
+                    name: response.data.profile?.name || '', 
                     permissao: response.data.profile?.permissao || '',
                     permissoesDetalhadas: response.data.profile?.permissoes_detalhadas || [],
                 });
@@ -60,7 +60,7 @@ function UserEdit() {
         setError(null);
         try {
             await AuthService.authenticatedRequest('put', 'accounts', `/users/${id}/`, { profile: formData });
-            navigate('/users');
+            navigate('/gerirutilizadores'); 
         } catch (err) {
             console.error('Erro ao atualizar utilizador:', err);
             setError('Erro ao atualizar utilizador.');
@@ -96,8 +96,8 @@ function UserEdit() {
                 <form onSubmit={handleUpdate}>
                     <TextField
                         label="Nome"
-                        name="nome"
-                        value={formData.nome}
+                        name="name"
+                        value={formData.name} 
                         onChange={handleChange}
                         fullWidth
                         margin="normal"
@@ -140,7 +140,7 @@ function UserEdit() {
                     <Button type="submit" variant="contained" color="primary" disabled={loading} className="mt-4">
                         {loading ? 'A Atualizar...' : 'Atualizar'}
                     </Button>
-                    <Button component={Link} to="/users" variant="outlined" className="mt-4 ml-2">
+                    <Button component={Link} to="/gerirutilizadores" variant="outlined" className="mt-4 ml-2">
                         Cancelar
                     </Button>
                 </form>

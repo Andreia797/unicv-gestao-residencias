@@ -191,7 +191,7 @@ function GerirCamas() {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de quarto</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quarto ID</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                 </tr>
@@ -202,7 +202,7 @@ function GerirCamas() {
                                     .map((cama) => (
                                         <tr key={cama.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.numero}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.tipo}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.quarto.tipo}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cama.quarto.id}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <Tooltip title="Detalhes">

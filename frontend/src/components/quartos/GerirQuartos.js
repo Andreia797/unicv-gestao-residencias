@@ -15,20 +15,20 @@ import {
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
+import AuthService from '../../services/AuthService';
 
 function GerirQuartos() {
     const [quartos, setQuartos] = useState([]);
     const [novoQuarto, setNovoQuarto] = useState({
         numero: '',
         tipo: '',
-        edificioId: null,
+        edificio: null, // Alterado para objeto
     });
     const [editQuartoId, setEditQuartoId] = useState(null);
     const [editFormData, setEditFormData] = useState({
         numero: '',
         tipo: '',
-        edificioId: null,
+        edificio: null, // Alterado para objeto
     });
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState('success');
@@ -55,13 +55,21 @@ function GerirQuartos() {
     }, []);
 
     const handleInputChange = (e) => {
-        setNovoQuarto({ ...novoQuarto, [e.target.name]: e.target.value });
+        if (e.target.name === 'edificioId') {
+            setNovoQuarto({ ...novoQuarto, edificio: { id: parseInt(e.target.value) } });
+        } else {
+            setNovoQuarto({ ...novoQuarto, [e.target.name]: e.target.value });
+        }
     };
 
     const handleCriarQuarto = async () => {
         try {
-            await AuthService.authenticatedRequest('post', 'relatorios', '/quartos/', novoQuarto);
-            setNovoQuarto({ numero: '', tipo: '', edificioId: null });
+            await AuthService.authenticatedRequest('post', 'relatorios', '/quartos/', {
+                numero: novoQuarto.numero,
+                tipo: novoQuarto.tipo,
+                edificio: novoQuarto.edificio?.id ? novoQuarto.edificio : null,
+            });
+            setNovoQuarto({ numero: '', tipo: '', edificio: null });
             fetchQuartos();
             setMensagem('Quarto criado com sucesso.');
             setTipoMensagem('success');
@@ -74,12 +82,28 @@ function GerirQuartos() {
 
     const handleEdit = (quarto) => {
         setEditQuartoId(quarto.id);
-        setEditFormData({ ...quarto });
+        setEditFormData({
+            numero: quarto.numero,
+            tipo: quarto.tipo,
+            edificio: quarto.edificio, // Mantém o objeto edificio
+        });
+    };
+
+    const handleEditInputChange = (e) => {
+        if (e.target.name === 'edificioId') {
+            setEditFormData({ ...editFormData, edificio: { id: parseInt(e.target.value) } });
+        } else {
+            setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+        }
     };
 
     const handleUpdate = async () => {
         try {
-            await AuthService.authenticatedRequest('put', 'relatorios', `/quartos/${editQuartoId}/`, editFormData);
+            await AuthService.authenticatedRequest('put', 'relatorios', `/quartos/${editQuartoId}/`, {
+                numero: editFormData.numero,
+                tipo: editFormData.tipo,
+                edificio: editFormData.edificio?.id ? editFormData.edificio : null,
+            });
             setEditQuartoId(null);
             fetchQuartos();
             setMensagem('Quarto atualizado com sucesso.');
@@ -125,7 +149,7 @@ function GerirQuartos() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <TextField label="Número" name="numero" value={novoQuarto.numero} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
                     <TextField label="Tipo" name="tipo" value={novoQuarto.tipo} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Edifício ID" name="edificioId" type="number" value={novoQuarto.edificioId || ''} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
+                    <TextField label="Edifício ID" name="edificioId" type="number" value={novoQuarto.edificio?.id || ''} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
                 </div>
                 <Button variant="contained" color="primary" onClick={handleCriarQuarto} className="mt-4">
                     Adicionar Quarto
@@ -143,7 +167,7 @@ function GerirQuartos() {
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edifício ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edifício</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                 </tr>
                             </thead>
@@ -154,7 +178,7 @@ function GerirQuartos() {
                                         <tr key={quarto.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.numero}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.tipo}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.edificioId}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.edificio?.nome} ({quarto.edificio?.id})</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <Tooltip title="Detalhes">
                                                     <IconButton component={Link} to={`/quartos/${quarto.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
@@ -195,9 +219,9 @@ function GerirQuartos() {
             <Dialog open={!!editQuartoId} onClose={() => setEditQuartoId(null)}>
                 <DialogTitle>Editar Quarto</DialogTitle>
                 <DialogContent>
-                    <TextField label="Número" name="numero" value={editFormData.numero} onChange={(e) => setEditFormData({ ...editFormData, numero: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Tipo" name="tipo" value={editFormData.tipo} onChange={(e) => setEditFormData({ ...editFormData, tipo: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Edifício ID" name="edificioId" type="number" value={editFormData.edificioId || ''} onChange={(e) => setEditFormData({ ...editFormData, edificioId: e.target.value })} className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
+                    <TextField label="Número" name="numero" value={editFormData.numero} onChange={handleEditInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
+                    <TextField label="Tipo" name="tipo" value={editFormData.tipo} onChange={handleEditInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
+                    <TextField label="Edifício ID" name="edificioId" type="number" value={editFormData.edificio?.id || ''} onChange={handleEditInputChange} className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setEditQuartoId(null)} color="primary">

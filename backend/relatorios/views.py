@@ -206,6 +206,13 @@ def quartos_por_edificio(request, edificio_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def quartos_por_tipo(request, tipo):
+    quartos = Quarto.objects.filter(tipo=tipo)
+    serializer = QuartoSerializer(quartos, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def relatorio_quartos(request):
     total_quartos = Quarto.objects.count()
     quartos_livres = Quarto.objects.filter(cama__residente__isnull=True).distinct().count()

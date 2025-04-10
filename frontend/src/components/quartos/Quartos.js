@@ -29,8 +29,8 @@ function Quartos() {
     const [quartoEdit, setQuartoEdit] = useState({
         id: null,
         numero: '',
-        tipo: '', // Adicionado o campo tipo
-        edificioId: '', // Alterado para edificioId para consistência com detalhes
+        tipo: '',
+        edificio: null, // Alterado para objeto
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -68,39 +68,53 @@ function Quartos() {
 
     const handleEdit = (quarto) => {
         setIsEdit(true);
-        setQuartoEdit({ id: quarto.id, numero: quarto.numero, tipo: quarto.tipo, edificioId: quarto.edificioId });
+        setQuartoEdit({
+            id: quarto.id,
+            numero: quarto.numero,
+            tipo: quarto.tipo,
+            edificio: quarto.edificio, // Mantém o objeto edificio
+        });
         setOpenDialog(true);
     };
 
     const handleAdd = () => {
         setIsEdit(false);
-        setQuartoEdit({ id: null, numero: '', tipo: '', edificioId: '' });
+        setQuartoEdit({ id: null, numero: '', tipo: '', edificio: null });
         setOpenDialog(true);
     };
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
-        setQuartoEdit({ id: null, numero: '', tipo: '', edificioId: '' });
+        setQuartoEdit({ id: null, numero: '', tipo: '', edificio: null });
         setError(null);
     };
 
     const handleInputChange = (e) => {
-        setQuartoEdit({ ...quartoEdit, [e.target.name]: e.target.value });
+        if (e.target.name === 'edificioId') {
+            setQuartoEdit({ ...quartoEdit, edificio: { id: e.target.value ? parseInt(e.target.value) : null } });
+        } else {
+            setQuartoEdit({ ...quartoEdit, [e.target.name]: e.target.value });
+        }
     };
 
     const handleSave = async () => {
         try {
+            const payload = {
+                numero: quartoEdit.numero,
+                tipo: quartoEdit.tipo,
+                edificio: quartoEdit.edificio?.id ? { id: quartoEdit.edificio.id } : null,
+            };
             if (isEdit) {
-                await AuthService.authenticatedRequest('put', 'relatorios', `/quartos/${quartoEdit.id}/`, quartoEdit);
+                await AuthService.authenticatedRequest('put', 'relatorios', `/quartos/${quartoEdit.id}/`, payload);
                 setSuccess('Quarto atualizado com sucesso.');
                 setError(null);
             } else {
-                await AuthService.authenticatedRequest('post', 'relatorios', '/quartos/', quartoEdit);
+                await AuthService.authenticatedRequest('post', 'relatorios', '/quartos/', payload);
                 setSuccess('Quarto adicionado com sucesso.');
                 setError(null);
             }
             setOpenDialog(false);
-            setQuartoEdit({ id: null, numero: '', tipo: '', edificioId: '' });
+            setQuartoEdit({ id: null, numero: '', tipo: '', edificio: null });
         } catch (err) {
             console.error('Erro ao salvar quarto:', err);
             setError(isEdit ? 'Erro ao atualizar quarto.' : 'Erro ao adicionar quarto.');
@@ -127,7 +141,7 @@ function Quartos() {
                             <TableRow>
                                 <TableCell className="font-semibold">Número</TableCell>
                                 <TableCell className="font-semibold">Tipo</TableCell>
-                                <TableCell className="font-semibold">Edifício ID</TableCell>
+                                <TableCell className="font-semibold">Edifício</TableCell>
                                 <TableCell className="font-semibold">Ações</TableCell>
                             </TableRow>
                         </TableHead>
@@ -136,7 +150,7 @@ function Quartos() {
                                 <TableRow key={quarto.id}>
                                     <TableCell>{quarto.numero}</TableCell>
                                     <TableCell>{quarto.tipo}</TableCell>
-                                    <TableCell>{quarto.edificioId}</TableCell>
+                                    <TableCell>{quarto.edificio?.nome} ({quarto.edificio?.id})</TableCell>
                                     <TableCell>
                                         <Stack direction="row" spacing={1}>
                                             <Tooltip title="Editar">
@@ -168,7 +182,15 @@ function Quartos() {
                     <Stack spacing={2} mt={2}>
                         <TextField label="Número" name="numero" value={quartoEdit.numero} onChange={handleInputChange} fullWidth variant="outlined" size="small" />
                         <TextField label="Tipo" name="tipo" value={quartoEdit.tipo} onChange={handleInputChange} fullWidth variant="outlined" size="small" />
-                        <TextField label="Edifício ID" name="edificioId" value={quartoEdit.edificioId} onChange={handleInputChange} fullWidth variant="outlined" size="small" />
+                        <TextField
+                            label="Edifício ID"
+                            name="edificioId"
+                            value={quartoEdit.edificio?.id || ''}
+                            onChange={handleInputChange}
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                        />
                     </Stack>
                 </DialogContent>
                 <DialogActions>
