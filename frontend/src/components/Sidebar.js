@@ -7,8 +7,9 @@ import {
     UsersIcon,
     TableCellsIcon,
     DocumentDuplicateIcon,
-    UserIcon, 
-    DocumentTextIcon, 
+    UserIcon,
+    DocumentTextIcon,
+    LinkIcon,  
 } from '@heroicons/react/24/solid';
 
 function Sidebar() {
@@ -17,6 +18,7 @@ function Sidebar() {
         { to: '/gerircandidaturas', label: 'Gerir Candidaturas', icon: DocumentDuplicateIcon },
         { to: '/gerirresidentes', label: 'Gerir Residentes', icon: UsersIcon },
         { to: '/gerircamas', label: 'Gerir Camas', icon: TableCellsIcon },
+        { to: '/associarcama', label: 'Associar Cama', icon: LinkIcon }, 
         { to: '/geriredificios', label: 'Gerir Edifícios', icon: BuildingOfficeIcon },
         { to: '/gerirquartos', label: 'Gerir Quartos', icon: CubeIcon },
         { to: '/gerirutilizadores', label: 'Gerir Utilizadores', icon: UserIcon },
