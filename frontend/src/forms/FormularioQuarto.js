@@ -22,10 +22,10 @@ function FormularioQuarto() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const edificiosResponse = await AuthService.authenticatedRequest('get', 'core', '/edificios/');
+                const edificiosResponse = await AuthService.authenticatedRequest('get', 'relatorios', '/edificios/');
                 setEdificios(edificiosResponse.data);
                 if (id) {
-                    const quartoResponse = await AuthService.authenticatedRequest('get', 'core', `/quartos/${id}/`);
+                    const quartoResponse = await AuthService.authenticatedRequest('get', 'relatorios', `/quartos/${id}/`);
                     setQuarto(quartoResponse.data);
                 }
             } catch (error) {
@@ -60,10 +60,10 @@ function FormularioQuarto() {
         setLoading(true);
         try {
             if (id) {
-                await AuthService.authenticatedRequest('put', 'core', `/quartos/${id}/`, quarto);
+                await AuthService.authenticatedRequest('put', 'relatorios', `/quartos/${id}/`, quarto);
                 setMensagem('Quarto atualizado com sucesso.');
             } else {
-                await AuthService.authenticatedRequest('post', 'core', '/quartos/', quarto);
+                await AuthService.authenticatedRequest('post', 'relatorios', '/quartos/', quarto);
                 setMensagem('Quarto criado com sucesso.');
             }
             setTipoMensagem('success');

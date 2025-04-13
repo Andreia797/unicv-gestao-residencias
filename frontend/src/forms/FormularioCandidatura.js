@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     TextField,
     Button,
@@ -12,10 +12,13 @@ import {
     Alert,
     Paper,
     Container,
+    Stepper,
+    Step,
+    StepLabel,
 } from '@mui/material';
 import Notificacoes from '../components/Notificacoes';
-import AuthService from '../services/AuthService'; // Importe o AuthService
 import Header from '../components/Header';
+import AuthService from '../services/AuthService';
 
 function FormularioCandidatura() {
     const { id } = useParams();
@@ -23,28 +26,55 @@ function FormularioCandidatura() {
     const [candidatura, setCandidatura] = useState({
         DataSubmissao: '',
         Residencia_idResidencia: '',
-        Estudante_idEstudante: '',
+        Estado: 'Pendente',
+        TipoQuarto: '', // Adicionado o campo TipoQuarto
+    });
+    const [estudante, setEstudante] = useState({
+        Nome: '',
+        CNIouPassaporte: '',
+        Curso: '',
+        Telefone: '',
+        Email: '',
     });
     const [erros, setErros] = useState({});
     const [mensagem, setMensagem] = useState(null);
-    const [tipoMensagem, setTipoMensagem] = useState('success');
+    const [tipoMensagem, setTipoMensagem] = useState('info');
     const [loading, setLoading] = useState(true);
     const [arquivos, setArquivos] = useState({});
-    const [abaAtual, setAbaAtual] = useState(0);
+    const [activeStep, setActiveStep] = useState(0);
     const [residencias, setResidencias] = useState([]);
-    const [estudantes, setEstudantes] = useState([]);
+    const [steps] = useState(['Dados da Candidatura', 'Dados do Estudante', 'Documentos']);
+    const tiposQuarto = ['Individual', 'Duplo', 'Triplo']; // Opções de tipo de quarto
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const residenciasResponse = await AuthService.authenticatedRequest('get', 'core', '/residencias/');
+                const residenciasResponse = await AuthService.fetchResidencias();
                 setResidencias(residenciasResponse.data);
-                const estudantesResponse = await AuthService.authenticatedRequest('get', 'core', '/estudantes/');
-                setEstudantes(estudantesResponse.data);
+
                 if (id) {
-                    const response = await AuthService.authenticatedRequest('get', 'core', `/candidaturas/${id}/`);
-                    setCandidatura(response.data);
+                    const candidaturaResponse = await AuthService.fetchCandidaturaDetail(id);
+                    setCandidatura({
+                        DataSubmissao: candidaturaResponse.data.DataSubmissao || '',
+                        Residencia_idResidencia: candidaturaResponse.data.Residencia_idResidencia || '',
+                        Estado: candidaturaResponse.data.Estado || 'Pendente',
+                        TipoQuarto: candidaturaResponse.data.TipoQuarto || '', // Carrega o TipoQuarto
+                    });
+                    setEstudante({
+                        Nome: candidaturaResponse.data.estudante?.Nome || '',
+                        CNIouPassaporte: candidaturaResponse.data.estudante?.CNIouPassaporte || '',
+                        Curso: candidaturaResponse.data.estudante?.Curso || '',
+                        Telefone: candidaturaResponse.data.estudante?.Telefone || '',
+                        Email: candidaturaResponse.data.estudante?.Email || '',
+                    });
+                    setArquivos({
+                        CNIouPassaporteEntregue: candidaturaResponse.data.CNIouPassaporteEntregue_url || null,
+                        DeclaracaoMatriculaEntregue: candidaturaResponse.data.DeclaracaoMatriculaEntregue_url || null,
+                        DeclaracaoRendimentoEntregue: candidaturaResponse.data.DeclaracaoRendimentoEntregue_url || null,
+                        DeclaracaoSubsistenciaEntregue: candidaturaResponse.data.DeclaracaoSubsistenciaEntregue_url || null,
+                        DeclaracaoResidenciaEntregue: candidaturaResponse.data.DeclaracaoResidenciaEntregue_url || null,
+                    });
                 }
             } catch (error) {
                 console.error('Erro ao buscar dados:', error);
@@ -58,26 +88,42 @@ function FormularioCandidatura() {
         fetchData();
     }, [id]);
 
-    const handleChange = (e) => {
+    const handleCandidaturaChange = (e) => {
         setCandidatura({ ...candidatura, [e.target.name]: e.target.value });
+    };
+
+    const handleEstudanteChange = (e) => {
+        setEstudante({ ...estudante, [e.target.name]: e.target.value });
     };
 
     const handleArquivoChange = (e) => {
         setArquivos({ ...arquivos, [e.target.name]: e.target.files[0] });
     };
 
-    const validarFormulario = () => {
+    const validarAba1 = () => {
         let novosErros = {};
         if (!candidatura.DataSubmissao) novosErros.DataSubmissao = 'Data de Submissão é obrigatória.';
         if (!candidatura.Residencia_idResidencia) novosErros.Residencia_idResidencia = 'Residência é obrigatória.';
-        if (!candidatura.Estudante_idEstudante) novosErros.Estudante_idEstudante = 'Estudante é obrigatório.';
+        if (!candidatura.TipoQuarto) novosErros.TipoQuarto = 'Tipo de Quarto é obrigatório.'; // Validação do TipoQuarto
+        setErros(novosErros);
+        return Object.keys(novosErros).length === 0;
+    };
+
+    const validarAba2 = () => {
+        let novosErros = { ...erros };
+        if (!estudante.Nome) novosErros.Nome = 'Nome do estudante é obrigatório.';
+        if (!estudante.CNIouPassaporte) novosErros.CNIouPassaporte = 'CNI ou Passaporte é obrigatório.';
+        if (!estudante.Curso) novosErros.Curso = 'O curso é obrigatório.';
+        if (!estudante.Email) novosErros.Email = 'Email é obrigatório.';
         setErros(novosErros);
         return Object.keys(novosErros).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validarFormulario() && abaAtual === 0) {
+
+        if (!validarAba1() || !validarAba2()) {
+            setActiveStep(validarAba1() ? 1 : 0);
             return;
         }
 
@@ -86,21 +132,25 @@ function FormularioCandidatura() {
             const formData = new FormData();
             formData.append('DataSubmissao', candidatura.DataSubmissao);
             formData.append('Residencia_idResidencia', candidatura.Residencia_idResidencia);
-            formData.append('Estudante_idEstudante', candidatura.Estudante_idEstudante);
+            formData.append('Estado', candidatura.Estado);
+            formData.append('TipoQuarto', candidatura.TipoQuarto); // Adiciona o TipoQuarto ao formData
+            formData.append('Nome', estudante.Nome);
+            formData.append('CNIouPassaporte', estudante.CNIouPassaporte);
+            formData.append('Curso', estudante.Curso);
+            formData.append('Telefone', estudante.Telefone);
+            formData.append('Email', estudante.Email);
 
-            Object.entries(arquivos).forEach(([nome, arquivo]) => {
-                formData.append(nome, arquivo);
-            });
-
-            const headers = {
-                'Content-Type': 'multipart/form-data',
-            };
+            for (const nomeArquivo in arquivos) {
+                if (arquivos[nomeArquivo] instanceof File) {
+                    formData.append(nomeArquivo, arquivos[nomeArquivo]);
+                }
+            }
 
             if (id) {
-                await AuthService.authenticatedRequest('put', 'core', `/candidaturas/${id}/`, formData, headers);
-                setMensagem('Candidatura actualizada com sucesso.');
+                await AuthService.putCandidatura(id, formData);
+                setMensagem('Candidatura atualizada com sucesso.');
             } else {
-                await AuthService.authenticatedRequest('post', 'core', '/candidaturas/', formData, headers);
+                await AuthService.postCandidatura(formData);
                 setMensagem('Candidatura criada com sucesso.');
             }
             setTipoMensagem('success');
@@ -118,6 +168,23 @@ function FormularioCandidatura() {
         setMensagem(null);
     };
 
+    const handleNext = () => {
+        let isValid = false;
+        if (activeStep === 0) {
+            isValid = validarAba1();
+        } else if (activeStep === 1) {
+            isValid = validarAba2();
+        }
+
+        if (isValid) {
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        }
+    };
+
+    const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
+
     return (
         <div>
             <Header />
@@ -127,13 +194,20 @@ function FormularioCandidatura() {
                         {id ? 'Editar Candidatura' : 'Realizar Candidatura'}
                     </Typography>
                     <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+                    <Stepper activeStep={activeStep} alternativeLabel className="mb-4">
+                        {steps.map((label) => (
+                            <Step key={label}>
+                                <StepLabel>{label}</StepLabel>
+                            </Step>
+                        ))}
+                    </Stepper>
                     {loading ? (
                         <div className="text-center">
                             <CircularProgress />
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            {abaAtual === 0 && (
+                            {activeStep === 0 && (
                                 <div>
                                     <FormControl fullWidth margin="normal" error={!!erros.DataSubmissao}>
                                         <TextField
@@ -141,53 +215,106 @@ function FormularioCandidatura() {
                                             type="datetime-local"
                                             name="DataSubmissao"
                                             value={candidatura.DataSubmissao}
-                                            onChange={handleChange}
-                                            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${erros.DataSubmissao ? 'border-red-500' : ''}`}
+                                            onChange={handleCandidaturaChange}
                                             InputLabelProps={{ shrink: true }}
                                             helperText={<span className="text-red-500">{erros.DataSubmissao}</span>}
                                         />
                                     </FormControl>
                                     <FormControl fullWidth margin="normal" error={!!erros.Residencia_idResidencia}>
-                                        <InputLabel id="residencia-label" className="text-gray-700 text-sm font-bold mb-2">Residência</InputLabel>
+                                        <InputLabel id="residencia-label">Residência</InputLabel>
                                         <Select
                                             labelId="residencia-label"
                                             id="Residencia_idResidencia"
                                             name="Residencia_idResidencia"
                                             value={candidatura.Residencia_idResidencia}
-                                            onChange={handleChange}
+                                            onChange={handleCandidaturaChange}
                                             label="Residência"
-                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                         >
                                             {residencias.map((residencia) => (
                                                 <MenuItem key={residencia.id} value={residencia.id}>
-                                                    {residencia.nome}
+                                                    {residencia.Nome}
                                                 </MenuItem>
                                             ))}
                                         </Select>
                                         {erros.Residencia_idResidencia && <Alert severity="error">{erros.Residencia_idResidencia}</Alert>}
                                     </FormControl>
-                                    <FormControl fullWidth margin="normal" error={!!erros.Estudante_idEstudante}>
-                                        <InputLabel id="estudante-label" className="text-gray-700 text-sm font-bold mb-2">Estudante</InputLabel>
+                                    {/* Novo campo para Tipo de Quarto */}
+                                    <FormControl fullWidth margin="normal" error={!!erros.TipoQuarto}>
+                                        <InputLabel id="tipo-quarto-label">Tipo de Quarto</InputLabel>
                                         <Select
-                                            labelId="estudante-label"
-                                            id="Estudante_idEstudante"
-                                            name="Estudante_idEstudante"
-                                            value={candidatura.Estudante_idEstudante}
-                                            onChange={handleChange}
-                                            label="Estudante"
-                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                            labelId="tipo-quarto-label"
+                                            id="TipoQuarto"
+                                            name="TipoQuarto"
+                                            value={candidatura.TipoQuarto}
+                                            onChange={handleCandidaturaChange}
+                                            label="Tipo de Quarto"
                                         >
-                                            {estudantes.map((estudante) => (
-                                                <MenuItem key={estudante.id} value={estudante.id}>
-                                                    {estudante.nome}
+                                            {tiposQuarto.map((tipo) => (
+                                                <MenuItem key={tipo} value={tipo}>
+                                                    {tipo}
                                                 </MenuItem>
                                             ))}
                                         </Select>
-                                        {erros.Estudante_idEstudante && <Alert severity="error">{erros.Estudante_idEstudante}</Alert>}
+                                        {erros.TipoQuarto && <Alert severity="error">{erros.TipoQuarto}</Alert>}
                                     </FormControl>
                                 </div>
                             )}
-                            {abaAtual === 1 && (
+
+                            {activeStep === 1 && (
+                                <div>
+                                    <Typography variant="h6" className="mb-4">Dados do Estudante</Typography>
+                                    <TextField
+                                        fullWidth
+                                        margin="normal"
+                                        label="Nome Completo"
+                                        name="Nome"
+                                        value={estudante.Nome}
+                                        onChange={handleEstudanteChange}
+                                        error={!!erros.Nome}
+                                        helperText={<span className="text-red-500">{erros.Nome}</span>}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        margin="normal"
+                                        label="CNI ou Passaporte"
+                                        name="CNIouPassaporte"
+                                        value={estudante.CNIouPassaporte}
+                                        onChange={handleEstudanteChange}
+                                        error={!!erros.CNIouPassaporte}
+                                        helperText={<span className="text-red-500">{erros.CNIouPassaporte}</span>}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        margin="normal"
+                                        label="Curso"
+                                        name="Curso"
+                                        value={estudante.Curso}
+                                        onChange={handleEstudanteChange}
+                                        error={!!erros.Curso}
+                                        helperText={<span className="text-red-500">{erros.Curso}</span>}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        margin="normal"
+                                        label="Telefone"
+                                        name="Telefone"
+                                        value={estudante.Telefone}
+                                        onChange={handleEstudanteChange}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        margin="normal"
+                                        label="Email"
+                                        name="Email"
+                                        value={estudante.Email}
+                                        onChange={handleEstudanteChange}
+                                        error={!!erros.Email}
+                                        helperText={<span className="text-red-500">{erros.Email}</span>}
+                                    />
+                                </div>
+                            )}
+
+                            {activeStep === 2 && (
                                 <div>
                                     <Typography variant="h6" className="mb-4">Documentos</Typography>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -200,8 +327,11 @@ function FormularioCandidatura() {
                                                 onChange={handleArquivoChange}
                                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                             />
-                                            {arquivos['CNIouPassaporteEntregue'] && (
+                                            {arquivos['CNIouPassaporteEntregue'] instanceof File && (
                                                 <p className="text-gray-600 text-sm mt-1">{arquivos['CNIouPassaporteEntregue'].name}</p>
+                                            )}
+                                            {typeof arquivos['CNIouPassaporteEntregue'] === 'string' && (
+                                                <p className="text-gray-600 text-sm mt-1">Ficheiro Existente</p>
                                             )}
                                         </div>
                                         <div className="mb-4">
@@ -213,8 +343,11 @@ function FormularioCandidatura() {
                                                 onChange={handleArquivoChange}
                                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                             />
-                                            {arquivos['DeclaracaoMatriculaEntregue'] && (
+                                            {arquivos['DeclaracaoMatriculaEntregue'] instanceof File && (
                                                 <p className="text-gray-600 text-sm mt-1">{arquivos['DeclaracaoMatriculaEntregue'].name}</p>
+                                            )}
+                                            {typeof arquivos['DeclaracaoMatriculaEntregue'] === 'string' && (
+                                                <p className="text-gray-600 text-sm mt-1">Ficheiro Existente</p>
                                             )}
                                         </div>
                                         <div className="mb-4">
@@ -226,12 +359,15 @@ function FormularioCandidatura() {
                                                 onChange={handleArquivoChange}
                                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                             />
-                                            {arquivos['DeclaracaoRendimentoEntregue'] && (
+                                            {arquivos['DeclaracaoRendimentoEntregue'] instanceof File && (
                                                 <p className="text-gray-600 text-sm mt-1">{arquivos['DeclaracaoRendimentoEntregue'].name}</p>
+                                            )}
+                                            {typeof arquivos['DeclaracaoRendimentoEntregue'] === 'string' && (
+                                                <p className="text-gray-600 text-sm mt-1">Ficheiro Existente</p>
                                             )}
                                         </div>
                                         <div className="mb-4">
-                                            <label htmlFor="DeclaracaoSubsistenciaEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Subsistência</label>
+                                            <label htmlFor="DeclaracaoSubsistenciaEntregue" className="block text-gray-700 text-sm font-bold mb-2"></label>
                                             <input
                                                 id="DeclaracaoSubsistenciaEntregue"
                                                 type="file"
@@ -239,8 +375,11 @@ function FormularioCandidatura() {
                                                 onChange={handleArquivoChange}
                                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                             />
-                                            {arquivos['DeclaracaoSubsistenciaEntregue'] && (
+                                            {arquivos['DeclaracaoSubsistenciaEntregue'] instanceof File && (
                                                 <p className="text-gray-600 text-sm mt-1">{arquivos['DeclaracaoSubsistenciaEntregue'].name}</p>
+                                            )}
+                                            {typeof arquivos['DeclaracaoSubsistenciaEntregue'] === 'string' && (
+                                                <p className="text-gray-600 text-sm mt-1">Ficheiro Existente</p>
                                             )}
                                         </div>
                                         <div className="mb-4">
@@ -252,24 +391,32 @@ function FormularioCandidatura() {
                                                 onChange={handleArquivoChange}
                                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                             />
-                                            {arquivos['DeclaracaoResidenciaEntregue'] && (
+                                            {arquivos['DeclaracaoResidenciaEntregue'] instanceof File && (
                                                 <p className="text-gray-600 text-sm mt-1">{arquivos['DeclaracaoResidenciaEntregue'].name}</p>
+                                            )}
+                                            {typeof arquivos['DeclaracaoResidenciaEntregue'] === 'string' && (
+                                                <p className="text-gray-600 text-sm mt-1">Ficheiro Existente</p>
                                             )}
                                         </div>
                                     </div>
                                     <div className="flex justify-center mt-6">
                                         <Button type="submit" variant="contained" color="primary">
-                                            Submeter Candidatura
+                                            {id ? 'Atualizar Candidatura' : 'Submeter Candidatura'}
                                         </Button>
                                     </div>
                                 </div>
                             )}
                         </form>
                     )}
-                    <div className="mt-6 flex justify-center">
-                        <Button onClick={() => setAbaAtual(abaAtual === 0 ? 1 : 0)} variant="outlined">
-                            {abaAtual === 0 ? 'Próximo' : 'Anterior'}
+                    <div className="mt-6 flex justify-between">
+                        <Button disabled={activeStep === 0} onClick={handleBack} variant="outlined">
+                            Anterior
                         </Button>
+                        {activeStep < steps.length - 1 && (
+                            <Button variant="contained" color="primary" onClick={handleNext}>
+                                Próximo
+                            </Button>
+                        )}
                     </div>
                 </Paper>
             </Container>

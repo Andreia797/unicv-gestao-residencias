@@ -30,7 +30,7 @@ import GerirCamas from './components/camas/GerirCamas';
 import GerirResidentes from './components/residente/GerirResidentes';
 import GerirQuartos from './components/quartos/GerirQuartos';
 import GerirEdificios from './components/edificios/GerirEdificios';
-import PrivateRoute from './components/PrivateRoute'; 
+import PrivateRoute from './components/PrivateRoute';
 import GerirCandidaturas from './components/candidaturas/GerirCandidaturas';
 import AssociarCama from './components/camas/AssociarCama';
 
@@ -47,7 +47,7 @@ function App() {
                 {/* Rotas Protegidas */}
                 <Route path="/" element={<PrivateRoute />}>
                     <Route path="/" element={<Layout />}>
-                        <Route index element={<Dashboard />} /> 
+                        <Route index element={<Dashboard />} />
                         <Route path="dashboard" element={<Dashboard />} />
 
                         {/* Rotas de Candidaturas */}
@@ -60,24 +60,28 @@ function App() {
                         <Route path="residentes" element={<ResidentesLista />} />
                         <Route path="residentes/:id" element={<PerfilResidente />} />
                         <Route path="residentes/editar/:id" element={<FormularioResidente />} />
+                        <Route path="residentes/criar" element={<FormularioResidente />} /> {/* Nova rota */}
                         <Route path="gerirresidentes" element={<GerirResidentes />} />
 
                         {/* Rotas de Edifícios */}
                         <Route path="edificios" element={<EdificiosLista />} />
                         <Route path="edificios/:id" element={<EdificioDetalhes />} />
                         <Route path="edificios/editar/:id" element={<FormularioEdificio />} />
+                        <Route path="edificios/criar" element={<FormularioEdificio />} /> {/* Nova rota */}
                         <Route path="geriredificios" element={<GerirEdificios />} />
 
                         {/* Rotas de Quartos */}
                         <Route path="quartos" element={<QuartosLista />} />
                         <Route path="quartos/:id" element={<QuartoDetalhes />} />
                         <Route path="quartos/editar/:id" element={<FormularioQuarto />} />
+                        <Route path="quartos/criar" element={<FormularioQuarto />} /> {/* Nova rota */}
                         <Route path="gerirquartos" element={<GerirQuartos />} />
 
                         {/* Rotas de Camas */}
                         <Route path="camas" element={<CamasLista />} />
                         <Route path="camas/:id" element={<CamaDetalhes />} />
                         <Route path="camas/editar/:id" element={<FormularioCama />} />
+                        <Route path="camas/criar" element={<FormularioCama />} /> {/* Nova rota */}
                         <Route path="gerircamas" element={<GerirCamas />} />
                         <Route path="associarcama" element={<AssociarCama />} />
 

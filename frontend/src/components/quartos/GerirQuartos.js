@@ -2,16 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
-    TextField,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    CircularProgress,
     IconButton,
     Tooltip,
     TablePagination,
+    CircularProgress,
+    Button,
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
@@ -19,17 +14,6 @@ import AuthService from '../../services/AuthService';
 
 function GerirQuartos() {
     const [quartos, setQuartos] = useState([]);
-    const [novoQuarto, setNovoQuarto] = useState({
-        numero: '',
-        tipo: '',
-        edificio: null, // Alterado para objeto
-    });
-    const [editQuartoId, setEditQuartoId] = useState(null);
-    const [editFormData, setEditFormData] = useState({
-        numero: '',
-        tipo: '',
-        edificio: null, // Alterado para objeto
-    });
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState('success');
     const [loading, setLoading] = useState(true);
@@ -53,67 +37,6 @@ function GerirQuartos() {
     useEffect(() => {
         fetchQuartos();
     }, []);
-
-    const handleInputChange = (e) => {
-        if (e.target.name === 'edificioId') {
-            setNovoQuarto({ ...novoQuarto, edificio: { id: parseInt(e.target.value) } });
-        } else {
-            setNovoQuarto({ ...novoQuarto, [e.target.name]: e.target.value });
-        }
-    };
-
-    const handleCriarQuarto = async () => {
-        try {
-            await AuthService.authenticatedRequest('post', 'relatorios', '/quartos/', {
-                numero: novoQuarto.numero,
-                tipo: novoQuarto.tipo,
-                edificio: novoQuarto.edificio?.id ? novoQuarto.edificio : null,
-            });
-            setNovoQuarto({ numero: '', tipo: '', edificio: null });
-            fetchQuartos();
-            setMensagem('Quarto criado com sucesso.');
-            setTipoMensagem('success');
-        } catch (error) {
-            console.error('Erro ao criar quarto:', error);
-            setMensagem('Erro ao criar quarto.');
-            setTipoMensagem('error');
-        }
-    };
-
-    const handleEdit = (quarto) => {
-        setEditQuartoId(quarto.id);
-        setEditFormData({
-            numero: quarto.numero,
-            tipo: quarto.tipo,
-            edificio: quarto.edificio, // Mantém o objeto edificio
-        });
-    };
-
-    const handleEditInputChange = (e) => {
-        if (e.target.name === 'edificioId') {
-            setEditFormData({ ...editFormData, edificio: { id: parseInt(e.target.value) } });
-        } else {
-            setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
-        }
-    };
-
-    const handleUpdate = async () => {
-        try {
-            await AuthService.authenticatedRequest('put', 'relatorios', `/quartos/${editQuartoId}/`, {
-                numero: editFormData.numero,
-                tipo: editFormData.tipo,
-                edificio: editFormData.edificio?.id ? editFormData.edificio : null,
-            });
-            setEditQuartoId(null);
-            fetchQuartos();
-            setMensagem('Quarto atualizado com sucesso.');
-            setTipoMensagem('success');
-        } catch (error) {
-            console.error('Erro ao atualizar quarto:', error);
-            setMensagem('Erro ao atualizar quarto.');
-            setTipoMensagem('error');
-        }
-    };
 
     const handleDelete = async (id) => {
         try {
@@ -144,15 +67,9 @@ function GerirQuartos() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <div className="mb-4">
-                <h2 className="text-2xl font-semibold mb-4">Adicionar Novo Quarto</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <TextField label="Número" name="numero" value={novoQuarto.numero} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Tipo" name="tipo" value={novoQuarto.tipo} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Edifício ID" name="edificioId" type="number" value={novoQuarto.edificio?.id || ''} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                </div>
-                <Button variant="contained" color="primary" onClick={handleCriarQuarto} className="mt-4">
-                    Adicionar Quarto
+            <div className="flex justify-end mb-4">
+                <Button component={Link} to="/quartos/criar" variant="contained" color="primary">
+                    Adicionar Novo Quarto
                 </Button>
             </div>
             {loading ? (
@@ -186,7 +103,7 @@ function GerirQuartos() {
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Editar">
-                                                    <IconButton onClick={() => handleEdit(quarto)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                    <IconButton component={Link} to={`/quartos/editar/${quarto.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
                                                         <Edit className="text-yellow-500" />
                                                     </IconButton>
                                                 </Tooltip>
@@ -216,22 +133,6 @@ function GerirQuartos() {
                     </Paper>
                 </div>
             )}
-            <Dialog open={!!editQuartoId} onClose={() => setEditQuartoId(null)}>
-                <DialogTitle>Editar Quarto</DialogTitle>
-                <DialogContent>
-                    <TextField label="Número" name="numero" value={editFormData.numero} onChange={handleEditInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Tipo" name="tipo" value={editFormData.tipo} onChange={handleEditInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Edifício ID" name="edificioId" type="number" value={editFormData.edificio?.id || ''} onChange={handleEditInputChange} className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setEditQuartoId(null)} color="primary">
-                        Cancelar
-                    </Button>
-                    <Button onClick={handleUpdate} color="primary">
-                        Atualizar
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 }

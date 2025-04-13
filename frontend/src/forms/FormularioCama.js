@@ -22,10 +22,10 @@ function FormularioCama() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const quartosResponse = await AuthService.authenticatedRequest('get', 'core', '/quartos/');
+                const quartosResponse = await AuthService.authenticatedRequest('get', 'relatorios', '/quartos/');
                 setQuartos(quartosResponse.data);
                 if (id) {
-                    const camaResponse = await AuthService.authenticatedRequest('get', 'core', `/camas/${id}/`);
+                    const camaResponse = await AuthService.authenticatedRequest('get', 'relatorios', `/camas/${id}/`);
                     setCama(camaResponse.data);
                 }
             } catch (error) {
@@ -60,10 +60,10 @@ function FormularioCama() {
         setLoading(true);
         try {
             if (id) {
-                await AuthService.authenticatedRequest('put', 'core', `/camas/${id}/`, cama);
+                await AuthService.authenticatedRequest('put', 'relatorios', `/camas/${id}/`, cama);
                 setMensagem('Cama atualizada com sucesso.');
             } else {
-                await AuthService.authenticatedRequest('post', 'core', '/camas/', cama);
+                await AuthService.authenticatedRequest('post', 'relatorios', '/camas/', cama);
                 setMensagem('Cama criada com sucesso.');
             }
             setTipoMensagem('success');
@@ -133,6 +133,7 @@ function FormularioCama() {
                             >
                                 <MenuItem value="Disponível">Disponível</MenuItem>
                                 <MenuItem value="Ocupado">Ocupado</MenuItem>
+                                <MenuItem value="Em Manutenção">Manutencao</MenuItem>
                             </Select>
                             {erros.status && <Alert severity="error">{erros.status}</Alert>}
                         </FormControl>

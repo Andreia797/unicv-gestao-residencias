@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Candidatura, Residencia, Estudante  # Importe os modelos necessários
+from .models import Candidatura, Residencia, Estudante 
 
 class ResidenciaSerializer(serializers.ModelSerializer):
     class Meta:

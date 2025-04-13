@@ -2,16 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
-    TextField,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    CircularProgress,
     IconButton,
     Tooltip,
     TablePagination,
+    CircularProgress,
+    Button,
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
@@ -19,17 +14,6 @@ import AuthService from '../../services/AuthService'; // Importe o AuthService
 
 function GerirEdificios() {
     const [edificios, setEdificios] = useState([]);
-    const [novoEdificio, setNovoEdificio] = useState({
-        nome: '',
-        endereco: '',
-        numeroApartamentos: 0,
-    });
-    const [editEdificioId, setEditEdificioId] = useState(null);
-    const [editFormData, setEditFormData] = useState({
-        nome: '',
-        endereco: '',
-        numeroApartamentos: 0,
-    });
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState('success');
     const [loading, setLoading] = useState(true);
@@ -53,43 +37,6 @@ function GerirEdificios() {
     useEffect(() => {
         fetchEdificios();
     }, []);
-
-    const handleInputChange = (e) => {
-        setNovoEdificio({ ...novoEdificio, [e.target.name]: e.target.value });
-    };
-
-    const handleCriarEdificio = async () => {
-        try {
-            await AuthService.authenticatedRequest('post', 'relatorios', '/edificios/', novoEdificio);
-            setNovoEdificio({ nome: '', endereco: '', numeroApartamentos: 0 });
-            fetchEdificios();
-            setMensagem('Edifício criado com sucesso.');
-            setTipoMensagem('success');
-        } catch (error) {
-            console.error('Erro ao criar edifício:', error);
-            setMensagem('Erro ao criar edifício.');
-            setTipoMensagem('error');
-        }
-    };
-
-    const handleEdit = (edificio) => {
-        setEditEdificioId(edificio.id);
-        setEditFormData({ ...edificio });
-    };
-
-    const handleUpdate = async () => {
-        try {
-            await AuthService.authenticatedRequest('put', 'relatorios', `/edificios/${editEdificioId}/`, editFormData);
-            setEditEdificioId(null);
-            fetchEdificios();
-            setMensagem('Edifício atualizado com sucesso.');
-            setTipoMensagem('success');
-        } catch (error) {
-            console.error('Erro ao atualizar edifício:', error);
-            setMensagem('Erro ao atualizar edifício.');
-            setTipoMensagem('error');
-        }
-    };
 
     const handleDelete = async (id) => {
         try {
@@ -120,15 +67,9 @@ function GerirEdificios() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <div className="mb-4">
-                <h2 className="text-2xl font-semibold mb-4">Adicionar Novo Edifício</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <TextField label="Nome" name="nome" value={novoEdificio.nome} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Endereço" name="endereco" value={novoEdificio.endereco} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Número de Apartamentos" name="numeroApartamentos" type="number" value={novoEdificio.numeroApartamentos} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                </div>
-                <Button variant="contained" color="primary" onClick={handleCriarEdificio} className="mt-4">
-                    Adicionar Edifício
+            <div className="flex justify-end mb-4">
+                <Button component={Link} to="/edificios/criar" variant="contained" color="primary">
+                    Adicionar Novo Edifício
                 </Button>
             </div>
             {loading ? (
@@ -162,7 +103,7 @@ function GerirEdificios() {
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Editar">
-                                                    <IconButton onClick={() => handleEdit(edificio)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                    <IconButton component={Link} to={`/edificios/editar/${edificio.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
                                                         <Edit className="text-yellow-500" />
                                                     </IconButton>
                                                 </Tooltip>
@@ -192,22 +133,6 @@ function GerirEdificios() {
                     </Paper>
                 </div>
             )}
-            <Dialog open={!!editEdificioId} onClose={() => setEditEdificioId(null)}>
-                <DialogTitle>Editar Edifício</DialogTitle>
-                <DialogContent>
-                    <TextField label="Nome" name="nome" value={editFormData.nome} onChange={(e) => setEditFormData({ ...editFormData, nome: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Endereço" name="endereco" value={editFormData.endereco} onChange={(e) => setEditFormData({ ...editFormData, endereco: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Número de Apartamentos" name="numeroApartamentos" type="number" value={editFormData.numeroApartamentos} onChange={(e) => setEditFormData({ ...editFormData, numeroApartamentos: parseInt(e.target.value, 10) })} className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setEditEdificioId(null)} color="primary">
-                        Cancelar
-                    </Button>
-                    <Button onClick={handleUpdate} color="primary">
-                        Atualizar
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 }

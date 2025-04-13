@@ -23,7 +23,7 @@ function FormularioResidente() {
             setLoading(true);
             try {
                 if (id) {
-                    const response = await AuthService.authenticatedRequest('get', 'core', `/residentes/${id}/`);
+                    const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/${id}/`);
                     setResidente(response.data);
                 }
             } catch (error) {
@@ -58,10 +58,10 @@ function FormularioResidente() {
         setLoading(true);
         try {
             if (id) {
-                await AuthService.authenticatedRequest('put', 'core', `/residentes/${id}/`, residente);
+                await AuthService.authenticatedRequest('put', 'relatorios', `/residentes/${id}/`, residente);
                 setMensagem('Residente atualizado com sucesso.');
             } else {
-                await AuthService.authenticatedRequest('post', 'core', '/residentes/', residente);
+                await AuthService.authenticatedRequest('post', 'relatorios', '/residentes/', residente);
                 setMensagem('Residente criado com sucesso.');
             }
             setTipoMensagem('success');

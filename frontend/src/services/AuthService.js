@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_URL_ACCOUNTS = 'http://127.0.0.1:8000/api/accounts';
 const API_URL_RELATORIOS = 'http://127.0.0.1:8000/api/relatorios';
-const API_URL_CORE = 'http://127.0.0.1:8000/api/core'; 
+
 
 const apiAccounts = axios.create({
     baseURL: API_URL_ACCOUNTS,
@@ -12,34 +12,115 @@ const apiRelatorios = axios.create({
     baseURL: API_URL_RELATORIOS,
 });
 
-const apiCore = axios.create({
-    baseURL: API_URL_CORE,
-});
 
-const authHeader = () => {
-    const token = localStorage.getItem('access_token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
+
+const getAccessToken = () => {
+    return localStorage.getItem('access_token');
 };
+
+const getRefreshToken = () => {
+    return localStorage.getItem('refresh_token');
+};
+
+const setAccessToken = (token) => {
+    localStorage.setItem('access_token', token);
+};
+
+const setRefreshToken = (token) => {
+    localStorage.setItem('refresh_token', token);
+};
+
+const removeAccessToken = () => {
+    localStorage.removeItem('access_token');
+};
+
+const removeRefreshToken = () => {
+    localStorage.removeItem('refresh_token');
+};
+
+
+const refreshToken = async () => {
+    const refresh = getRefreshToken();
+    if (refresh) {
+        try {
+            const response = await apiAccounts.post('/token/refresh/', { refresh });
+            const { access } = response.data;
+            setAccessToken(access);
+            return access;
+        } catch (error) {
+            console.error('Erro ao renovar o token:', error);
+            removeAccessToken();
+            removeRefreshToken();
+            throw error;
+        }
+    } else {
+        console.error('Nenhum refresh token disponível.');
+        removeAccessToken();
+        throw new Error('Nenhum refresh token disponível.');
+    }
+};
+
+// Interceptor para adicionar o token de acesso nas requisições da API de Contas
+apiAccounts.interceptors.request.use(
+    (config) => {
+        const token = getAccessToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// Interceptor para adicionar o token de acesso nas requisições da API de Relatórios
+apiRelatorios.interceptors.request.use(
+    (config) => {
+        const token = getAccessToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// Interceptor para lidar com erros de token expirado na API de Contas
+apiAccounts.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                const newAccessToken = await refreshToken();
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                return apiAccounts(originalRequest);
+            } catch (refreshError) {
+                console.error('Erro ao tentar renovar o token:', refreshError);
+                removeAccessToken();
+                removeRefreshToken();
+                window.location.href = '/login';
+                return Promise.reject(refreshError);
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 
 const AuthService = {
     login: async (credenciais) => {
         try {
             const response = await apiAccounts.post('/login/', credenciais);
-            const data = response.data;
-            if (data && data.access) {
-                localStorage.setItem('access_token', data.access);
+            const { access, refresh } = response.data;
+            if (access) {
+                setAccessToken(access);
             }
-            return data;
+            if (refresh) {
+                setRefreshToken(refresh);
+            }
+            return response.data;
         } catch (error) {
             console.error('Erro ao efetuar login:', error);
-            if (error.response) {
-                console.error('Dados do erro:', error.response.data);
-                console.error('Status do erro:', error.response.status);
-            } else if (error.request) {
-                console.error('Nenhuma resposta recebida:', error.request);
-            } else {
-                console.error('Erro ao configurar a requisição:', error.message);
-            }
             throw error;
         }
     },
@@ -50,28 +131,15 @@ const AuthService = {
             return response.data;
         } catch (error) {
             console.error('Erro ao registrar usuário:', error);
-            if (error.response) {
-                console.error('Dados do erro:', error.response.data);
-                console.error('Status do erro:', error.response.status);
-            } else if (error.request) {
-                console.error('Nenhuma resposta recebida:', error.request);
-            } else {
-                console.error('Erro ao configurar a requisição:', error.message);
-            }
             throw error;
         }
     },
 
-    getToken: () => {
-        return localStorage.getItem('access_token');
-    },
-
-    setToken: (token) => {
-        localStorage.setItem('access_token', token);
-    },
-
+    getToken: getAccessToken,
+    setToken: setAccessToken,
     logout: () => {
-        localStorage.removeItem('access_token');
+        removeAccessToken();
+        removeRefreshToken();
     },
 
     // Função genérica para requisições autenticadas
@@ -84,12 +152,9 @@ const AuthService = {
             case 'relatorios':
                 apiInstance = apiRelatorios;
                 break;
-            case 'core':
-                apiInstance = apiCore;
-                break;
             default:
-                console.error('Tipo de URL base inválido');
-                throw new Error('Tipo de URL base inválido');
+                console.error('Tipo de URL base inválido:', baseURLType);
+                throw new Error(`Tipo de URL base inválido: ${baseURLType}`);
         }
 
         try {
@@ -97,19 +162,11 @@ const AuthService = {
                 method,
                 url,
                 data,
-                headers: authHeader(),
+
             });
             return response;
         } catch (error) {
             console.error(`Erro na requisição autenticada para ${baseURLType} ${url}:`, error);
-            if (error.response) {
-                console.error('Dados do erro:', error.response.data);
-                console.error('Status do erro:', error.response.status);
-            } else if (error.request) {
-                console.error('Nenhuma resposta recebida:', error.request);
-            } else {
-                console.error('Erro ao configurar a requisição:', error.message);
-            }
             throw error;
         }
     },
@@ -136,14 +193,32 @@ const AuthService = {
     },
 
     fetchResidentes: async () => {
-        return AuthService.authenticatedRequest('GET', 'relatorios', '/residentes/edificio/'); 
+        return AuthService.authenticatedRequest('GET', 'relatorios', '/residentes/edificio/');
     },
 
     fetchCandidaturasEstado: async () => {
         return AuthService.authenticatedRequest('GET', 'relatorios', '/candidaturas/estado/');
     },
 
-   
+    fetchResidencias: async () => {
+        return AuthService.authenticatedRequest('GET', 'relatorios', '/residencias/');
+    },
+
+    fetchEstudantes: async () => {
+        return AuthService.authenticatedRequest('GET', 'relatorios', '/estudantes/');
+    },
+
+    fetchCandidaturaDetail: async (id) => {
+        return AuthService.authenticatedRequest('GET', 'relatorios', `/candidaturas/${id}/`);
+    },
+
+    postCandidatura: async (data) => {
+        return AuthService.authenticatedRequest('POST', 'relatorios', '/candidaturas/', data);
+    },
+
+    putCandidatura: async (id, data) => {
+        return AuthService.authenticatedRequest('PUT', 'relatorios', `/candidaturas/${id}/`, data);
+    },
 };
 
 export default AuthService;

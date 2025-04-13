@@ -2,36 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
-    TextField,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    CircularProgress,
     IconButton,
     Tooltip,
     TablePagination,
+    CircularProgress,
+    Button,
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService';; // Importe o AuthService
+import AuthService from '../../services/AuthService';
 
 function GerirResidentes() {
     const [residentes, setResidentes] = useState([]);
-    const [novoResidente, setNovoResidente] = useState({
-        nome: '',
-        email: '',
-        telefone: '',
-        endereco: '',
-    });
-    const [editResidenteId, setEditResidenteId] = useState(null);
-    const [editFormData, setEditFormData] = useState({
-        nome: '',
-        email: '',
-        telefone: '',
-        endereco: '',
-    });
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState('success');
     const [loading, setLoading] = useState(true);
@@ -55,43 +37,6 @@ function GerirResidentes() {
     useEffect(() => {
         fetchResidentes();
     }, []);
-
-    const handleInputChange = (e) => {
-        setNovoResidente({ ...novoResidente, [e.target.name]: e.target.value });
-    };
-
-    const handleCriarResidente = async () => {
-        try {
-            await AuthService.authenticatedRequest('post', 'relatorios', '/residentes/', novoResidente);
-            setNovoResidente({ nome: '', email: '', telefone: '', endereco: '' });
-            fetchResidentes();
-            setMensagem('Residente criado com sucesso.');
-            setTipoMensagem('success');
-        } catch (error) {
-            console.error('Erro ao criar residente:', error);
-            setMensagem('Erro ao criar residente.');
-            setTipoMensagem('error');
-        }
-    };
-
-    const handleEdit = (residente) => {
-        setEditResidenteId(residente.id);
-        setEditFormData({ ...residente });
-    };
-
-    const handleUpdate = async () => {
-        try {
-            await AuthService.authenticatedRequest('put', 'relatorios', `/residentes/${editResidenteId}/`, editFormData);
-            setEditResidenteId(null);
-            fetchResidentes();
-            setMensagem('Residente atualizado com sucesso.');
-            setTipoMensagem('success');
-        } catch (error) {
-            console.error('Erro ao atualizar residente:', error);
-            setMensagem('Erro ao atualizar residente.');
-            setTipoMensagem('error');
-        }
-    };
 
     const handleDelete = async (id) => {
         try {
@@ -122,16 +67,9 @@ function GerirResidentes() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <div className="mb-4">
-                <h2 className="text-2xl font-semibold mb-4">Adicionar Novo Residente</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <TextField label="Nome" name="nome" value={novoResidente.nome} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Email" name="email" value={novoResidente.email} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Telefone" name="telefone" value={novoResidente.telefone} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Endereço" name="endereco" value={novoResidente.endereco} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                </div>
-                <Button variant="contained" color="primary" onClick={handleCriarResidente} className="mt-4">
-                    Adicionar Residente
+            <div className="flex justify-end mb-4">
+                <Button component={Link} to="/residentes/criar" variant="contained" color="primary">
+                    Adicionar Novo Residente
                 </Button>
             </div>
             {loading ? (
@@ -167,7 +105,7 @@ function GerirResidentes() {
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Editar">
-                                                    <IconButton onClick={() => handleEdit(residente)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                    <IconButton component={Link} to={`/residentes/editar/${residente.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
                                                         <Edit className="text-yellow-500" />
                                                     </IconButton>
                                                 </Tooltip>
@@ -197,23 +135,6 @@ function GerirResidentes() {
                     </Paper>
                 </div>
             )}
-            <Dialog open={!!editResidenteId} onClose={() => setEditResidenteId(null)}>
-                <DialogTitle>Editar Residente</DialogTitle>
-                <DialogContent>
-                    <TextField label="Nome" name="nome" value={editFormData.nome} onChange={(e) => setEditFormData({ ...editFormData, nome: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Email" name="email" value={editFormData.email} onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Telefone" name="telefone" value={editFormData.telefone} onChange={(e) => setEditFormData({ ...editFormData, telefone: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Endereço" name="endereco" value={editFormData.endereco} onChange={(e) => setEditFormData({ ...editFormData, endereco: e.target.value })} className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setEditResidenteId(null)} color="primary">
-                        Cancelar
-                    </Button>
-                    <Button onClick={handleUpdate} color="primary">
-                        Atualizar
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 }

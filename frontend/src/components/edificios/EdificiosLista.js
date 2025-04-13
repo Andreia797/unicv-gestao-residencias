@@ -42,7 +42,6 @@ function EdificiosLista() {
     const excluirEdificio = async (id) => {
         try {
             await AuthService.authenticatedRequest('delete', 'relatorios', `/edificios/${id}/`);
-            // Atualiza a lista localmente após a exclusão
             setEdificios(edificios.filter((edificio) => edificio.id !== id));
             setMensagem('Edifício excluído com sucesso.');
             setTipoMensagem('success');

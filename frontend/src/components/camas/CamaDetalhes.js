@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import AuthService from '../../services/AuthService'; // Importe o AuthService
 import Notificacoes from '../Notificacoes'; // Importe o componente de Notificações
+import AssociarCama from './AssociarCama'; // Importe o componente AssociarCama
 
 function CamaDetalhes() {
     const { id } = useParams();
@@ -105,6 +106,12 @@ function CamaDetalhes() {
                             </Typography>
                         </>
                     )}
+                    <div className="mt-4">
+                        <Typography variant="h6" className="mb-2 font-semibold">
+                            Associar Residente
+                        </Typography>
+                        <AssociarCama camaId={id} />
+                    </div>
                     <div className="flex space-x-2 mt-4">
                         <Button component={Link} to="/camas" variant="contained" color="primary">
                             Voltar

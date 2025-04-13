@@ -2,16 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
-    TextField,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    CircularProgress,
     IconButton,
     Tooltip,
     TablePagination,
+    CircularProgress,
+    Button,
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
@@ -19,19 +14,6 @@ import AuthService from '../../services/AuthService';
 
 function GerirCandidaturas() {
     const [candidaturas, setCandidaturas] = useState([]);
-    const [novaCandidatura, setNovaCandidatura] = useState({
-        nome: '',
-        descricao: '',
-        estado: '',
-        utilizadorId: null,
-    });
-    const [editCandidaturaId, setEditCandidaturaId] = useState(null);
-    const [editFormData, setEditFormData] = useState({
-        nome: '',
-        descricao: '',
-        estado: '',
-        utilizadorId: null,
-    });
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState('success');
     const [loading, setLoading] = useState(true);
@@ -55,49 +37,6 @@ function GerirCandidaturas() {
     useEffect(() => {
         fetchCandidaturas();
     }, []);
-
-    const handleInputChange = (e) => {
-        setNovaCandidatura({ ...novaCandidatura, [e.target.name]: e.target.value });
-    };
-
-    const handleCriarCandidatura = async () => {
-        try {
-            await AuthService.authenticatedRequest('post', 'relatorios', '/candidaturas/', novaCandidatura);
-            setNovaCandidatura({ nome: '', descricao: '', estado: '', utilizadorId: null });
-            fetchCandidaturas();
-            setMensagem('Candidatura criada com sucesso.');
-            setTipoMensagem('success');
-        } catch (error) {
-            console.error('Erro ao criar candidatura:', error);
-            setMensagem('Erro ao criar candidatura.');
-            setTipoMensagem('error');
-        }
-    };
-
-    const handleEdit = (candidatura) => {
-        setEditCandidaturaId(candidatura.id);
-        // Assumindo que você quer editar esses campos. Adapte conforme necessário.
-        setEditFormData({
-            nome: candidatura.nome || '',
-            descricao: candidatura.descricao || '',
-            estado: candidatura.status || '', // Usando 'status' do seu JSON como 'estado'
-            utilizadorId: candidatura.utilizadorId || null, // Se existir
-        });
-    };
-
-    const handleUpdate = async () => {
-        try {
-            await AuthService.authenticatedRequest('put', 'relatorios', `/candidaturas/${editCandidaturaId}/`, editFormData);
-            setEditCandidaturaId(null);
-            fetchCandidaturas();
-            setMensagem('Candidatura atualizada com sucesso.');
-            setTipoMensagem('success');
-        } catch (error) {
-            console.error('Erro ao atualizar candidatura:', error);
-            setMensagem('Erro ao atualizar candidatura.');
-            setTipoMensagem('error');
-        }
-    };
 
     const handleDelete = async (id) => {
         try {
@@ -133,16 +72,9 @@ function GerirCandidaturas() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <div className="mb-4">
-                <h2 className="text-2xl font-semibold mb-4">Adicionar Nova Candidatura</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <TextField label="Nome" name="nome" value={novaCandidatura.nome} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Descrição" name="descricao" value={novaCandidatura.descricao} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Estado" name="estado" value={novaCandidatura.estado} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Utilizador ID" name="utilizadorId" type="number" value={novaCandidatura.utilizadorId || ''} onChange={handleInputChange} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                </div>
-                <Button variant="contained" color="primary" onClick={handleCriarCandidatura} className="mt-4">
-                    Adicionar Candidatura
+            <div className="flex justify-end mb-4">
+                <Button component={Link} to="/candidaturas/nova" variant="contained" color="primary">
+                    Adicionar Nova Candidatura
                 </Button>
             </div>
             {loading ? (
@@ -175,12 +107,12 @@ function GerirCandidaturas() {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.status}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <Tooltip title="Detalhes">
-                                                    <IconButton component={React.forwardRef((props, ref) => <Link to={`/candidaturas/${candidatura.id}`} {...props} ref={ref} />)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
+                                                    <IconButton component={Link} to={`/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
                                                         <Visibility className="text-blue-500" />
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Editar">
-                                                    <IconButton onClick={() => handleEdit(candidatura)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                    <IconButton component={Link} to={`/candidaturas/editar/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
                                                         <Edit className="text-yellow-500" />
                                                     </IconButton>
                                                 </Tooltip>
@@ -210,23 +142,6 @@ function GerirCandidaturas() {
                     </Paper>
                 </div>
             )}
-            <Dialog open={!!editCandidaturaId} onClose={() => setEditCandidaturaId(null)}>
-                <DialogTitle>Editar Candidatura</DialogTitle>
-                <DialogContent>
-                    <TextField label="Nome" name="nome" value={editFormData.nome} onChange={(e) => setEditFormData({ ...editFormData, nome: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Descrição" name="descricao" value={editFormData.descricao} onChange={(e) => setEditFormData({ ...editFormData, descricao: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Estado" name="estado" value={editFormData.estado} onChange={(e) => setEditFormData({ ...editFormData, estado: e.target.value })} className="mb-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                    <TextField label="Utilizador ID" name="utilizadorId" type="number" value={editFormData.utilizadorId || ''} onChange={(e) => setEditFormData({ ...editFormData, utilizadorId: e.target.value })} className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" fullWidth variant="outlined" size="small" />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setEditCandidaturaId(null)} color="primary">
-                        Cancelar
-                    </Button>
-                    <Button onClick={handleUpdate} color="primary">
-                        Atualizar
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 }

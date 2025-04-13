@@ -1,4 +1,3 @@
-# backend/accounts/views.py
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -20,7 +19,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 class UserCreate(generics.CreateAPIView):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
-    permission_classes = [] # Ou permissões específicas para criação
+    permission_classes = [] 
 
 @api_view(['POST'])
 @permission_classes([])

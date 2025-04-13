@@ -22,7 +22,7 @@ function FormularioEdificio() {
             setLoading(true);
             try {
                 if (id) {
-                    const response = await AuthService.authenticatedRequest('get', 'core', `/edificios/${id}/`);
+                    const response = await AuthService.authenticatedRequest('get', 'relatorios', `/edificios/${id}/`);
                     setEdificio(response.data);
                 }
             } catch (error) {
@@ -56,10 +56,10 @@ function FormularioEdificio() {
         setLoading(true);
         try {
             if (id) {
-                await AuthService.authenticatedRequest('put', 'core', `/edificios/${id}/`, edificio);
+                await AuthService.authenticatedRequest('put', 'relatorios', `/edificios/${id}/`, edificio);
                 setMensagem('Edifício atualizado com sucesso.');
             } else {
-                await AuthService.authenticatedRequest('post', 'core', '/edificios/', edificio);
+                await AuthService.authenticatedRequest('post', 'relatorios', '/edificios/', edificio);
                 setMensagem('Edifício criado com sucesso.');
             }
             setTipoMensagem('success');
