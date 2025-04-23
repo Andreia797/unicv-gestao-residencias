@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { Visibility, CheckCircle, Close } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService';// Importe o AuthService
+import AuthService from '../../services/AuthService';
 
 function AdminCandidaturas() {
     const [candidaturas, setCandidaturas] = useState([]);

@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from datetime import timedelta 
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-   'django.contrib.admin',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -40,17 +40,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_otp',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
     'corsheaders',
     'accounts',
     'core',
     'estudantes',
-    'candidaturas', 
-    'relatorios' 
+    'candidaturas',
+    'relatorios'
 ]
 
 
 REST_FRAMEWORK = {
-     'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
@@ -63,9 +66,9 @@ REST_FRAMEWORK = {
 # Configurações do JWT
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30), 
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': False,
+    'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATING': True,
 
     'ALGORITHM': 'HS256',
@@ -94,9 +97,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -180,3 +184,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://127.0.0.1",
 ]
+
+# Configurações de segurança
+SECURE_SSL_REDIRECT = False  # Redireciona automaticamente para HTTPS
+CSRF_COOKIE_SECURE = True  # Torna o CSRF Cookie seguro
+CSRF_COOKIE_HTTPONLY = True  # Impede que o cookie CSRF seja acessado via JavaScript
+SESSION_COOKIE_SECURE = True  # Torna o cookie de sessão seguro
+X_FRAME_OPTIONS = 'DENY'  # Previne ataques de Clickjacking
+SECURE_BROWSER_XSS_FILTER = True  # Ativa o filtro de XSS no navegador
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Previne que o navegador detecte tipos MIME

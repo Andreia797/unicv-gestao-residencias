@@ -32,7 +32,8 @@ import GerirQuartos from './components/quartos/GerirQuartos';
 import GerirEdificios from './components/edificios/GerirEdificios';
 import PrivateRoute from './components/PrivateRoute';
 import GerirCandidaturas from './components/candidaturas/GerirCandidaturas';
-import AssociarCama from './components/camas/AssociarCama';
+import TwoFactorVerification from './pages/TwoFactorVerification';
+
 
 function App() {
     return (
@@ -41,6 +42,7 @@ function App() {
                 {/* Rotas Públicas */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/2fa-verification" element={<TwoFactorVerification />} />
                 <Route path="/candidaturas/nova" element={<FormularioCandidatura />} />
                 <Route path="*" element={<NotFound />} />
 
@@ -83,7 +85,7 @@ function App() {
                         <Route path="camas/editar/:id" element={<FormularioCama />} />
                         <Route path="camas/criar" element={<FormularioCama />} /> {/* Nova rota */}
                         <Route path="gerircamas" element={<GerirCamas />} />
-                        <Route path="associarcama" element={<AssociarCama />} />
+                        
 
                         {/* Rotas de Utilizadores */}
                         <Route path="users" element={<UserList />} />

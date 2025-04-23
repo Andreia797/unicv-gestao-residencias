@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
+import AuthService from '../../services/AuthService'; 
 
 function CamasLista() {
     const [camas, setCamas] = useState([]);

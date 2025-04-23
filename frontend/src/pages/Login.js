@@ -14,24 +14,31 @@ function Login() {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = (e) => {
-      console.log('handleLogin chamado');
-      e.preventDefault();
-      setLoading(true);
-      setError(null);
-      AuthService.login({ email: email, password })
-          .then((data) => { 
-              console.log("Resposta de login:", data); 
-              AuthService.setToken(data.access);
-              navigate('/');
-          })
-          .catch((err) => {
-              console.error("Erro no login:", err);
-              setError(err.response?.data?.error || 'Erro ao fazer login.');
-          })
-          .finally(() => {
-              setLoading(false);
-          });
-  };
+        console.log('handleLogin chamado');
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        AuthService.login({ email: email, password })
+            .then((data) => {
+                console.log("Resposta de login:", data);
+                AuthService.setToken(data.access);
+
+                // Se o 2FA for necessário, redirecionar para a página de verificação de 2FA
+                if (data.requires_2fa) {
+                    navigate('/verify-2fa');
+                } else {
+                    // Caso contrário, redireciona para o dashboard
+                    navigate('/');
+                }
+            })
+            .catch((err) => {
+                console.error("Erro no login:", err);
+                setError(err.response?.data?.error || 'Erro ao fazer login.');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -85,9 +92,7 @@ function Login() {
                         </div>
                     </div>
                     <button
-                        className={`bg-primary hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md w-full text-lg ${
-                            loading ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
+                        className={`bg-primary hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md w-full text-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         type="submit"
                         disabled={loading}
                     >

@@ -3,7 +3,6 @@ import axios from 'axios';
 const API_URL_ACCOUNTS = 'http://127.0.0.1:8000/api/accounts';
 const API_URL_RELATORIOS = 'http://127.0.0.1:8000/api/relatorios';
 
-
 const apiAccounts = axios.create({
     baseURL: API_URL_ACCOUNTS,
 });
@@ -11,8 +10,6 @@ const apiAccounts = axios.create({
 const apiRelatorios = axios.create({
     baseURL: API_URL_RELATORIOS,
 });
-
-
 
 const getAccessToken = () => {
     return localStorage.getItem('access_token');
@@ -37,7 +34,6 @@ const removeAccessToken = () => {
 const removeRefreshToken = () => {
     localStorage.removeItem('refresh_token');
 };
-
 
 const refreshToken = async () => {
     const refresh = getRefreshToken();
@@ -111,13 +107,19 @@ const AuthService = {
     login: async (credenciais) => {
         try {
             const response = await apiAccounts.post('/login/', credenciais);
-            const { access, refresh } = response.data;
+            const { access, refresh, requires_2fa } = response.data;
             if (access) {
                 setAccessToken(access);
             }
             if (refresh) {
                 setRefreshToken(refresh);
             }
+
+            // Se o backend indicar que 2FA é necessário
+            if (requires_2fa) {
+                return { requires_2fa: true };
+            }
+
             return response.data;
         } catch (error) {
             console.error('Erro ao efetuar login:', error);
@@ -142,6 +144,36 @@ const AuthService = {
         removeRefreshToken();
     },
 
+    // Função para gerar o código 2FA (enviado por e-mail ou como QR code)
+    generate2FA: async () => {
+        try {
+            const response = await apiAccounts.post('/generate-2fa/', {}, {
+                headers: {
+                    Authorization: `Bearer ${getAccessToken()}`
+                }
+            });
+            return response.data; // Retorna o QR Code ou qualquer outra informação necessária
+        } catch (error) {
+            console.error('Erro ao gerar 2FA:', error);
+            throw error;
+        }
+    },
+
+    // Função para verificar o código 2FA
+    verify2FA: async (token) => {
+        try {
+            const response = await apiAccounts.post('/verify-2fa/', { token }, {
+                headers: {
+                    Authorization: `Bearer ${getAccessToken()}`
+                }
+            });
+            return response.data; // Confirma a verificação ou retorna algum erro
+        } catch (error) {
+            console.error('Erro ao verificar 2FA:', error);
+            throw error;
+        }
+    },
+
     // Função genérica para requisições autenticadas
     authenticatedRequest: async (method, baseURLType, url, data = null) => {
         let apiInstance;
@@ -162,7 +194,6 @@ const AuthService = {
                 method,
                 url,
                 data,
-
             });
             return response;
         } catch (error) {
