@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel, CircularProgress, Alert, Paper, Container } from '@mui/material';
+import {
+    TextField,
+    Button,
+    Typography,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    CircularProgress,
+    Paper,
+    Container,
+    Tooltip,
+    Alert,
+} from '@mui/material';
 import Notificacoes from '../components/Notificacoes';
-import AuthService from '../services/AuthService'; // Importe o AuthService
+import AuthService from '../services/AuthService';
 
 function FormularioCama() {
     const { id } = useParams();
@@ -24,9 +37,14 @@ function FormularioCama() {
             try {
                 const quartosResponse = await AuthService.authenticatedRequest('get', 'relatorios', '/quartos/');
                 setQuartos(quartosResponse.data);
+
                 if (id) {
                     const camaResponse = await AuthService.authenticatedRequest('get', 'relatorios', `/camas/${id}/`);
-                    setCama(camaResponse.data);
+                    setCama({
+                        numero: camaResponse.data.numero || '',
+                        quarto: camaResponse.data.quarto?.id || '',
+                        status: camaResponse.data.status || '',
+                    });
                 }
             } catch (error) {
                 console.error('Erro ao buscar dados:', error);
@@ -45,7 +63,7 @@ function FormularioCama() {
     };
 
     const validarFormulario = () => {
-        let novosErros = {};
+        const novosErros = {};
         if (!cama.numero) novosErros.numero = 'Número é obrigatório.';
         if (!cama.quarto) novosErros.quarto = 'Quarto é obrigatório.';
         if (!cama.status) novosErros.status = 'Status é obrigatório.';
@@ -82,20 +100,22 @@ function FormularioCama() {
     };
 
     return (
-        <Container maxWidth="sm">
-            <Paper className="p-4 mt-4">
-                <Typography variant="h5" className="mb-4 text-center">
-                    {id ? 'Editar Cama' : 'Criar Cama'}
+        <Container maxWidth="md" className="mt-4">
+            <Paper className="p-6 shadow-md rounded-md">
+                <Typography variant="h5" align="center" gutterBottom>
+                    {id ? 'Editar Cama' : 'Criar Nova Cama'}
                 </Typography>
+
                 <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+
                 {loading ? (
-                    <div className="mt-4 text-center">
+                    <div className="flex justify-center items-center h-32">
                         <CircularProgress />
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-5 mt-4">
                         <TextField
-                            label="Número"
+                            label="Número da Cama"
                             name="numero"
                             value={cama.numero}
                             onChange={handleChange}
@@ -103,6 +123,7 @@ function FormularioCama() {
                             helperText={erros.numero}
                             fullWidth
                         />
+
                         <FormControl fullWidth error={!!erros.quarto}>
                             <InputLabel id="quarto-label">Quarto</InputLabel>
                             <Select
@@ -115,12 +136,13 @@ function FormularioCama() {
                             >
                                 {quartos.map((quarto) => (
                                     <MenuItem key={quarto.id} value={quarto.id}>
-                                        {quarto.numero}
+                                        {quarto.numero} - {quarto.tipo}
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {erros.quarto && <Alert severity="error">{erros.quarto}</Alert>}
+                            {erros.quarto && <Alert severity="error" className="mt-1">{erros.quarto}</Alert>}
                         </FormControl>
+
                         <FormControl fullWidth error={!!erros.status}>
                             <InputLabel id="status-label">Status</InputLabel>
                             <Select
@@ -133,16 +155,30 @@ function FormularioCama() {
                             >
                                 <MenuItem value="Disponível">Disponível</MenuItem>
                                 <MenuItem value="Ocupado">Ocupado</MenuItem>
-                                <MenuItem value="Em Manutenção">Manutencao</MenuItem>
+                                <MenuItem value="Em Manutenção">Em Manutenção</MenuItem>
                             </Select>
-                            {erros.status && <Alert severity="error">{erros.status}</Alert>}
+                            {erros.status && <Alert severity="error" className="mt-1">{erros.status}</Alert>}
                         </FormControl>
-                        <Button type="submit" variant="contained" color="primary" className="w-full">
-                            {id ? 'Atualizar' : 'Criar'}
-                        </Button>
-                        <Button component={Link} to="/camas" variant="outlined" className="w-full mt-2">
-                            Cancelar
-                        </Button>
+
+                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                className="w-full sm:w-auto"
+                            >
+                                {id ? 'Atualizar' : 'Criar'}
+                            </Button>
+
+                            <Button
+                                component={Link}
+                                to="/camas"
+                                variant="outlined"
+                                className="w-full sm:w-auto"
+                            >
+                                Cancelar
+                            </Button>
+                        </div>
                     </form>
                 )}
             </Paper>
