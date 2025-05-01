@@ -146,9 +146,11 @@ function GerirUtilizadores() {
         <div className="p-4">
             {mensagem && <Alert severity={tipoMensagem}>{mensagem}</Alert>}
             <h2 className="text-2xl font-semibold mb-4">Gerir Utilizadores</h2>
+            <div className="flex justify-end mb-4">
             <Button variant="contained" color="primary" onClick={() => setEditUtilizadorId('novo')} className="mb-4">
                 Adicionar Utilizador
             </Button>
+            </div>
             {loading ? (
                 <div className="flex justify-center items-center h-32">
                     <CircularProgress />
@@ -160,7 +162,7 @@ function GerirUtilizadores() {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome de Utilizador</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Utilizador</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permissão</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>

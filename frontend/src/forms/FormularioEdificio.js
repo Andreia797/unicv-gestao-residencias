@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { TextField, Button, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import {
+    TextField,
+    Button,
+    Typography,
+    CircularProgress,
+    Container,
+    Paper,
+    Alert
+} from '@mui/material';
 import Notificacoes from '../components/Notificacoes';
-import AuthService from '../services/AuthService'; // Importe o AuthService
+import AuthService from '../services/AuthService';
 
 function FormularioEdificio() {
     const { id } = useParams();
@@ -41,10 +49,11 @@ function FormularioEdificio() {
     };
 
     const validarFormulario = () => {
-        let novosErros = {};
+        const novosErros = {};
         if (!edificio.nome) novosErros.nome = 'Nome é obrigatório.';
         if (!edificio.endereco) novosErros.endereco = 'Endereço é obrigatório.';
-        if (!edificio.numeroApartamentos) novosErros.numeroApartamentos = 'Número de apartamentos é obrigatório.';
+        if (!edificio.numeroApartamentos || edificio.numeroApartamentos <= 0)
+            novosErros.numeroApartamentos = 'Informe um número válido.';
         setErros(novosErros);
         return Object.keys(novosErros).length === 0;
     };
@@ -78,61 +87,71 @@ function FormularioEdificio() {
     };
 
     return (
-        <div className="p-4 max-w-md mx-auto mt-8">
-            <Card className="shadow-md rounded-lg">
-                <CardContent>
-                    <Typography variant="h5" className="mb-4 text-blue-600">
-                        {id ? 'Editar Edifício' : 'Criar Edifício'}
-                    </Typography>
-                    <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-                    {loading ? (
-                        <div className="text-center">
-                            <CircularProgress />
-                        </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <TextField
-                                label="Nome"
-                                name="nome"
-                                value={edificio.nome}
-                                onChange={handleChange}
-                                error={!!erros.nome}
-                                helperText={erros.nome}
-                                fullWidth
-                                className="mt-2"
-                            />
-                            <TextField
-                                label="Endereço"
-                                name="endereco"
-                                value={edificio.endereco}
-                                onChange={handleChange}
-                                error={!!erros.endereco}
-                                helperText={erros.endereco}
-                                fullWidth
-                                className="mt-2"
-                            />
-                            <TextField
-                                label="Número de Apartamentos"
-                                name="numeroApartamentos"
-                                type="number"
-                                value={edificio.numeroApartamentos}
-                                onChange={handleChange}
-                                error={!!erros.numeroApartamentos}
-                                helperText={erros.numeroApartamentos}
-                                fullWidth
-                                className="mt-2"
-                            />
-                            <Button type="submit" variant="contained" color="primary" className="w-full">
+        <Container maxWidth="md" className="mt-4">
+            <Paper className="p-6 shadow-md rounded-md">
+                <Typography variant="h5" align="center" gutterBottom>
+                    {id ? 'Editar Edifício' : 'Criar Novo Edifício'}
+                </Typography>
+
+                <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+
+                {loading ? (
+                    <div className="flex justify-center items-center h-32">
+                        <CircularProgress />
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+                        <TextField
+                            label="Nome"
+                            name="nome"
+                            value={edificio.nome}
+                            onChange={handleChange}
+                            error={!!erros.nome}
+                            helperText={erros.nome}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Endereço"
+                            name="endereco"
+                            value={edificio.endereco}
+                            onChange={handleChange}
+                            error={!!erros.endereco}
+                            helperText={erros.endereco}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Número de Apartamentos"
+                            name="numeroApartamentos"
+                            type="number"
+                            value={edificio.numeroApartamentos}
+                            onChange={handleChange}
+                            error={!!erros.numeroApartamentos}
+                            helperText={erros.numeroApartamentos}
+                            fullWidth
+                        />
+
+                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                className="w-full sm:w-auto"
+                            >
                                 {id ? 'Atualizar' : 'Criar'}
                             </Button>
-                            <Button component={Link} to="/edificios" variant="outlined" className="w-full mt-2">
+                            <Button
+                                component={Link}
+                                to="/edificios"
+                                variant="outlined"
+                                className="w-full sm:w-auto"
+                            >
                                 Cancelar
                             </Button>
-                        </form>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+                        </div>
+                    </form>
+                )}
+            </Paper>
+        </Container>
     );
 }
 

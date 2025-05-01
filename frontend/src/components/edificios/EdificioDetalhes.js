@@ -1,90 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import AuthService from '../../services/AuthService';
 import {
-    Card,
-    CardContent,
+    Paper,
     Typography,
-    Button,
+    Alert,
     CircularProgress,
+    List,
+    ListItem,
+    ListItemText,
+    Button,
 } from '@mui/material';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
-import Notificacoes from '../Notificacoes'; // Importe o componente de Notificações
 
 function EdificioDetalhes() {
     const { id } = useParams();
     const [edificio, setEdificio] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [mensagem, setMensagem] = useState(null);
-    const [tipoMensagem, setTipoMensagem] = useState('success');
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchEdificio = async () => {
             setLoading(true);
             try {
                 const response = await AuthService.authenticatedRequest('get', 'relatorios', `/edificios/${id}/`);
                 setEdificio(response.data);
-            } catch (error) {
-                console.error('Erro ao buscar edifício:', error);
-                setMensagem('Erro ao buscar detalhes do edifício.');
-                setTipoMensagem('error');
+            } catch (err) {
+                console.error('Erro ao buscar edifício:', err);
+                setError('Erro ao carregar detalhes do edifício.');
             } finally {
                 setLoading(false);
             }
         };
-        fetchData();
-    }, [id]);
 
-    const limparMensagem = () => {
-        setMensagem(null);
-    };
+        fetchEdificio();
+    }, [id]);
 
     if (loading) {
         return (
-            <div className="p-4 flex justify-center items-center h-32">
+            <div className="flex justify-center items-center h-32">
                 <CircularProgress />
             </div>
         );
     }
 
+    if (error) {
+        return <Alert severity="error">{error}</Alert>;
+    }
+
     if (!edificio) {
-        return (
-            <div className="p-4">
-                <Typography variant="body1">Edifício não encontrado.</Typography>
-            </div>
-        );
+        return <Alert severity="warning">Edifício não encontrado.</Alert>;
     }
 
     return (
-        <div className="p-4">
-            <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <Card className="shadow-md rounded-lg">
-                <CardContent>
-                    <Typography variant="h5" className="mb-4 font-semibold">
-                        Detalhes do Edifício
-                    </Typography>
-                    <Typography variant="body1" className="mb-2">
-                        <strong>ID:</strong> {edificio.id}
-                    </Typography>
-                    <Typography variant="body1" className="mb-2">
-                        <strong>Nome:</strong> {edificio.nome}
-                    </Typography>
-                    <Typography variant="body1" className="mb-2">
-                        <strong>Endereço:</strong> {edificio.endereco}
-                    </Typography>
-                    <Typography variant="body1" className="mb-4">
-                        <strong>Número de Apartamentos:</strong> {edificio.numeroApartamentos}
-                    </Typography>
-                    <div className="flex space-x-2">
-                        <Button component={Link} to="/edificios" variant="contained" color="primary">
-                            Voltar
-                        </Button>
-                        <Button component={Link} to={`/edificios/editar/${edificio.id}`} variant="contained" color="secondary">
-                            Editar
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+        <Paper className="p-6 mt-4 shadow-md rounded-lg">
+            <Typography variant="h5" gutterBottom className="font-semibold text-xl">
+                Detalhes do Edifício
+            </Typography>
+            <List>
+                <ListItem>
+                    <ListItemText primary="ID" secondary={edificio.id} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Nome do edifício" secondary={edificio.nome} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Número de quartos" secondary={edificio.numeroApartamentos} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Endereço" secondary={edificio.endereco} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Descrição" secondary={edificio.descricao || 'Sem descrição'} />
+                </ListItem>
+            </List>
+            <div className="mt-4 flex gap-2">
+            <Button
+                component={Link}
+                to="/edificios"
+                variant="contained"
+                color="primary"
+                className="mt-4 mr-2"
+            >
+                Voltar
+            </Button>
+            <Button
+                component={Link}
+                to={`/edificios/editar/${edificio.id}`}
+                variant="contained"
+                color="secondary"
+                className="mt-4"
+            >
+                Editar
+            </Button>
+            </div>
+        </Paper>
     );
 }
 

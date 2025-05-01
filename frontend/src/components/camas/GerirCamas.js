@@ -54,6 +54,7 @@ function GerirCamas() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={() => setMensagem(null)} />
+            <h2 className="text-2xl font-semibold mb-4">Gerir Camas</h2>
             <div className="flex justify-end mb-4">
                 <Button component={Link} to="/camas/criar" variant="contained" color="primary">
                     Adicionar Nova Cama
@@ -68,9 +69,9 @@ function GerirCamas() {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Quarto</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID do Quarto</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
                             </tr>
                         </thead>
@@ -79,9 +80,9 @@ function GerirCamas() {
                                 .slice(pagina * resultadosPorPagina, pagina * resultadosPorPagina + resultadosPorPagina)
                                 .map((cama) => (
                                     <tr key={cama.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 text-sm text-gray-900">{cama.numero}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">{cama.id}</td>
                                         <td className="px-6 py-4 text-sm text-gray-900">{cama.quarto?.tipo}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">{cama.quarto?.id}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">{cama.status}</td>
                                         <td className="px-6 py-4 text-right text-sm font-medium">
                                             <Tooltip title="Detalhes">
                                                 <IconButton component={Link} to={`/camas/${cama.id}`} className="ml-1">

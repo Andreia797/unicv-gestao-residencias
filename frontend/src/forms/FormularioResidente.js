@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { TextField, Button, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import {
+    TextField,
+    Button,
+    CircularProgress,
+    Container,
+    Paper,
+    Typography,
+    Alert
+} from '@mui/material';
 import Notificacoes from '../components/Notificacoes';
-import AuthService from '../services/AuthService'; // Importe o AuthService
+import AuthService from '../services/AuthService';
 
 function FormularioResidente() {
     const { id } = useParams();
@@ -80,73 +88,81 @@ function FormularioResidente() {
     };
 
     return (
-        <div className="p-4 max-w-md mx-auto mt-8">
-            <Card className="shadow-md rounded-lg">
-                <CardContent>
-                    <Typography variant="h5" className="mb-4 text-blue-600">
-                        {id ? 'Editar Residente' : 'Criar Residente'}
-                    </Typography>
-                    <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-                    {loading ? (
-                        <div className="text-center">
-                            <CircularProgress />
-                        </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <TextField
-                                label="Nome"
-                                name="nome"
-                                value={residente.nome}
-                                onChange={handleChange}
-                                error={!!erros.nome}
-                                helperText={erros.nome}
-                                fullWidth
-                                className="mt-2"
-                            />
-                            <TextField
-                                label="Email"
-                                name="email"
-                                type="email"
-                                value={residente.email}
-                                onChange={handleChange}
-                                error={!!erros.email}
-                                helperText={erros.email}
-                                fullWidth
-                                className="mt-2"
-                            />
-                            <TextField
-                                label="Telefone"
-                                name="telefone"
-                                value={residente.telefone}
-                                onChange={handleChange}
-                                error={!!erros.telefone}
-                                helperText={erros.telefone}
-                                fullWidth
-                                className="mt-2"
-                            />
-                            <TextField
-                                label="Endereço"
-                                name="endereco"
-                                value={residente.endereco}
-                                onChange={handleChange}
-                                error={!!erros.endereco}
-                                helperText={erros.endereco}
-                                fullWidth
-                                className="mt-2"
-                                multiline
-                                rows={3}
-                            />
-                            <Button type="submit" variant="contained" color="primary" className="w-full">
+        <Container maxWidth="md" className="mt-4">
+            <Paper className="p-6 shadow-md rounded-md">
+                <Typography variant="h5" align="center" gutterBottom>
+                    {id ? 'Editar Residente' : 'Criar Novo Residente'}
+                </Typography>
+
+                <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+
+                {loading ? (
+                    <div className="flex justify-center items-center h-32">
+                        <CircularProgress />
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+                        <TextField
+                            label="Nome"
+                            name="nome"
+                            value={residente.nome}
+                            onChange={handleChange}
+                            error={!!erros.nome}
+                            helperText={erros.nome}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Email"
+                            name="email"
+                            type="email"
+                            value={residente.email}
+                            onChange={handleChange}
+                            error={!!erros.email}
+                            helperText={erros.email}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Telefone"
+                            name="telefone"
+                            value={residente.telefone}
+                            onChange={handleChange}
+                            error={!!erros.telefone}
+                            helperText={erros.telefone}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Endereço"
+                            name="endereco"
+                            value={residente.endereco}
+                            onChange={handleChange}
+                            error={!!erros.endereco}
+                            helperText={erros.endereco}
+                            fullWidth
+                            multiline
+                            rows={3}
+                        />
+                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                className="w-full sm:w-auto"
+                            >
                                 {id ? 'Atualizar' : 'Criar'}
                             </Button>
-                            <Button component={Link} to="/residentes" variant="outlined" className="w-full mt-2">
+                            <Button
+                                component={Link}
+                                to="/residentes"
+                                variant="outlined"
+                                className="w-full sm:w-auto"
+                            >
                                 Cancelar
                             </Button>
-                        </form>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+                        </div>
+                    </form>
+                )}
+            </Paper>
+        </Container>
     );
 }
 

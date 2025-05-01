@@ -67,6 +67,7 @@ function GerirQuartos() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+            <h2 className="text-2xl font-semibold mb-4">Gerir Quartos</h2>
             <div className="flex justify-end mb-4">
                 <Button component={Link} to="/quartos/criar" variant="contained" color="primary">
                     Adicionar Novo Quarto
@@ -82,9 +83,9 @@ function GerirQuartos() {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edifício</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de qurto</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID do edifício</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                 </tr>
                             </thead>
@@ -93,9 +94,9 @@ function GerirQuartos() {
                                     .slice(pagina * resultadosPorPagina, pagina * resultadosPorPagina + resultadosPorPagina)
                                     .map((quarto) => (
                                         <tr key={quarto.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.numero}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.id}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.tipo}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.edificio?.nome} ({quarto.edificio?.id})</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.edificio?.id}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <Tooltip title="Detalhes">
                                                     <IconButton component={Link} to={`/quartos/${quarto.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">

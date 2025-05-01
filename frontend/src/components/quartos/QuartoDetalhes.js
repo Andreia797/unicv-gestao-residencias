@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import AuthService from '../../services/AuthService';
 import {
-    Card,
-    CardContent,
+    Paper,
     Typography,
-    Button,
+    Alert,
     CircularProgress,
     List,
     ListItem,
     ListItemText,
+    Button
 } from '@mui/material';
-import AuthService from '../../services/AuthService'; 
 
 function QuartoDetalhes() {
     const { id } = useParams();
@@ -21,13 +21,14 @@ function QuartoDetalhes() {
     useEffect(() => {
         const fetchQuarto = async () => {
             setLoading(true);
+            setError(null);
             try {
                 const response = await AuthService.authenticatedRequest('get', 'relatorios', `/quartos/${id}/`);
                 setQuarto(response.data);
-                setLoading(false);
             } catch (err) {
                 console.error('Erro ao buscar quarto:', err);
                 setError('Erro ao carregar detalhes do quarto.');
+            } finally {
                 setLoading(false);
             }
         };
@@ -37,69 +38,54 @@ function QuartoDetalhes() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen">
+            <div className="flex justify-center items-center h-32">
                 <CircularProgress />
             </div>
         );
     }
 
     if (error) {
-        return (
-            <div className="container mx-auto p-4">
-                <Typography color="error">{error}</Typography>
-                <Link to="/quartos" className="mt-4 inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                    Voltar
-                </Link>
-            </div>
-        );
+        return <Alert severity="error">{error}</Alert>;
     }
 
     if (!quarto) {
-        return (
-            <div className="container mx-auto p-4">
-                <Typography>Quarto não encontrado.</Typography>
-                <Link to="/quartos" className="mt-4 inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                    Voltar
-                </Link>
-            </div>
-        );
+        return <Typography>Quarto não encontrado.</Typography>;
     }
 
     return (
-        <div className="container mx-auto p-4">
-            <Typography variant="h4" className="mb-4 text-2xl font-semibold">
+        <Paper className="p-6 mt-4 shadow-md rounded-lg">
+            <Typography variant="h5" gutterBottom className="font-semibold text-xl">
                 Detalhes do Quarto
             </Typography>
-            <Card className="shadow-md rounded-lg p-6">
-                <CardContent>
-                    <List>
-                        <ListItem>
-                            <ListItemText primary="ID" secondary={quarto.id} />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Número" secondary={quarto.numero} />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Tipo" secondary={quarto.tipo} />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Edifício" secondary={`${quarto.edificio?.nome} (ID: ${quarto.edificio?.id})`} />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Capacidade" secondary={quarto.capacidade} />
-                        </ListItem>
-                    </List>
-                    <div className="mt-6">
-                        <Button component={Link} to="/quartos" variant="contained" color="primary" className="mr-2">
-                            Voltar
-                        </Button>
-                        <Button component={Link} to={`/quartos/editar/${quarto.id}`} variant="contained" color="secondary">
-                            Editar
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+            <List>
+                <ListItem>
+                    <ListItemText primary="ID" secondary={quarto.id} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Número" secondary={quarto.numero} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Tipo" secondary={quarto.tipo} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Capacidade" secondary={quarto.capacidade} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText
+                        primary="Edifício"
+                        secondary={`${quarto.edificio?.nome} (ID: ${quarto.edificio?.id})`}
+                    />
+                </ListItem>
+            </List>
+            <div className="mt-4 flex gap-2">
+                <Button component={Link} to="/quartos" variant="contained" color="primary">
+                    Voltar
+                </Button>
+                <Button component={Link} to={`/quartos/editar/${quarto.id}`} variant="contained" color="secondary">
+                    Editar
+                </Button>
+            </div>
+        </Paper>
     );
 }
 

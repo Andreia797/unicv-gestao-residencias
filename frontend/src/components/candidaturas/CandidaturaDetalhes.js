@@ -1,105 +1,126 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import AuthService from "../../services/AuthService";
 import {
-    Card,
-    CardContent,
-    Typography,
-    Button,
-    CircularProgress,
-} from '@mui/material';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import AuthService from '../../services/AuthService'; 
-import Notificacoes from '../Notificacoes';
+  Paper,
+  Typography,
+  Alert,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+} from "@mui/material";
 
 function CandidaturaDetalhes() {
-    const { id } = useParams();
-    const [candidatura, setCandidatura] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [mensagem, setMensagem] = useState(null);
-    const [tipoMensagem, setTipoMensagem] = useState('success');
+  const { id } = useParams();
+  const [candidatura, setCandidatura] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const response = await AuthService.authenticatedRequest('get', 'relatorios', `/candidaturas/${id}/`);
-                setCandidatura(response.data);
-            } catch (error) {
-                console.error('Erro ao buscar candidatura:', error);
-                setMensagem('Erro ao buscar detalhes da candidatura.');
-                setTipoMensagem('error');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, [id]);
+  const formatarData = (dataISO) => {
+    const data = new Date(dataISO);
+    return data.toLocaleDateString(); 
+};
 
-    const limparMensagem = () => {
-        setMensagem(null);
+  useEffect(() => {
+    const fetchCandidatura = async () => {
+      setLoading(true);
+      try {
+        const response = await AuthService.authenticatedRequest(
+          "get",
+          "relatorios",
+          `/candidaturas/${id}/`
+        );
+        setCandidatura(response.data);
+      } catch (err) {
+        console.error("Erro ao buscar candidatura:", err);
+        setError("Erro ao carregar detalhes da candidatura.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const formatarData = (dataISO) => {
-        try {
-            return format(new Date(dataISO), 'dd/MM/yyyy HH:mm', { locale: ptBR });
-        } catch (error) {
-            console.error('Erro ao formatar data:', error);
-            return 'Data inválida';
-        }
-    };
+    fetchCandidatura();
+  }, [id]);
 
-    if (loading) {
-        return (
-            <div className="p-4 flex justify-center items-center h-32">
-                <CircularProgress />
-            </div>
-        );
-    }
-
-    if (!candidatura) {
-        return (
-            <div className="p-4">
-                <Typography variant="body1">Candidatura não encontrada.</Typography>
-            </div>
-        );
-    }
-
+  if (loading) {
     return (
-        <div className="p-4">
-            <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <Card className="shadow-md rounded-lg">
-                <CardContent>
-                    <Typography variant="h5" className="mb-4 font-semibold">
-                        Detalhes da Candidatura
-                    </Typography>
-                    <Typography variant="body1" className="mb-2">
-                        <strong>Nome do Estudante:</strong> {candidatura.estudante?.Nome}
-                    </Typography>
-                    <Typography variant="body1" className="mb-2">
-                        <strong>Residência:</strong> {candidatura.residencia?.Nome}
-                    </Typography>
-                    <Typography variant="body1" className="mb-2">
-                        <strong>Edifício:</strong> {candidatura.residencia?.edificio}
-                    </Typography>
-                    <Typography variant="body1" className="mb-2">
-                        <strong>Data de Submissão:</strong> {formatarData(candidatura.DataSubmissao)}
-                    </Typography>
-                    <Typography variant="body1" className="mb-4">
-                        <strong>Estado:</strong> {candidatura.status}
-                    </Typography>
-                    <div className="flex space-x-2">
-                        <Button component={Link} to="/candidaturas" variant="contained" color="primary">
-                            Voltar
-                        </Button>
-                        <Button component={Link} to={`/candidaturas/editar/${id}`} variant="contained" color="secondary">
-                            Editar
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+      <div className="flex justify-center items-center h-32">
+        <CircularProgress />
+      </div>
     );
+  }
+
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
+
+  if (!candidatura) {
+    return <Alert severity="warning">Candidatura não encontrada.</Alert>;
+  }
+
+  return (
+    <Paper className="p-6 mt-4 shadow-md rounded-lg">
+      <Typography variant="h5" gutterBottom className="font-semibold text-xl">
+        Detalhes da Candidatura
+      </Typography>
+      <List>
+        <ListItem>
+          <ListItemText
+            primary="Nome do Estudante"
+            secondary={candidatura.estudante?.Nome || "N/A"}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemText
+            primary="Nome da Residência"
+            secondary={candidatura.residencia?.Nome || "N/A"}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemText
+            primary="Edifício da Residência"
+            secondary={candidatura.residencia?.edificio || "N/A"}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemText
+            primary="Data de Submissão"
+            secondary={formatarData(candidatura.DataSubmissao)}
+          />
+        </ListItem>
+        <ListItem>
+          <ListItemText primary="Status" secondary={candidatura.status} />
+        </ListItem>
+        {candidatura.mensagem && (
+          <ListItem>
+            <ListItemText primary="Mensagem" secondary={candidatura.mensagem} />
+          </ListItem>
+        )}
+      </List>
+    <div className="mt-4 flex gap-2">
+      <Button
+        component={Link}
+        to="/candidaturas"
+        variant="contained"
+        color="primary"
+        className="mt-4 mr-2"
+      >
+        Voltar
+      </Button>
+      <Button
+        component={Link}
+        to={`/candidaturas/editar/${candidatura.id}`}
+        variant="contained"
+        color="secondary"
+        className="mt-4"
+      >
+        Editar
+      </Button>
+    </div>
+    </Paper>
+  );
 }
 
 export default CandidaturaDetalhes;
