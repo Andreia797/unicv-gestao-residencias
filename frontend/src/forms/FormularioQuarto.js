@@ -11,6 +11,7 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    FormHelperText,
     Alert
 } from '@mui/material';
 import Notificacoes from '../components/Notificacoes';
@@ -23,6 +24,7 @@ function FormularioQuarto() {
         numero: '',
         capacidade: '',
         edificio: '',
+        tipo: '', // Adicionado o campo tipo
     });
     const [edificios, setEdificios] = useState([]);
     const [erros, setErros] = useState({});
@@ -61,6 +63,7 @@ function FormularioQuarto() {
         if (!quarto.numero) novosErros.numero = 'Número é obrigatório.';
         if (!quarto.capacidade) novosErros.capacidade = 'Capacidade é obrigatória.';
         if (!quarto.edificio) novosErros.edificio = 'Edifício é obrigatório.';
+        if (!quarto.tipo) novosErros.tipo = 'Tipo de Quarto é obrigatório.'; // Validação para o novo campo
         setErros(novosErros);
         return Object.keys(novosErros).length === 0;
     };
@@ -89,14 +92,12 @@ function FormularioQuarto() {
         }
     };
 
-    const limparMensagem = () => {
-        setMensagem(null);
-    };
+    const limparMensagem = () => setMensagem(null);
 
     return (
-        <Container maxWidth="md" className="mt-4">
-            <Paper className="p-6 shadow-md rounded-md">
-                <Typography variant="h5" align="center" gutterBottom>
+        <Container maxWidth="xl" className="py-6">
+            <Paper className="p-8 shadow-md rounded-lg">
+                <Typography variant="h5" className="mb-6 font-semibold text-center">
                     {id ? 'Editar Quarto' : 'Criar Novo Quarto'}
                 </Typography>
 
@@ -107,9 +108,9 @@ function FormularioQuarto() {
                         <CircularProgress />
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <TextField
-                            label="Número"
+                            label="Número do Quarto"
                             name="numero"
                             value={quarto.numero}
                             onChange={handleChange}
@@ -120,6 +121,7 @@ function FormularioQuarto() {
                         <TextField
                             label="Capacidade"
                             name="capacidade"
+                            type="number"
                             value={quarto.capacidade}
                             onChange={handleChange}
                             error={!!erros.capacidade}
@@ -134,10 +136,7 @@ function FormularioQuarto() {
                                 name="edificio"
                                 value={quarto.edificio}
                                 onChange={handleChange}
-                                renderValue={(value) => {
-                                    const selectedEdificio = edificios.find((e) => e.id === value);
-                                    return selectedEdificio ? selectedEdificio.nome : '';
-                                }}
+                                label="Edifício"
                             >
                                 {edificios.map((edificio) => (
                                     <MenuItem key={edificio.id} value={edificio.id}>
@@ -145,23 +144,25 @@ function FormularioQuarto() {
                                     </MenuItem>
                                 ))}
                             </Select>
+                            {erros.edificio && <Alert severity="error" className="mt-1">{erros.edificio}</Alert>}
                         </FormControl>
 
-                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                className="w-full sm:w-auto"
-                            >
+                        {/* Novo campo para o tipo de quarto */}
+                        <TextField
+                            label="Tipo de Quarto"
+                            name="tipo"
+                            value={quarto.tipo}
+                            onChange={handleChange}
+                            error={!!erros.tipo}
+                            helperText={erros.tipo}
+                            fullWidth
+                        />
+
+                        <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-4">
+                            <Button type="submit" variant="contained" color="primary">
                                 {id ? 'Atualizar' : 'Criar'}
                             </Button>
-                            <Button
-                                component={Link}
-                                to="/quartos"
-                                variant="outlined"
-                                className="w-full sm:w-auto"
-                            >
+                            <Button component={Link} to="/quartos" variant="outlined">
                                 Cancelar
                             </Button>
                         </div>

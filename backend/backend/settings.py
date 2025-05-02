@@ -16,6 +16,8 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -30,6 +32,8 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -66,30 +70,44 @@ REST_FRAMEWORK = {
 
 # Configurações do JWT
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    # Tempo de validade dos tokens
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATING': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 
+    # Algoritmo e chaves
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
 
+    # Header de autenticação
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+
+    # Dados do usuário no token
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
 
+    # Classe de token
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 
+    # Tokens deslizantes (opcional)
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+
+    # Configurações de Cookie Seguro
+    'AUTH_COOKIE': 'access_token',                   # Nome do cookie
+    'AUTH_COOKIE_SECURE': True,                      # Apenas via HTTPS
+    'AUTH_COOKIE_HTTP_ONLY': True,                   # Não acessível via JS
+    'AUTH_COOKIE_PATH': '/',                         # Caminho padrão
+    'AUTH_COOKIE_SAMESITE': 'Lax',                   # Proteção CSRF básica
 }
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -194,3 +212,9 @@ SESSION_COOKIE_SECURE = True  # Torna o cookie de sessão seguro
 X_FRAME_OPTIONS = 'DENY'  # Previne ataques de Clickjacking
 SECURE_BROWSER_XSS_FILTER = True  # Ativa o filtro de XSS no navegador
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Previne que o navegador detecte tipos MIME
+# Ativa cookies seguros
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+CORS_ALLOW_CREDENTIALS = True

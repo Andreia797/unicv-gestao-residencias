@@ -62,28 +62,28 @@ function App() {
                         <Route path="residentes" element={<ResidentesLista />} />
                         <Route path="residentes/:id" element={<PerfilResidente />} />
                         <Route path="residentes/editar/:id" element={<FormularioResidente />} />
-                        <Route path="residentes/criar" element={<FormularioResidente />} /> {/* Nova rota */}
+                        <Route path="residentes/criar" element={<FormularioResidente />} /> 
                         <Route path="gerirresidentes" element={<GerirResidentes />} />
 
                         {/* Rotas de Edifícios */}
                         <Route path="edificios" element={<EdificiosLista />} />
                         <Route path="edificios/:id" element={<EdificioDetalhes />} />
                         <Route path="edificios/editar/:id" element={<FormularioEdificio />} />
-                        <Route path="edificios/criar" element={<FormularioEdificio />} /> {/* Nova rota */}
+                        <Route path="edificios/criar" element={<FormularioEdificio />} /> 
                         <Route path="geriredificios" element={<GerirEdificios />} />
 
                         {/* Rotas de Quartos */}
                         <Route path="quartos" element={<QuartosLista />} />
                         <Route path="quartos/:id" element={<QuartoDetalhes />} />
                         <Route path="quartos/editar/:id" element={<FormularioQuarto />} />
-                        <Route path="quartos/criar" element={<FormularioQuarto />} /> {/* Nova rota */}
+                        <Route path="quartos/criar" element={<FormularioQuarto />} /> 
                         <Route path="gerirquartos" element={<GerirQuartos />} />
 
                         {/* Rotas de Camas */}
                         <Route path="camas" element={<CamasLista />} />
                         <Route path="camas/:id" element={<CamaDetalhes />} />
                         <Route path="camas/editar/:id" element={<FormularioCama />} />
-                        <Route path="camas/criar" element={<FormularioCama />} /> {/* Nova rota */}
+                        <Route path="camas/criar" element={<FormularioCama />} /> 
                         <Route path="gerircamas" element={<GerirCamas />} />
                         
 

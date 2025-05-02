@@ -25,7 +25,7 @@ function Login() {
 
                 // Se o 2FA for necessário, redirecionar para a página de verificação de 2FA
                 if (data.requires_2fa) {
-                    navigate('/verify-2fa');
+                    navigate('/2fa-verification');
                 } else {
                     // Caso contrário, redireciona para o dashboard
                     navigate('/');

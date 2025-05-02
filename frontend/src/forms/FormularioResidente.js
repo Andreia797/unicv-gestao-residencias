@@ -50,7 +50,7 @@ function FormularioResidente() {
     };
 
     const validarFormulario = () => {
-        let novosErros = {};
+        const novosErros = {};
         if (!residente.nome) novosErros.nome = 'Nome é obrigatório.';
         if (!residente.email) novosErros.email = 'Email é obrigatório.';
         if (!residente.telefone) novosErros.telefone = 'Telefone é obrigatório.';
@@ -83,14 +83,12 @@ function FormularioResidente() {
         }
     };
 
-    const limparMensagem = () => {
-        setMensagem(null);
-    };
+    const limparMensagem = () => setMensagem(null);
 
     return (
-        <Container maxWidth="md" className="mt-4">
-            <Paper className="p-6 shadow-md rounded-md">
-                <Typography variant="h5" align="center" gutterBottom>
+        <Container maxWidth="xl" className="py-6">
+            <Paper className="p-8 shadow-md rounded-lg">
+                <Typography variant="h5" className="mb-6 font-semibold text-center">
                     {id ? 'Editar Residente' : 'Criar Novo Residente'}
                 </Typography>
 
@@ -101,7 +99,7 @@ function FormularioResidente() {
                         <CircularProgress />
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <TextField
                             label="Nome"
                             name="nome"
@@ -138,24 +136,12 @@ function FormularioResidente() {
                             error={!!erros.endereco}
                             helperText={erros.endereco}
                             fullWidth
-                            multiline
-                            rows={3}
                         />
-                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                className="w-full sm:w-auto"
-                            >
+                        <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-4">
+                            <Button type="submit" variant="contained" color="primary">
                                 {id ? 'Atualizar' : 'Criar'}
                             </Button>
-                            <Button
-                                component={Link}
-                                to="/residentes"
-                                variant="outlined"
-                                className="w-full sm:w-auto"
-                            >
+                            <Button component={Link} to="/residentes" variant="outlined">
                                 Cancelar
                             </Button>
                         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AuthService from '../services/AuthService';
 import { useNavigate } from 'react-router-dom';
+import unicvResidenciaBackground from '../assets/unicv-residencia.jpg';
 
 function TwoFactorVerification() {
     const [token, setToken] = useState('');
@@ -39,7 +40,8 @@ function TwoFactorVerification() {
     };
 
     return (
-        <div className="flex justify-center items-center min-h-screen p-4 bg-cover bg-center relative">
+        <div  className="flex justify-center items-center min-h-screen p-4 bg-cover bg-center relative"
+                    style={{ backgroundImage: `url(${unicvResidenciaBackground})` }}>
             <div className="absolute inset-0 bg-white opacity-60"></div>
             <div className="max-w-md w-full p-8 bg-white rounded-xl shadow-lg z-10">
                 <div className="flex flex-col items-center mb-8">

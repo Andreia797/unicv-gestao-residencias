@@ -152,7 +152,7 @@ const AuthService = {
                     Authorization: `Bearer ${getAccessToken()}`
                 }
             });
-            return response.data; // Retorna o QR Code ou qualquer outra informação necessária
+            return response.data; 
         } catch (error) {
             console.error('Erro ao gerar 2FA:', error);
             throw error;
