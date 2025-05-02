@@ -16,7 +16,6 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
 # Quick-start development settings - unsuitable for production
@@ -196,6 +195,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", # ou a porta que seu react está rodando.
