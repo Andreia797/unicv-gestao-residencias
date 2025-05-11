@@ -8,7 +8,6 @@ class Candidatura(models.Model):
         ('aprovado', 'Aprovado'),
         ('rejeitado', 'Rejeitado'),
         ('em_analise', 'Em Análise'),
-        # Adicione outros status conforme necessário
     ]
 
     DataSubmissao = models.DateTimeField(auto_now_add=True)

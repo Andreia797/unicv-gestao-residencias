@@ -18,28 +18,34 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e) => {
-    console.log("handleLogin chamado");
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    AuthService.login({ email: email, password })
-      .then((data) => {
-        if (data.requires_2fa) {
-          navigate("/2fa-verification");
-        } else {
-          navigate("/");
-        }
-      })
+  const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-      .catch((err) => {
-        console.error("Erro no login:", err);
-        setError(err.response?.data?.error || "Erro ao fazer login.");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  try {
+    console.log("Iniciando login com:", email);
+    const data = await AuthService.login({ email, password });
+
+    if (data.requires_2fa) {
+      console.log("Login feito com sucesso. 2FA requerido.");
+      navigate("/2fa-verification"); // Essa página deve chamar generate2FA
+    } else {
+      console.log("Login feito com sucesso. 2FA não requerido.");
+      navigate("/");
+    }
+  } catch (err) {
+    console.error("Erro no login:", err);
+    const errorMessage =
+      err.response?.data?.detail ||
+      err.response?.data?.error ||
+      "Erro ao fazer login.";
+    setError(errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);

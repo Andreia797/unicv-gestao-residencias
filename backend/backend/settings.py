@@ -70,10 +70,10 @@ REST_FRAMEWORK = {
 # Configurações do JWT
 SIMPLE_JWT = {
     # Tempo de validade dos tokens
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Ajuste conforme necessário
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
 
     # Algoritmo e chaves
     'ALGORITHM': 'HS256',
@@ -202,6 +202,12 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
 
+AUTHENTICATION_BACKENDS = [
+    'accounts.authentication.EmailBackend', 
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", # ou a porta que seu react está rodando.
     "http://127.0.0.1:3000",
@@ -223,3 +229,6 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']

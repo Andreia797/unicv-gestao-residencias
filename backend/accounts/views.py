@@ -1,111 +1,158 @@
-from rest_framework.views import APIView
+from django.contrib.auth import get_user_model, authenticate
+from rest_framework import status, permissions
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
-from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.contrib.auth import authenticate
-from django_otp.plugins.otp_totp.models import TOTPDevice
-from django_otp import devices_for_user
-from django.contrib.sites.shortcuts import get_current_site
-from .models import CustomUser
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, CustomTokenObtainPairSerializer
-import base64, qrcode
+import pyotp
+import qrcode
 from io import BytesIO
+from django.core.files.storage import default_storage
+from django.shortcuts import get_object_or_404
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, CustomTokenObtainPairSerializer
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from django_otp import user_has_device
 
-class RegisterView(APIView):
-    permission_classes = [AllowAny]
+
+
+User = get_user_model()
+
+
+class UserList(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
+class UserDetail(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+
+class UserCreate(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            refresh = RefreshToken.for_user(user)
-            response = Response({'success': 'Utilizador registado com sucesso!'}, status=status.HTTP_201_CREATED)
-            response.set_cookie('access_token', str(refresh.access_token), httponly=True, secure=True, samesite='Lax')
-            response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Lax')
-            return response
+            return Response({"msg": "Usuário criado com sucesso!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class LoginView(APIView):
-    permission_classes = [AllowAny]
 
+class register_user(APIView):
+    
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({"msg": "Usuário registrado com sucesso!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class login_user(APIView):
+    permission_classes = [permissions.AllowAny]
+    
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = authenticate(username=serializer.validated_data['email'], password=serializer.validated_data['password'])
-        if user:
-            devices = list(devices_for_user(user, confirmed=True))
-            if devices:
-                return Response({'requires_2fa': True}, status=200)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
+
+            user = authenticate(request, email=email, password=password)
+
+            if user is None:
+                return Response({"msg": "Credenciais inválidas"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            # Verifica se o usuário tem 2FA configurado
+            if user_has_device(user):
+                return Response({
+                    "msg": "2FA necessário",
+                    "requires_2fa": True
+                }, status=status.HTTP_200_OK)
+
+            # Autenticação sem 2FA
             refresh = RefreshToken.for_user(user)
-            response = Response({'success': True})
-            response.set_cookie('access_token', str(refresh.access_token), httponly=True, secure=True, samesite='Lax')
-            response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Lax')
-            return response
-        return Response({'error': 'Credenciais inválidas'}, status=401)
+            return Response({
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "requires_2fa": False
+            }, status=status.HTTP_200_OK)
 
-class Generate2FAView(APIView):
-    permission_classes = [IsAuthenticated]
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request):
-        user = request.user
-        TOTPDevice.objects.filter(user=user, confirmed=False).delete()
-        device = TOTPDevice.objects.create(user=user, confirmed=False, name="default")
-        current_site = get_current_site(request)
-        otp_uri = device.config_url(user=user, issuer=current_site.name or "App")
-        qr = qrcode.make(otp_uri)
-        buffer = BytesIO()
-        qr.save(buffer, format='PNG')
-        image_base64 = base64.b64encode(buffer.getvalue()).decode()
-        return Response({'qr_code_base64': image_base64, 'otp_uri': otp_uri}, status=200)
 
-class Confirm2FAView(APIView):
-    permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        token = request.data.get('token')
-        device = TOTPDevice.objects.filter(user=request.user, confirmed=False).first()
-        if device and device.verify_token(token):
-            device.confirmed = True
-            device.save()
-            return Response({'message': '2FA ativado com sucesso!'}, status=200)
-        return Response({'error': 'Código inválido'}, status=400)
-
-class Verify2FAView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        token = request.data.get('token')
-        device = TOTPDevice.objects.filter(user=request.user, confirmed=True).first()
-        if device and device.verify_token(token):
-            refresh = RefreshToken.for_user(request.user)
-            response = Response({'success': True})
-            response.set_cookie('access_token', str(refresh.access_token), httponly=True, secure=True, samesite='Lax')
-            response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Lax')
-            return response
-        return Response({'error': 'Código 2FA inválido'}, status=400)
-
-# ✅ Estas são as views que estavam a causar erro por não existirem:
-class UserList(generics.ListAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-class UserDetail(generics.RetrieveAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-class UserCreate(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-# Alias para manter compatibilidade com urls.py
-register_user = RegisterView.as_view()
-login_user = LoginView.as_view()
-generate_2fa_qrcode = Generate2FAView.as_view()
+
+class generate_2fa_qrcode(APIView):
+    authentication_classes = [JWTAuthentication]  # <- Adicionado
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request): 
+        print("Authorization Header:", request.headers.get('Authorization'))
+        print("User:", request.user)
+        print("Authenticated?", request.user.is_authenticated)
+
+        user = request.user
+        if not user or not user.is_authenticated:
+            return Response({"detail": "Usuário não autenticado."}, status=401)
+
+        print(f"Usuário autenticado: {user.email}")
+
+        # Recupera ou cria o dispositivo TOTP
+        device, created = TOTPDevice.objects.get_or_create(user=user)
+
+        if not device.configured:
+            return Response({"msg": "Erro ao configurar o dispositivo 2FA."}, status=400)
+
+        # Gera QRCode com URI do dispositivo
+        otp_uri = device.config_url
+        img = qrcode.make(otp_uri)
+        buffer = BytesIO()
+        img.save(buffer)
+        buffer.seek(0)
+
+        # Armazena temporariamente
+        file_name = f"2fa_qrcode_{user.id}.png"
+        file_path = default_storage.save(file_name, buffer)
+
+        return Response({
+            'qrcode_url': file_path,
+            'secret': device.key
+        })
+
+
+
+
+class verify_2fa(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        code = request.data.get('code')
+
+        device = TOTPDevice.objects.filter(user=user).first()
+        if not device:
+            return Response({"msg": "Dispositivo 2FA não configurado."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not device.verify_token(code):
+            return Response({"msg": "Código 2FA inválido!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
