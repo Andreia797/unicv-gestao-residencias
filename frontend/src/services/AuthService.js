@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_URL_ACCOUNTS = 'http://127.0.0.1:8000/api/accounts';
 const API_URL_RELATORIOS = 'http://127.0.0.1:8000/api/relatorios';
 
-// Instâncias Axios com baseURL e credenciais
+// Instâncias Axios
 const apiAccounts = axios.create({
   baseURL: API_URL_ACCOUNTS,
   headers: { 'Content-Type': 'application/json' },
@@ -15,50 +15,65 @@ const apiRelatorios = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// LocalStorage helpers
+// Helpers de token
+
 const getToken = () => {
-  const match = document.cookie.match(new RegExp('(^| )access_token=([^;]+)'));
-  return match ? match[2] : null;
+    // Tenta pegar o token do cookie
+    const match = document.cookie.match(new RegExp('(^| )access_token=([^;]+)'));
+    if (match) {
+        return match[2];
+    }
+    
+    // Caso o token não esteja no cookie, tenta pegar do localStorage
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      
+    }
+    
+    return token;
 };
+
 
 const getRefreshToken = () => localStorage.getItem('refresh_token');
 
 const setToken = (token) => {
-  localStorage.setItem('access_token', token);
-  // Optional: Set the token as a cookie for additional security (httpOnly flag is advised in production)
-  document.cookie = `access_token=${token}; path=/; secure; SameSite=Strict`;
+   
+    localStorage.setItem('access_token', token); // Salva no localStorage
+    document.cookie = `access_token=${token}; path=/; secure; SameSite=Strict`; // Salva no cookie
 };
+
+
 
 const setRefreshToken = (token) => localStorage.setItem('refresh_token', token);
 
-const clearToken = () => {
-  localStorage.removeItem('access_token');
-  document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'; // Clear cookie as well
-};
-
+const clearToken = () => localStorage.removeItem('access_token');
 const clearRefreshToken = () => localStorage.removeItem('refresh_token');
 
-// Renova token se possível
+const logout = () => {
+  clearToken();
+  clearRefreshToken();
+  window.location.href = '/login';
+};
+
 const refreshToken = async () => {
   const refresh = getRefreshToken();
-  if (refresh) {
-    try {
-      const response = await apiAccounts.post('/token/refresh/', { refresh });
-      const { access } = response.data;
-      setToken(access);
-      return access;
-    } catch (error) {
-      clearToken();
-      clearRefreshToken();
-      throw error;
-    }
-  } else {
-    clearToken();
+  if (!refresh) {
     throw new Error('Nenhum refresh token disponível.');
+  }
+
+  try {
+    const response = await apiAccounts.post('/token/refresh/', { refresh });
+    const { access } = response.data;
+    setToken(access);
+    return access;
+  } catch (error) {
+    clearToken();
+    clearRefreshToken();
+    throw error;
   }
 };
 
-// Interceptores para incluir o token em todas as requisições
+// Interceptores para incluir token nas requisições
 [apiAccounts, apiRelatorios].forEach(api => {
   api.interceptors.request.use(
     (config) => {
@@ -72,7 +87,7 @@ const refreshToken = async () => {
   );
 });
 
-// Interceptor de resposta para renovar token automaticamente
+// Interceptor para renovar token automaticamente
 apiAccounts.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -82,10 +97,9 @@ apiAccounts.interceptors.response.use(
       try {
         const newAccessToken = await refreshToken();
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        console.log("Token enviado:", newAccessToken);
         return apiAccounts(originalRequest);
       } catch (refreshError) {
-        AuthService.logout();
+        logout();
         return Promise.reject(refreshError);
       }
     }
@@ -93,26 +107,22 @@ apiAccounts.interceptors.response.use(
   }
 );
 
-// Serviço de autenticação principal
+// Serviço principal
 const AuthService = {
- login: async (credenciais) => {
-  try {
-    const response = await apiAccounts.post('/login/', credenciais);
-    const { access, refresh, requires_2fa } = response.data;
+  login: async (credenciais) => {
+    try {
+      const response = await apiAccounts.post('/login/', credenciais);
+      const { access, refresh, requires_2fa } = response.data;
 
-    if (access) {
-      setToken(access);
-      console.log("Token de acesso armazenado:", access);  // Verifique se o token está sendo salvo
+      if (access) setToken(access);
+      if (refresh) setRefreshToken(refresh);
+
+      return { requires_2fa: !!requires_2fa, ...response.data };
+    } catch (error) {
+      console.error('Erro no login:', error.response?.data || error);
+      throw error;
     }
-    if (refresh) setRefreshToken(refresh);
-
-    return { requires_2fa: !!requires_2fa, ...response.data };
-  } catch (error) {
-    console.error('Erro no login:', error.response?.data || error);
-    throw error;
-  }
-},
-
+  },
 
   register: async (dadosUtilizador) => {
     try {
@@ -124,17 +134,26 @@ const AuthService = {
     }
   },
 
-  logout: () => {
-    clearToken();
-    clearRefreshToken();
-    window.location.href = '/login'; // Redireciona para a tela de login
-  },
+  logout,
 
  generate2FA: async () => {
+  const token = getToken();
+ 
+
+  if (!token) {
+    throw new Error("Token de acesso não encontrado");
+  }
+
   try {
-    const token = getToken(); // Verifique o token antes de enviar
-    console.log("Token enviado para /generate-2fa:", token);  // Verifique se o token está sendo enviado
-    const response = await apiAccounts.post('/generate-2fa/');
+    const response = await apiAccounts.post(
+      '/generate-2fa/',
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Erro ao gerar 2FA:", error.response?.data || error);
@@ -142,18 +161,30 @@ const AuthService = {
   }
 },
 
-  verify2FA: async (token) => {
-    try {
-      const response = await apiAccounts.post('/verify-2fa/', { token });
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao verificar 2FA:", error.response?.data || error);
-      throw error;
-    }
-  },
+
+ verify2FA: async ({ otp_token }) => {
+  try {
+    const accessToken = localStorage.getItem("access_token");
+
+    const response = await apiAccounts.post(
+      "/verify-2fa/",
+      { otp_token }, // <- chave correta
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+},
+
 
   authenticatedRequest: async (method, baseURLType, url, data = null) => {
-    let apiInstance = baseURLType === 'relatorios' ? apiRelatorios : apiAccounts;
+    const apiInstance = baseURLType === 'relatorios' ? apiRelatorios : apiAccounts;
     try {
       const response = await apiInstance({ method, url, data });
       return response;
@@ -163,7 +194,7 @@ const AuthService = {
     }
   },
 
-  // Métodos auxiliares
+  // Exporta helpers
   getToken,
   setToken,
   clearToken,

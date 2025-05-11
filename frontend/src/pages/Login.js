@@ -19,33 +19,38 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  try {
-    console.log("Iniciando login com:", email);
-    const data = await AuthService.login({ email, password });
+    try {
+    
+      const data = await AuthService.login({ email, password });
 
-    if (data.requires_2fa) {
-      console.log("Login feito com sucesso. 2FA requerido.");
-      navigate("/2fa-verification"); // Essa página deve chamar generate2FA
-    } else {
-      console.log("Login feito com sucesso. 2FA não requerido.");
-      navigate("/");
+      
+
+      if (data.access_token) {
+        AuthService.setToken(data.access_token); // Armazena token temporário
+      
+
+        // Armazena email e token temporário no session/localStorage se quiser reutilizar na verificação
+        localStorage.setItem("pre_2fa_email", email);
+        navigate("/2fa-verification"); // Ir sempre para verificação
+      } else {
+        console.warn("Token NÃO retornado no login!");
+        setError("Falha no login: token não recebido.");
+      }
+    } catch (err) {
+      console.error("Erro no login:", err);
+      const errorMessage =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Erro ao fazer login.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Erro no login:", err);
-    const errorMessage =
-      err.response?.data?.detail ||
-      err.response?.data?.error ||
-      "Erro ao fazer login.";
-    setError(errorMessage);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
