@@ -54,7 +54,7 @@ function GerirCamas() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={() => setMensagem(null)} />
-            <h2 className="text-2xl font-semibold mb-4">Gerir Camas</h2>
+            <h2 className="text-2xl font-semibold mb-4">Gestão de Camas</h2>
             <div className="flex justify-end mb-4">
                 <Button component={Link} to="/camas/criar" variant="contained" color="primary">
                     Adicionar Nova Cama

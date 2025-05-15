@@ -17,7 +17,6 @@ import {
     StepLabel,
 } from '@mui/material';
 import Notificacoes from '../components/Notificacoes';
-import Header from '../components/Header';
 import AuthService from '../services/AuthService';
 
 function FormularioCandidatura() {
@@ -187,7 +186,6 @@ function FormularioCandidatura() {
 
     return (
         <div>
-            <Header />
             <Container className="mt-4">
                 <Paper className="p-6 rounded-lg shadow-md">
                     <Typography variant="h5" className="mb-4 text-center text-primary">

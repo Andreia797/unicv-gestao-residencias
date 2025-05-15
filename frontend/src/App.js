@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import CandidaturasLista from './components/candidaturas/CandidaturasLista';
 import Layout from './components/Layout';
 import FormularioCandidatura from './forms/FormularioCandidatura';
+import MinhaCandidatura from './components/candidaturas/MinhaCandidatura';
+import AvaliarCandidaturas from './components/candidaturas/AvaliarCandidaturas';
 import CandidaturaDetalhes from './components/candidaturas/CandidaturaDetalhes';
 import AdminCandidaturas from './components/candidaturas/AdminCandidaturas';
 import ResidentesLista from './components/residente/ResidentesLista';
@@ -30,20 +32,22 @@ import GerirCamas from './components/camas/GerirCamas';
 import GerirResidentes from './components/residente/GerirResidentes';
 import GerirQuartos from './components/quartos/GerirQuartos';
 import GerirEdificios from './components/edificios/GerirEdificios';
+import Inicio from './components/candidaturas/Início';
 import PrivateRoute from './components/PrivateRoute';
 import GerirCandidaturas from './components/candidaturas/GerirCandidaturas';
 import TwoFactorVerification from './pages/TwoFactorVerification';
+import Vagas from './components/candidaturas/Vagas';
 
 
 function App() {
     return (
         <Router>
             <Routes>
+                 
                 {/* Rotas Públicas */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/2fa-verification" element={<TwoFactorVerification />} />
-                <Route path="/candidaturas/nova" element={<FormularioCandidatura />} />
                 <Route path="*" element={<NotFound />} />
 
                 {/* Rotas Protegidas */}
@@ -53,10 +57,16 @@ function App() {
                         <Route path="dashboard" element={<Dashboard />} />
 
                         {/* Rotas de Candidaturas */}
-                        <Route path="candidaturas" element={<CandidaturasLista />} />
+                        <Route path="minhacandidatura" element={<MinhaCandidatura />} /> 
+                        <Route path="admin/candidaturas/avaliar/:id" element={<AvaliarCandidaturas />} />  
+                        <Route path="admin/candidaturas" element={<AdminCandidaturas />} /> 
+                        <Route path="admin/candidaturas/gerir" element={<GerirCandidaturas />} /> 
+                        <Route path="candidaturas" element={<CandidaturasLista />} /> 
                         <Route path="candidaturas/:id" element={<CandidaturaDetalhes />} />
-                        <Route path="admin/candidaturas" element={<AdminCandidaturas />} />
-                        <Route path="gerircandidaturas" element={<GerirCandidaturas />} />
+                        <Route path="/candidaturas/nova" element={<FormularioCandidatura />} />
+                        <Route path="/vagas" element={<Vagas />} />
+                        <Route path="inicio" element={<Inicio />} /> 
+                     
 
                         {/* Rotas de Residentes */}
                         <Route path="residentes" element={<ResidentesLista />} />

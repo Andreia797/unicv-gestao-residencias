@@ -9,12 +9,24 @@ import {
     DocumentDuplicateIcon,
     UserIcon,
     DocumentTextIcon,
+    ClipboardDocumentListIcon, // Ícone para listagem de candidaturas
+    PlusCircleIcon, // Ícone para nova candidatura
+    EyeIcon, // Ícone para detalhes da candidatura
+    CheckCircleIcon, // Ícone para validar/avaliar
+    MapPinIcon, // Ícone para Vagas (você pode precisar instalar @heroicons/react/24/solid para este ícone)
 } from '@heroicons/react/24/solid';
 
 function Sidebar() {
     const sidebarLinks = [
         { to: '/dashboard', label: 'Início', icon: HomeIcon },
-        { to: '/gerircandidaturas', label: 'Gerir Candidaturas', icon: DocumentDuplicateIcon },
+        { to: '/inicio', label: 'Início', icon: HomeIcon },
+        { to: '/candidaturas/nova', label: 'Nova Candidatura', icon: PlusCircleIcon },
+        { to: '/minhacandidatura', label: 'Minha Candidatura', icon: UserIcon },
+        { to: '/candidaturas', label: 'Listar Candidaturas', icon: ClipboardDocumentListIcon },
+        { to: '/vagas', label: 'Vagas', icon: MapPinIcon }, // Nova rota para Vagas
+        { to: '/admin/candidaturas', label: 'Gerir Candidaturas', icon: DocumentDuplicateIcon },
+        { to: '/admin/candidaturas/gerir', label: 'Supervisionar Candidaturas', icon: EyeIcon },
+        { to: '/admin/candidaturas/avaliar', label: 'Avaliar Candidaturas', icon: CheckCircleIcon },
         { to: '/gerirresidentes', label: 'Gerir Residentes', icon: UsersIcon },
         { to: '/gerircamas', label: 'Gerir Camas', icon: TableCellsIcon },
         { to: '/geriredificios', label: 'Gerir Edifícios', icon: BuildingOfficeIcon },
@@ -24,7 +36,6 @@ function Sidebar() {
         { to: '/edificios', label: 'Edifícios', icon: BuildingOfficeIcon },
         { to: '/quartos', label: 'Quartos', icon: CubeIcon },
         { to: '/camas', label: 'Camas', icon: TableCellsIcon },
-        { to: '/candidaturas', label: 'Candidaturas', icon: DocumentDuplicateIcon },
         { to: '/reports', label: 'Relatórios', icon: DocumentTextIcon },
     ];
 

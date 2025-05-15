@@ -2,12 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('candidaturas/', views.lista_candidaturas, name='lista_candidaturas'),
-    path('candidaturas/<int:pk>/', views.detalhe_candidatura, name='detalhe_candidatura'),
-    path('candidaturas/residencia/<int:residencia_id>/', views.candidaturas_por_residencia, name='candidaturas_por_residencia'),
-    path('candidaturas/estudante/<int:estudante_id>/', views.candidaturas_por_estudante, name='candidaturas_por_estudante'),
-    path('candidaturas/estado/', views.candidaturas_por_estado, name='candidaturas_por_estado'),
-
     path('residentes/', views.lista_residentes, name='lista_residentes'),
     path('residentes/<int:pk>/', views.detalhe_residente, name='detalhe_residente'),
     path('residentes/quarto/<int:quarto_id>/', views.residentes_por_quarto, name='residentes_por_quarto'),

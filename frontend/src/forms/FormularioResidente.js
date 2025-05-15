@@ -7,7 +7,6 @@ import {
     Container,
     Paper,
     Typography,
-    Alert
 } from '@mui/material';
 import Notificacoes from '../components/Notificacoes';
 import AuthService from '../services/AuthService';

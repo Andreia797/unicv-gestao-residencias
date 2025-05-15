@@ -11,7 +11,7 @@ import {
     CircularProgress,
 } from '@mui/material';
 import { Visibility, CheckCircle, Close } from '@mui/icons-material';
-import Notificacoes from '../Notificacoes';
+import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
 
 function AdminCandidaturas() {
@@ -93,15 +93,8 @@ function AdminCandidaturas() {
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Gestão de Candidaturas</h1>
-            <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <TextField
-                label="Pesquisar"
-                value={pesquisa}
-                onChange={(e) => setPesquisa(e.target.value)}
-                className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                variant="outlined"
-                size="small"
-            />
+            <NotificacoesCandidatura mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+            <TextField label="Pesquisar" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)} className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" variant="outlined" size="small" />
             {loading ? (
                 <div className="flex justify-center items-center h-32">
                     <CircularProgress />
@@ -120,32 +113,24 @@ function AdminCandidaturas() {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {candidaturasFiltradas
-                                .slice(pagina * resultadosPorPagina, pagina * resultadosPorPagina + resultadosPorPagina)
+                                .slice(pagina * resultadosPorPagina, (pagina + 1) * resultadosPorPagina)
                                 .map((candidatura) => (
-                                    <tr key={candidatura.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.nome}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <tr key={candidatura.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.nome}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             {format(new Date(candidatura.dataCriacao), 'dd/MM/yyyy', { locale: ptBR })}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.status}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right">
                                             <Tooltip title="Aprovar">
-                                                <IconButton
-                                                    onClick={() => handleAprovar(candidatura.id)}
-                                                    color="success"
-                                                    className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full"
-                                                >
-                                                    <CheckCircle />
+                                                <IconButton onClick={() => handleAprovar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full">
+                                                    <CheckCircle color="success" />
                                                 </IconButton>
                                             </Tooltip>
                                             <Tooltip title="Rejeitar">
-                                                <IconButton
-                                                    onClick={() => handleRejeitar(candidatura.id)}
-                                                    color="error"
-                                                    className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2"
-                                                >
-                                                    <Close />
+                                                <IconButton onClick={() => handleRejeitar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                    <Close color="error" />
                                                 </IconButton>
                                             </Tooltip>
                                             <Tooltip title="Detalhes">

@@ -145,7 +145,7 @@ function GerirUtilizadores() {
     return (
         <div className="p-4">
             {mensagem && <Alert severity={tipoMensagem}>{mensagem}</Alert>}
-            <h2 className="text-2xl font-semibold mb-4">Gerir Utilizadores</h2>
+            <h2 className="text-2xl font-semibold mb-4">Gestão de Utilizadores</h2>
             <div className="flex justify-end mb-4">
             <Button variant="contained" color="primary" onClick={() => setEditUtilizadorId('novo')} className="mb-4">
                 Adicionar Utilizador

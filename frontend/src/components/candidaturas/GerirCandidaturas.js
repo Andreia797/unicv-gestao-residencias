@@ -9,7 +9,7 @@ import {
     Button,
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
-import Notificacoes from '../Notificacoes';
+import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
 
 function GerirCandidaturas() {
@@ -71,7 +71,7 @@ function GerirCandidaturas() {
 
     return (
         <div className="p-4">
-            <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+            <NotificacoesCandidatura  mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
             <div className="flex justify-end mb-4">
                 <Button component={Link} to="/candidaturas/nova" variant="contained" color="primary">
                     Adicionar Nova Candidatura
@@ -87,26 +87,40 @@ function GerirCandidaturas() {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Estudante</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Residência</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edifício</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Submissão</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Nome do Estudante
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Residência
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Edifício
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Data de Submissão
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Estado
+                                    </th>
+                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ações
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {candidaturas
-                                    .slice(pagina * resultadosPorPagina, pagina * resultadosPorPagina + resultadosPorPagina)
+                                    .slice(pagina * resultadosPorPagina, (pagina + 1) * resultadosPorPagina)
                                     .map((candidatura) => (
-                                        <tr key={candidatura.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.estudante?.Nome}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.residencia?.Nome}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.residencia?.edificio}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatarData(candidatura.DataSubmissao)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidatura.status}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <Tooltip title="Detalhes">
+                                        <tr key={candidatura.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap">{candidatura.estudante?.Nome}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.Nome}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.edificio}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {formatarData(candidatura.DataSubmissao)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                                                <Tooltip title="Ver Detalhes">
                                                     <IconButton component={Link} to={`/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
                                                         <Visibility className="text-blue-500" />
                                                     </IconButton>

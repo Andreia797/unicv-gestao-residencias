@@ -67,7 +67,7 @@ function GerirQuartos() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <h2 className="text-2xl font-semibold mb-4">Gerir Quartos</h2>
+            <h2 className="text-2xl font-semibold mb-4">Gestão de Quartos</h2>
             <div className="flex justify-end mb-4">
                 <Button component={Link} to="/quartos/criar" variant="contained" color="primary">
                     Adicionar Novo Quarto

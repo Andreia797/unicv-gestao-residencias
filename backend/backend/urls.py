@@ -6,5 +6,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('2fa/', include(two_factor_urls.urlpatterns)),
     path('api/accounts/', include('accounts.urls')),
+    path('api/candidaturas/', include('candidaturas.urls')),
     path('api/relatorios/', include('relatorios.urls')),
 ]

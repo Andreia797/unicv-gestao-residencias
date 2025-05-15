@@ -67,7 +67,7 @@ function GerirResidentes() {
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <h2 className="text-2xl font-semibold mb-4">Gerir Residentes</h2>
+            <h2 className="text-2xl font-semibold mb-4">Gestão de Residentes</h2>
             <div className="flex justify-end mb-4">
                 <Button component={Link} to="/residentes/criar" variant="contained" color="primary">
                     Adicionar Novo Residente
