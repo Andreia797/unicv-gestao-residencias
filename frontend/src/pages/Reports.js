@@ -34,15 +34,15 @@ function Reports() {
             setLoading(true);
             setError(null);
             try {
-                const candidaturasData = await AuthService.authenticatedRequest('get', 'relatorios', '/candidaturas/estado/');
+                const candidaturasData = await AuthService.authenticatedRequest('get', '/relatorios/candidaturas/estado/');
                 setCandidaturasReport(candidaturasData.data);
-                const residentesData = await AuthService.authenticatedRequest('get', 'relatorios', '/residentes/total/');
+                const residentesData = await AuthService.authenticatedRequest('get', '/relatorios/residentes/total/');
                 setResidentesReport(residentesData.data);
-                const edificiosData = await AuthService.authenticatedRequest('get', 'relatorios', '/edificios/tipo/');
+                const edificiosData = await AuthService.authenticatedRequest('get', '/relatorios/edificios/tipo/');
                 setEdificiosReport(edificiosData.data);
-                const quartosData = await AuthService.authenticatedRequest('get', 'relatorios', '/quartos/relatorio/');
+                const quartosData = await AuthService.authenticatedRequest('get', '/relatorios/quartos/relatorio/');
                 setQuartosReport(quartosData.data);
-                const camasData = await AuthService.authenticatedRequest('get', 'relatorios', '/camas/relatorio/');
+                const camasData = await AuthService.authenticatedRequest('get', '/relatorios/camas/relatorio/');
                 setCamasReport(camasData.data);
             } catch (err) {
                 console.error('Erro ao buscar relatórios:', err);

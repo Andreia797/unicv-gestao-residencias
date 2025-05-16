@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -13,6 +13,8 @@ import {
 import { Visibility, CheckCircle, Close } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
+import  {AuthContext, AuthProvider } from '../AuthContext';
+
 
 function AdminCandidaturas() {
     const [candidaturas, setCandidaturas] = useState([]);
@@ -22,6 +24,7 @@ function AdminCandidaturas() {
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(10);
     const [pesquisa, setPesquisa] = useState('');
+    const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
 
     useEffect(() => {
         const fetchData = async () => {
@@ -90,6 +93,10 @@ function AdminCandidaturas() {
         setPagina(0);
     };
 
+    // Lógica de controle de acesso para as ações (assumindo que apenas administradores podem aprovar/rejeitar)
+    const podeAprovarRejeitar = user?.groups?.includes("administrador");
+    const podeVerDetalhes = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador"); // Exemplo: funcionários também podem ver detalhes
+
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Gestão de Candidaturas</h1>
@@ -123,21 +130,27 @@ function AdminCandidaturas() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            <Tooltip title="Aprovar">
-                                                <IconButton onClick={() => handleAprovar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full">
-                                                    <CheckCircle color="success" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Rejeitar">
-                                                <IconButton onClick={() => handleRejeitar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                    <Close color="error" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Detalhes">
-                                                <IconButton component={Link} to={`/admin/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full ml-2">
-                                                    <Visibility color="info" />
-                                                </IconButton>
-                                            </Tooltip>
+                                            {podeAprovarRejeitar && (
+                                                <>
+                                                    <Tooltip title="Aprovar">
+                                                        <IconButton onClick={() => handleAprovar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full">
+                                                            <CheckCircle color="success" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Rejeitar">
+                                                        <IconButton onClick={() => handleRejeitar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                            <Close color="error" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </>
+                                            )}
+                                            {podeVerDetalhes && (
+                                                <Tooltip title="Detalhes">
+                                                    <IconButton component={Link} to={`/admin/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full ml-2">
+                                                        <Visibility color="info" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

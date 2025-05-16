@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
-import { TextField,Typography, Button, Paper, Container, Alert, CircularProgress, FormControl, InputLabel, Select, MenuItem, FormHelperText, Checkbox, FormControlLabel } from '@mui/material';
-
+import { TextField, Typography, Button, Paper, Container, Alert, CircularProgress, FormControl, InputLabel, Select, MenuItem, FormHelperText, Checkbox, FormControlLabel } from '@mui/material';
+import { AuthContext } from '../AuthContext';
 function UserEdit() {
     const { id } = useParams();
     const [formData, setFormData] = useState({
-        name: '', 
+        name: '',
         permissao: '',
         permissoesDetalhadas: [],
     });
@@ -14,6 +14,7 @@ function UserEdit() {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const [permissoesDisponiveis, setPermissoesDisponiveis] = useState([]);
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -22,7 +23,7 @@ function UserEdit() {
             try {
                 const response = await AuthService.authenticatedRequest('get', 'accounts', `/users/${id}/`);
                 setFormData({
-                    name: response.data.profile?.name || '', 
+                    name: response.data.profile?.name || '',
                     permissao: response.data.profile?.permissao || '',
                     permissoesDetalhadas: response.data.profile?.permissoes_detalhadas || [],
                 });
@@ -60,7 +61,7 @@ function UserEdit() {
         setError(null);
         try {
             await AuthService.authenticatedRequest('put', 'accounts', `/users/${id}/`, { profile: formData });
-            navigate('/gerirutilizadores'); 
+            navigate('/gerirutilizadores');
         } catch (err) {
             console.error('Erro ao atualizar utilizador:', err);
             setError('Erro ao atualizar utilizador.');
@@ -68,6 +69,19 @@ function UserEdit() {
             setLoading(false);
         }
     };
+
+    const podeEditar = user?.groups?.includes("administrador");
+
+    if (!podeEditar) {
+        return (
+            <Container maxWidth="sm">
+                <Alert severity="warning" className="mt-4">Você não tem permissão para editar este utilizador.</Alert>
+                <Button component={Link} to="/gerirutilizadores" variant="outlined" className="mt-2">
+                    Voltar para Gerir Utilizadores
+                </Button>
+            </Container>
+        );
+    }
 
     if (loading) {
         return (
@@ -97,7 +111,7 @@ function UserEdit() {
                     <TextField
                         label="Nome"
                         name="name"
-                        value={formData.name} 
+                        value={formData.name}
                         onChange={handleChange}
                         fullWidth
                         margin="normal"

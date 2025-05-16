@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -11,6 +11,7 @@ import {
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
 import AuthService from '../../services/AuthService'; // Importe o AuthService
+import { AuthContext } from '../AuthContext';
 
 function UserList() {
     const [users, setUsers] = useState([]);
@@ -20,6 +21,7 @@ function UserList() {
     const [pesquisa, setPesquisa] = useState('');
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(10);
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -57,7 +59,7 @@ function UserList() {
 
     const usersFiltrados = users.filter((user) =>
         user.username?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-        user.email?.toLowerCase().includes(pesquisa.toLowerCase()) // Adicionada pesquisa por email
+        user.email?.toLowerCase().includes(pesquisa.toLowerCase())
     );
 
     const handleChangePage = (event, novaPagina) => {
@@ -68,6 +70,9 @@ function UserList() {
         setResultadosPorPagina(parseInt(event.target.value, 10));
         setPagina(0);
     };
+
+    const podeVerDetalhes = user?.groups?.includes("administrador") || user?.groups?.includes("funcionario");
+    const podeEditarExcluir = user?.groups?.includes("administrador");
 
     return (
         <div className="p-4">
@@ -104,21 +109,27 @@ function UserList() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <Tooltip title="Detalhes">
-                                                <IconButton component={Link} to={`/users/${user.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
-                                                    <Visibility className="text-blue-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Editar">
-                                                <IconButton component={Link} to={`/users/edit/${user.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
-                                                    <Edit className="text-yellow-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Excluir">
-                                                <IconButton onClick={() => handleDeleteUser(user.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                    <Delete className="text-red-500" />
-                                                </IconButton>
-                                            </Tooltip>
+                                            {podeVerDetalhes && (
+                                                <Tooltip title="Detalhes">
+                                                    <IconButton component={Link} to={`/users/${user.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
+                                                        <Visibility className="text-blue-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {podeEditarExcluir && (
+                                                <>
+                                                    <Tooltip title="Editar">
+                                                        <IconButton component={Link} to={`/users/edit/${user.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                            <Edit className="text-yellow-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Excluir">
+                                                        <IconButton onClick={() => handleDeleteUser(user.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                            <Delete className="text-red-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

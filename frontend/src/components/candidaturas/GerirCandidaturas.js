@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -11,6 +11,7 @@ import {
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
+import  {AuthContext, AuthProvider } from '../AuthContext';
 
 function GerirCandidaturas() {
     const [candidaturas, setCandidaturas] = useState([]);
@@ -19,6 +20,7 @@ function GerirCandidaturas() {
     const [loading, setLoading] = useState(true);
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(5);
+    const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
 
     const fetchCandidaturas = async () => {
         setLoading(true);
@@ -69,14 +71,22 @@ function GerirCandidaturas() {
         setPagina(0);
     };
 
+    // Lógica de controle de acesso para as ações
+    const podeVerDetalhes = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeEditar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeExcluir = user?.groups?.includes("administrador");
+    const podeAdicionar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+
     return (
         <div className="p-4">
-            <NotificacoesCandidatura  mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            <div className="flex justify-end mb-4">
-                <Button component={Link} to="/candidaturas/nova" variant="contained" color="primary">
-                    Adicionar Nova Candidatura
-                </Button>
-            </div>
+            <NotificacoesCandidatura mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+            {podeAdicionar && (
+                <div className="flex justify-end mb-4">
+                    <Button component={Link} to="/candidaturas/nova" variant="contained" color="primary">
+                        Adicionar Nova Candidatura
+                    </Button>
+                </div>
+            )}
             {loading ? (
                 <div className="flex justify-center items-center h-32">
                     <CircularProgress />
@@ -120,21 +130,27 @@ function GerirCandidaturas() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                <Tooltip title="Ver Detalhes">
-                                                    <IconButton component={Link} to={`/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
-                                                        <Visibility className="text-blue-500" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Editar">
-                                                    <IconButton component={Link} to={`/candidaturas/editar/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
-                                                        <Edit className="text-yellow-500" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Excluir">
-                                                    <IconButton onClick={() => handleDelete(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                        <Delete className="text-red-500" />
-                                                    </IconButton>
-                                                </Tooltip>
+                                                {podeVerDetalhes && (
+                                                    <Tooltip title="Ver Detalhes">
+                                                        <IconButton component={Link} to={`/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
+                                                            <Visibility className="text-blue-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+                                                {podeEditar && (
+                                                    <Tooltip title="Editar">
+                                                        <IconButton component={Link} to={`/candidaturas/editar/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                            <Edit className="text-yellow-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+                                                {podeExcluir && (
+                                                    <Tooltip title="Excluir">
+                                                        <IconButton onClick={() => handleDelete(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                            <Delete className="text-red-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

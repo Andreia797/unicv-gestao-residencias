@@ -1,10 +1,10 @@
 import AuthService from './AuthService';
 
-
 const CandidaturaService = {
+
     getCandidaturas: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('GET', 'relatorios', '/candidaturas/');
+            const response = await AuthService.authenticatedRequest('GET', 'candidaturas', '/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar candidaturas:', error);
@@ -14,7 +14,7 @@ const CandidaturaService = {
 
     getCandidatura: async (id) => {
         try {
-            const response = await AuthService.authenticatedRequest('GET', 'relatorios', `/candidaturas/${id}/`);
+            const response = await AuthService.authenticatedRequest('GET', 'candidaturas', `/${id}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar candidatura com ID ${id}:`, error);
@@ -24,7 +24,7 @@ const CandidaturaService = {
 
     criarCandidatura: async (candidatura) => {
         try {
-            const response = await AuthService.authenticatedRequest('POST', 'relatorios', '/candidaturas/', candidatura);
+            const response = await AuthService.authenticatedRequest('POST', 'candidaturas', '/', candidatura);
             return response.data;
         } catch (error) {
             console.error('Erro ao criar candidatura:', error);
@@ -34,7 +34,7 @@ const CandidaturaService = {
 
     atualizarCandidatura: async (id, candidatura) => {
         try {
-            const response = await AuthService.authenticatedRequest('PUT', 'relatorios', `/candidaturas/${id}/`, candidatura);
+            const response = await AuthService.authenticatedRequest('PUT', 'candidaturas', `/${id}/`, candidatura);
             return response.data;
         } catch (error) {
             console.error('Erro ao atualizar candidatura:', error);
@@ -44,7 +44,7 @@ const CandidaturaService = {
 
     excluirCandidatura: async (id) => {
         try {
-            const response = await AuthService.authenticatedRequest('DELETE', 'relatorios', `/candidaturas/${id}/`);
+            const response = await AuthService.authenticatedRequest('DELETE', 'candidaturas', `/${id}/`);
             return response.data;
         } catch (error) {
             console.error('Erro ao excluir candidatura:', error);
@@ -54,7 +54,7 @@ const CandidaturaService = {
 
     getCandidaturasPorResidencia: async (residenciaId) => {
         try {
-            const response = await AuthService.authenticatedRequest('GET', 'relatorios', `/candidaturas/residencia/${residenciaId}/`);
+            const response = await AuthService.authenticatedRequest('GET', 'candidaturas', `/residencia/${residenciaId}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar candidaturas para residência ${residenciaId}:`, error);
@@ -64,7 +64,7 @@ const CandidaturaService = {
 
     getCandidaturasPorEstudante: async (estudanteId) => {
         try {
-            const response = await AuthService.authenticatedRequest('GET', 'relatorios', `/candidaturas/estudante/${estudanteId}/`);
+            const response = await AuthService.authenticatedRequest('GET', 'candidaturas', `/estudante/${estudanteId}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar candidaturas para estudante ${estudanteId}:`, error);

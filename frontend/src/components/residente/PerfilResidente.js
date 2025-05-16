@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 import {
     Paper,
     Typography,
@@ -17,6 +18,7 @@ function PerfilResidente() {
     const [residente, setResidente] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchResidente = async () => {
@@ -52,6 +54,13 @@ function PerfilResidente() {
         return <Typography>Residente não encontrado.</Typography>;
     }
 
+    const podeEditar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeVerPerfil = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador") || user?.groups?.includes("estudante");
+
+    if (!podeVerPerfil) {
+        return <Alert severity="warning">Você não tem permissão para ver o perfil deste residente.</Alert>;
+    }
+
     return (
         <Paper className="p-6 mt-4 shadow-md rounded-lg">
             <Typography variant="h5" gutterBottom className="font-semibold text-xl">
@@ -83,14 +92,16 @@ function PerfilResidente() {
                 >
                     Voltar
                 </Button>
-                <Button
-                    component={Link}
-                    to={`/residentes/editar/${residente.id}`}
-                    variant="contained"
-                    color="secondary"
-                >
-                    Editar
-                </Button>
+                {podeEditar && (
+                    <Button
+                        component={Link}
+                        to={`/residentes/editar/${residente.id}`}
+                        variant="contained"
+                        color="secondary"
+                    >
+                        Editar
+                    </Button>
+                )}
             </div>
         </Paper>
     );

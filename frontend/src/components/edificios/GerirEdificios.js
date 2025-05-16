@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -10,7 +10,8 @@ import {
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
+import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 
 function GerirEdificios() {
     const [edificios, setEdificios] = useState([]);
@@ -19,29 +20,32 @@ function GerirEdificios() {
     const [loading, setLoading] = useState(true);
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(5);
-
-    const fetchEdificios = async () => {
-        setLoading(true);
-        try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/edificios/');
-            setEdificios(response.data);
-        } catch (error) {
-            console.error('Erro ao buscar edifícios:', error);
-            setMensagem('Erro ao buscar edifícios.');
-            setTipoMensagem('error');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
+        const fetchEdificios = async () => {
+            setLoading(true);
+            try {
+                const response = await AuthService.authenticatedRequest('get', '/edificios/');
+                setEdificios(response.data);
+            } catch (error) {
+                console.error('Erro ao buscar edifícios:', error);
+                setMensagem('Erro ao buscar edifícios.');
+                setTipoMensagem('error');
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchEdificios();
     }, []);
 
     const handleDelete = async (id) => {
         try {
-            await AuthService.authenticatedRequest('delete', 'relatorios', `/edificios/${id}/`);
-            fetchEdificios();
+            await AuthService.authenticatedRequest('delete', `/edificios/${id}/`);
+            // Após a exclusão bem-sucedida, refazer a busca de edifícios para atualizar a lista
+            const response = await AuthService.authenticatedRequest('get', '/edificios/');
+            setEdificios(response.data);
             setMensagem('Edifício excluído com sucesso.');
             setTipoMensagem('success');
         } catch (error) {
@@ -64,15 +68,20 @@ function GerirEdificios() {
         setPagina(0);
     };
 
+    const podeEditarExcluir = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeAdicionar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
             <h2 className="text-2xl font-semibold mb-4">Gestão de Edifícios</h2>
-            <div className="flex justify-end mb-4">
-                <Button component={Link} to="/edificios/criar" variant="contained" color="primary">
-                    Adicionar Novo Edifício
-                </Button>
-            </div>
+            {podeAdicionar && (
+                <div className="flex justify-end mb-4">
+                    <Button component={Link} to="/edificios/criar" variant="contained" color="primary">
+                        Adicionar Novo Edifício
+                    </Button>
+                </div>
+            )}
             {loading ? (
                 <div className="flex justify-center items-center h-32">
                     <CircularProgress />
@@ -103,16 +112,20 @@ function GerirEdificios() {
                                                         <Visibility className="text-blue-500" />
                                                     </IconButton>
                                                 </Tooltip>
-                                                <Tooltip title="Editar">
-                                                    <IconButton component={Link} to={`/edificios/editar/${edificio.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
-                                                        <Edit className="text-yellow-500" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Excluir">
-                                                    <IconButton onClick={() => handleDelete(edificio.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                        <Delete className="text-red-500" />
-                                                    </IconButton>
-                                                </Tooltip>
+                                                {podeEditarExcluir && (
+                                                    <>
+                                                        <Tooltip title="Editar">
+                                                            <IconButton component={Link} to={`/edificios/editar/${edificio.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                                <Edit className="text-yellow-500" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Excluir">
+                                                            <IconButton onClick={() => handleDelete(edificio.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                                <Delete className="text-red-500" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

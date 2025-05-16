@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 import {
     Paper,
     Typography,
@@ -17,6 +18,7 @@ function QuartoDetalhes() {
     const [quarto, setQuarto] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchQuarto = async () => {
@@ -52,6 +54,13 @@ function QuartoDetalhes() {
         return <Typography>Quarto não encontrado.</Typography>;
     }
 
+    const podeEditar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeVerDetalhes = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador") || user?.groups?.includes("estudante");
+
+    if (!podeVerDetalhes) {
+        return <Alert severity="warning">Você não tem permissão para ver os detalhes deste quarto.</Alert>;
+    }
+
     return (
         <Paper className="p-6 mt-4 shadow-md rounded-lg">
             <Typography variant="h5" gutterBottom className="font-semibold text-xl">
@@ -81,9 +90,11 @@ function QuartoDetalhes() {
                 <Button component={Link} to="/quartos" variant="contained" color="primary">
                     Voltar
                 </Button>
-                <Button component={Link} to={`/quartos/editar/${quarto.id}`} variant="contained" color="secondary">
-                    Editar
-                </Button>
+                {podeEditar && (
+                    <Button component={Link} to={`/quartos/editar/${quarto.id}`} variant="contained" color="secondary">
+                        Editar
+                    </Button>
+                )}
             </div>
         </Paper>
     );

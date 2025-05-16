@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 import {
     Paper,
     Typography,
@@ -17,6 +18,7 @@ function EdificioDetalhes() {
     const [edificio, setEdificio] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
 
     useEffect(() => {
         const fetchEdificio = async () => {
@@ -51,6 +53,14 @@ function EdificioDetalhes() {
         return <Alert severity="warning">Edifício não encontrado.</Alert>;
     }
 
+    // Lógica de controle de acesso para a edição do edifício
+    const podeEditarEdificio = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeVerDetalhesEdificio = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador") || user?.groups?.includes("estudante");
+
+    if (!podeVerDetalhesEdificio) {
+        return <Alert severity="warning">Você não tem permissão para ver os detalhes deste edifício.</Alert>;
+    }
+
     return (
         <Paper className="p-6 mt-4 shadow-md rounded-lg">
             <Typography variant="h5" gutterBottom className="font-semibold text-xl">
@@ -74,24 +84,26 @@ function EdificioDetalhes() {
                 </ListItem>
             </List>
             <div className="mt-4 flex gap-2">
-            <Button
-                component={Link}
-                to="/edificios"
-                variant="contained"
-                color="primary"
-                className="mt-4 mr-2"
-            >
-                Voltar
-            </Button>
-            <Button
-                component={Link}
-                to={`/edificios/editar/${edificio.id}`}
-                variant="contained"
-                color="secondary"
-                className="mt-4"
-            >
-                Editar
-            </Button>
+                <Button
+                    component={Link}
+                    to="/edificios"
+                    variant="contained"
+                    color="primary"
+                    className="mt-4 mr-2"
+                >
+                    Voltar
+                </Button>
+                {podeEditarEdificio && (
+                    <Button
+                        component={Link}
+                        to={`/edificios/editar/${edificio.id}`}
+                        variant="contained"
+                        color="secondary"
+                        className="mt-4"
+                    >
+                        Editar
+                    </Button>
+                )}
             </div>
         </Paper>
     );

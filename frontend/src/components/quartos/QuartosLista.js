@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -10,7 +10,8 @@ import {
 } from '@mui/material';
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService'; 
+import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 
 function QuartosLista() {
     const [quartos, setQuartos] = useState([]);
@@ -20,6 +21,7 @@ function QuartosLista() {
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(10);
     const [loading, setLoading] = useState(true);
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -41,7 +43,7 @@ function QuartosLista() {
     const excluirQuarto = async (id) => {
         try {
             await AuthService.authenticatedRequest('delete', 'relatorios', `/quartos/${id}/`);
-           
+
             setQuartos(quartos.filter((quarto) => quarto.id !== id));
             setMensagem('Quarto excluído com sucesso.');
             setTipoMensagem('success');
@@ -60,7 +62,7 @@ function QuartosLista() {
         return (
             quarto.numero?.toLowerCase().includes(pesquisa.toLowerCase()) ||
             String(quarto.capacidade)?.includes(pesquisa.toLowerCase()) ||
-            quarto.edificio?.nome?.toLowerCase().includes(pesquisa.toLowerCase()) 
+            quarto.edificio?.nome?.toLowerCase().includes(pesquisa.toLowerCase())
         );
     });
 
@@ -72,6 +74,8 @@ function QuartosLista() {
         setResultadosPorPagina(parseInt(event.target.value, 10));
         setPagina(0);
     };
+
+    const podeEditarExcluir = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
 
     return (
         <div className="p-4">
@@ -114,16 +118,20 @@ function QuartosLista() {
                                                     <Visibility className="text-blue-500" />
                                                 </IconButton>
                                             </Tooltip>
-                                            <Tooltip title="Editar">
-                                                <IconButton component={Link} to={`/quartos/editar/${quarto.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
-                                                    <Edit className="text-yellow-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Excluir">
-                                                <IconButton onClick={() => excluirQuarto(quarto.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                    <Delete className="text-red-500" />
-                                                </IconButton>
-                                            </Tooltip>
+                                            {podeEditarExcluir && (
+                                                <>
+                                                    <Tooltip title="Editar">
+                                                        <IconButton component={Link} to={`/quartos/editar/${quarto.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                            <Edit className="text-yellow-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Excluir">
+                                                        <IconButton onClick={() => excluirQuarto(quarto.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                            <Delete className="text-red-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

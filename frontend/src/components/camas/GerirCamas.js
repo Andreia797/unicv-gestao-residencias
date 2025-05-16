@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -11,6 +11,7 @@ import {
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
 import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 
 function GerirCamas() {
     const [camas, setCamas] = useState([]);
@@ -19,6 +20,7 @@ function GerirCamas() {
     const [loading, setLoading] = useState(true);
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(5);
+    const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
 
     useEffect(() => {
         fetchCamas();
@@ -51,15 +53,23 @@ function GerirCamas() {
         }
     };
 
+    // Lógica de controle de acesso para as ações
+    const podeAdicionarCama = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeEditarCama = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeExcluirCama = user?.groups?.includes("administrador");
+    const podeVerDetalhesCama = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador") || user?.groups?.includes("estudante"); // Exemplo: estudantes podem ver detalhes
+
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={() => setMensagem(null)} />
             <h2 className="text-2xl font-semibold mb-4">Gestão de Camas</h2>
-            <div className="flex justify-end mb-4">
-                <Button component={Link} to="/camas/criar" variant="contained" color="primary">
-                    Adicionar Nova Cama
-                </Button>
-            </div>
+            {podeAdicionarCama && (
+                <div className="flex justify-end mb-4">
+                    <Button component={Link} to="/camas/criar" variant="contained" color="primary">
+                        Adicionar Nova Cama
+                    </Button>
+                </div>
+            )}
             {loading ? (
                 <div className="flex justify-center items-center h-32">
                     <CircularProgress />
@@ -69,7 +79,7 @@ function GerirCamas() {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Quarto</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
@@ -84,21 +94,27 @@ function GerirCamas() {
                                         <td className="px-6 py-4 text-sm text-gray-900">{cama.quarto?.tipo}</td>
                                         <td className="px-6 py-4 text-sm text-gray-900">{cama.status}</td>
                                         <td className="px-6 py-4 text-right text-sm font-medium">
-                                            <Tooltip title="Detalhes">
-                                                <IconButton component={Link} to={`/camas/${cama.id}`} className="ml-1">
-                                                    <Visibility className="text-blue-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Editar">
-                                                <IconButton component={Link} to={`/camas/editar/${cama.id}`} className="ml-2">
-                                                    <Edit className="text-yellow-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Excluir">
-                                                <IconButton onClick={() => handleDelete(cama.id)} className="ml-2">
-                                                    <Delete className="text-red-500" />
-                                                </IconButton>
-                                            </Tooltip>
+                                            {podeVerDetalhesCama && (
+                                                <Tooltip title="Detalhes">
+                                                    <IconButton component={Link} to={`/camas/${cama.id}`} className="ml-1">
+                                                        <Visibility className="text-blue-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {podeEditarCama && (
+                                                <Tooltip title="Editar">
+                                                    <IconButton component={Link} to={`/camas/editar/${cama.id}`} className="ml-2">
+                                                        <Edit className="text-yellow-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {podeExcluirCama && (
+                                                <Tooltip title="Excluir">
+                                                    <IconButton onClick={() => handleDelete(cama.id)} className="ml-2">
+                                                        <Delete className="text-red-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

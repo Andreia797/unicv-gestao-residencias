@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -10,7 +10,8 @@ import {
 } from '@mui/material';
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
-import AuthService from '../../services/AuthService'; // Importe o AuthService
+import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 
 function ResidentesLista() {
     const [residentes, setResidentes] = useState([]);
@@ -20,6 +21,7 @@ function ResidentesLista() {
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(10);
     const [loading, setLoading] = useState(true);
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -74,6 +76,8 @@ function ResidentesLista() {
         setPagina(0);
     };
 
+    const podeEditarExcluir = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+
     return (
         <div className="p-4">
             <Notificacoes mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
@@ -106,7 +110,7 @@ function ResidentesLista() {
                                 .slice(pagina * resultadosPorPagina, pagina * resultadosPorPagina + resultadosPorPagina)
                                 .map((residente) => (
                                     <tr key={residente.id} className="hover:bg-gray-50">
-                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{residente.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{residente.id}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{residente.nome}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{residente.email}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -115,16 +119,20 @@ function ResidentesLista() {
                                                     <Visibility className="text-blue-500" />
                                                 </IconButton>
                                             </Tooltip>
-                                            <Tooltip title="Editar">
-                                                <IconButton component={Link} to={`/residentes/editar/${residente.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
-                                                    <Edit className="text-yellow-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Excluir">
-                                                <IconButton onClick={() => excluirResidente(residente.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                    <Delete className="text-red-500" />
-                                                </IconButton>
-                                            </Tooltip>
+                                            {podeEditarExcluir && (
+                                                <>
+                                                    <Tooltip title="Editar">
+                                                        <IconButton component={Link} to={`/residentes/editar/${residente.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                            <Edit className="text-yellow-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Excluir">
+                                                        <IconButton onClick={() => excluirResidente(residente.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                            <Delete className="text-red-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

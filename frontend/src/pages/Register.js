@@ -31,7 +31,7 @@ function Register() {
             await AuthService.register({ username, email, first_name: firstName, last_name: lastName, password });
             navigate('/login');
         } catch (err) {
-            setError(err.response?.data?.error || 'Erro ao registrar usuário.');
+            setError(err?.response?.data?.error || 'Erro ao registrar usuário.');
         } finally {
             setLoading(false);
         }

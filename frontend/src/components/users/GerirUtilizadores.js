@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -21,14 +21,15 @@ import {
     InputLabel,
     FormHelperText,
 } from '@mui/material';
-import { Edit, Delete, Visibility } from '@mui/icons-material';
-import AuthService from '../../services/AuthService'; 
+import { Visibility, Edit, Delete } from '@mui/icons-material';
+import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 
 function GerirUtilizadores() {
     const [utilizadores, setUtilizadores] = useState([]);
     const [editUtilizadorId, setEditUtilizadorId] = useState(null);
     const [formData, setFormData] = useState({
-        username: '', 
+        username: '',
         name: '',
         permissao: '',
         permissoesDetalhadas: [],
@@ -39,6 +40,7 @@ function GerirUtilizadores() {
     const [loading, setLoading] = useState(true);
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(5);
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         fetchUtilizadores();
@@ -51,7 +53,7 @@ function GerirUtilizadores() {
             const response = await AuthService.authenticatedRequest('get', 'accounts', '/users/');
             setUtilizadores(response.data.map(user => ({
                 ...user,
-                username: user.username || '', 
+                username: user.username || '',
                 name: user.profile?.name || '',
                 permissao: user.profile?.permissao || '',
                 permissoesDetalhadas: user.profile?.permissoes_detalhadas || [],
@@ -110,9 +112,9 @@ function GerirUtilizadores() {
         try {
             await AuthService.authenticatedRequest('post', 'accounts', '/users/create/', {
                 username: formData.username,
-                name: formData.name, 
-                email: '', 
-                password: 'passwordpadrao', 
+                name: formData.name,
+                email: '', // You might want to add an email field
+                password: 'passwordpadrao', // Consider generating a random password or requiring the user to set it
                 profile: {
                     name: formData.name,
                     permissao: formData.permissao,
@@ -123,15 +125,13 @@ function GerirUtilizadores() {
             fetchUtilizadores();
             setMensagem('Utilizador criado com sucesso.');
             setTipoMensagem('success');
-            setEditUtilizadorId(null); 
+            setEditUtilizadorId(null);
         } catch (error) {
             console.error('Erro ao criar utilizador:', error);
             setMensagem('Erro ao criar utilizador.');
             setTipoMensagem('error');
         }
     };
-
-  
 
     const handleChangePage = (event, novaPagina) => {
         setPagina(novaPagina);
@@ -142,15 +142,21 @@ function GerirUtilizadores() {
         setPagina(0);
     };
 
+    const podeEditarExcluir = user?.groups?.includes("administrador");
+    const podeAdicionar = user?.groups?.includes("administrador");
+    const podeVerDetalhes = user?.groups?.includes("administrador") || user?.groups?.includes("funcionario");
+
     return (
         <div className="p-4">
             {mensagem && <Alert severity={tipoMensagem}>{mensagem}</Alert>}
             <h2 className="text-2xl font-semibold mb-4">Gestão de Utilizadores</h2>
-            <div className="flex justify-end mb-4">
-            <Button variant="contained" color="primary" onClick={() => setEditUtilizadorId('novo')} className="mb-4">
-                Adicionar Utilizador
-            </Button>
-            </div>
+            {podeAdicionar && (
+                <div className="flex justify-end mb-4">
+                    <Button variant="contained" color="primary" onClick={() => setEditUtilizadorId('novo')} className="mb-4">
+                        Adicionar Utilizador
+                    </Button>
+                </div>
+            )}
             {loading ? (
                 <div className="flex justify-center items-center h-32">
                     <CircularProgress />
@@ -178,21 +184,27 @@ function GerirUtilizadores() {
                                             <td className="px-6 py-4 text-sm text-gray-900">{utilizador.name}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{utilizador.permissao}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <Tooltip title="Detalhes">
-                                                    <IconButton component={Link} to={`/users/${utilizador.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
-                                                        <Visibility className="text-blue-500" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Editar">
-                                                    <IconButton onClick={() => handleEdit(utilizador)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
-                                                        <Edit className="text-yellow-500" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Excluir">
-                                                    <IconButton onClick={() => handleDelete(utilizador.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                        <Delete className="text-red-500" />
-                                                    </IconButton>
-                                                </Tooltip>
+                                                {podeVerDetalhes && (
+                                                    <Tooltip title="Detalhes">
+                                                        <IconButton component={Link} to={`/users/${utilizador.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
+                                                            <Visibility className="text-blue-500" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+                                                {podeEditarExcluir && (
+                                                    <>
+                                                        <Tooltip title="Editar">
+                                                            <IconButton onClick={() => handleEdit(utilizador)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                                <Edit className="text-yellow-500" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Excluir">
+                                                            <IconButton onClick={() => handleDelete(utilizador.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                                <Delete className="text-red-500" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

@@ -1,10 +1,9 @@
 import AuthService from './AuthService';
 
-
 const ReportService = {
     getCandidaturasPorEstado: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/candidaturas/estado/`);
+            const response = await AuthService.authenticatedRequest('get', 'candidaturas', `/estado/`);
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar candidaturas por estado:', error);
@@ -21,7 +20,6 @@ const ReportService = {
             throw error;
         }
     },
-   
 };
 
 export default ReportService;

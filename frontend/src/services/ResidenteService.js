@@ -55,7 +55,7 @@ const ResidenteService = {
 
     getResidentesPorQuarto: async (quartoId) => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `${API_URL}quarto/${quartoId}/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/quarto/${quartoId}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar residentes para o quarto ${quartoId}:`, error);

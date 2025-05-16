@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ReportService from '../services/ReportService';
 import AuthService from '../services/AuthService';
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, CartesianGrid, BarChart, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
+import { AuthContext } from '../components/AuthContext';
+import { Alert } from '@mui/material';
 
 function Dashboard() {
     const [candidaturasPorEstado, setCandidaturasPorEstado] = useState([]);
@@ -10,21 +12,16 @@ function Dashboard() {
     const [erroCandidaturas, setErroCandidaturas] = useState(null);
     const [erroResidentes, setErroResidentes] = useState(null);
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
-        if (!AuthService.getToken()) {
-            navigate('/login');
-            return;
-        }
-
         const fetchData = async () => {
             try {
                 const candidaturasResponse = await ReportService.getCandidaturasPorEstado();
-                // A correção está aqui: verificar se a resposta tem a chave 'statusCounts'
                 if (candidaturasResponse && candidaturasResponse.statusCounts) {
                     const formattedCandidaturas = candidaturasResponse.statusCounts.map(item => ({
                         estado: item.status,
-                        quantidadeDeCandidaturas: item.count, // A chave correta é 'count'
+                        quantidadeDeCandidaturas: item.count,
                     }));
                     setCandidaturasPorEstado(formattedCandidaturas);
                 } else {
@@ -48,8 +45,22 @@ function Dashboard() {
             }
         };
 
-        fetchData();
+        if (AuthService.getToken()) {
+            fetchData();
+        } else {
+            navigate('/login');
+        }
     }, [navigate]);
+
+    const podeVerDashboard = user?.groups?.includes("administrador") || user?.groups?.includes("funcionario");
+
+    if (!podeVerDashboard) {
+        return (
+            <div className="p-6">
+                <Alert severity="warning">Você não tem permissão para visualizar o dashboard.</Alert>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6">
@@ -59,7 +70,7 @@ function Dashboard() {
                 {/* Candidaturas por Estado */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h3 className="text-xl font-semibold mb-4 text-gray-700">Candidaturas por Estado</h3>
-                    {erroCandidaturas && <p className="text-red-500 mb-4">{erroCandidaturas}</p>}
+                    {erroCandidaturas && <Alert severity="error" className="mb-4">{erroCandidaturas}</Alert>}
                     {candidaturasPorEstado.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={candidaturasPorEstado}>
@@ -79,7 +90,7 @@ function Dashboard() {
                 {/* Residentes por Edifício */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h3 className="text-xl font-semibold mb-4 text-gray-700">Residentes por Edifício</h3>
-                    {erroResidentes && <p className="text-red-500 mb-4">{erroResidentes}</p>}
+                    {erroResidentes && <Alert severity="error" className="mb-4">{erroResidentes}</Alert>}
                     {residentesPorEdificio.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={residentesPorEdificio}>

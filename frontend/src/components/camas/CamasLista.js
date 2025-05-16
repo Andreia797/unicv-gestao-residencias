@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -11,6 +11,7 @@ import {
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import Notificacoes from '../Notificacoes';
 import AuthService from '../../services/AuthService';
+import { AuthContext } from '../AuthContext';
 
 function CamasLista() {
     const [camas, setCamas] = useState([]);
@@ -20,6 +21,7 @@ function CamasLista() {
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(10);
     const [loading, setLoading] = useState(true);
+    const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
 
     useEffect(() => {
         const fetchCamas = async () => {
@@ -57,6 +59,10 @@ function CamasLista() {
         cama.quarto?.edificio?.nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
         cama.status?.toLowerCase().includes(pesquisa.toLowerCase())
     );
+
+    // Lógica de controle de acesso para as ações de editar e excluir camas
+    const podeEditarCama = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeExcluirCama = user?.groups?.includes("administrador");
 
     return (
         <div className="p-4">
@@ -100,16 +106,20 @@ function CamasLista() {
                                                     <Visibility className="text-blue-500" />
                                                 </IconButton>
                                             </Tooltip>
-                                            <Tooltip title="Editar">
-                                                <IconButton component={Link} to={`/camas/editar/${cama.id}`} className="ml-2">
-                                                    <Edit className="text-yellow-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Excluir">
-                                                <IconButton onClick={() => excluirCama(cama.id)} className="ml-2">
-                                                    <Delete className="text-red-500" />
-                                                </IconButton>
-                                            </Tooltip>
+                                            {podeEditarCama && (
+                                                <Tooltip title="Editar">
+                                                    <IconButton component={Link} to={`/camas/editar/${cama.id}`} className="ml-2">
+                                                        <Edit className="text-yellow-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {podeExcluirCama && (
+                                                <Tooltip title="Excluir">
+                                                    <IconButton onClick={() => excluirCama(cama.id)} className="ml-2">
+                                                        <Delete className="text-red-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AuthService from '../../services/AuthService';// Use AuthService para requisições autenticadas
 import { Paper, Typography, Alert, CircularProgress, List, ListItem, ListItemText, Button } from '@mui/material';
+import { AuthContext } from '../AuthContext';
 
 function UserDetails() {
     const { id } = useParams();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { user: loggedInUser } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -41,6 +43,12 @@ function UserDetails() {
 
     if (!user) {
         return <Typography>Utilizador não encontrado.</Typography>;
+    }
+
+    const podeVerDetalhes = loggedInUser?.groups?.includes("administrador") || loggedInUser?.groups?.includes("funcionario");
+
+    if (!podeVerDetalhes) {
+        return <Alert severity="warning">Você não tem permissão para ver os detalhes deste utilizador.</Alert>;
     }
 
     return (

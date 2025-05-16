@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Paper,
@@ -13,6 +13,7 @@ import {
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
+import  {AuthContext, AuthProvider } from '../AuthContext';
 
 function CandidaturasLista() {
     const [candidaturas, setCandidaturas] = useState([]);
@@ -23,6 +24,7 @@ function CandidaturasLista() {
     const [pagina, setPagina] = useState(0);
     const [resultadosPorPagina, setResultadosPorPagina] = useState(10);
     const [loading, setLoading] = useState(true);
+    const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
 
     useEffect(() => {
         const fetchCandidaturas = async () => {
@@ -63,7 +65,7 @@ function CandidaturasLista() {
 
     const formatarData = (dataISO) => {
         const data = new Date(dataISO);
-        return data.toLocaleDateString(); 
+        return data.toLocaleDateString();
     };
 
     const filtrarCandidaturas = () =>
@@ -87,9 +89,14 @@ function CandidaturasLista() {
         setPagina(0);
     };
 
+    // Lógica de controle de acesso para as ações
+    const podeVerDetalhes = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador") || user?.groups?.includes("estudante");
+    const podeEditar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
+    const podeExcluir = user?.groups?.includes("administrador");
+
     return (
         <div className="p-4">
-            <NotificacoesCandidatura  mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
+            <NotificacoesCandidatura mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
             <div className="flex space-x-4 mb-4">
                 <TextField
                     label="Pesquisar"
@@ -156,26 +163,31 @@ function CandidaturasLista() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            <Tooltip title="Ver Detalhes">
-                                                <IconButton component={Link} to={`/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
-                                                    <Visibility className="text-blue-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Editar">
-                                                <IconButton component={Link} to={`/candidaturas/editar/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
-                                                    <Edit className="text-yellow-500" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Excluir">
-                                                <IconButton onClick={() => excluirCandidatura(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                    <Delete className="text-red-500" />
-                                                </IconButton>
-                                            </Tooltip>
+                                            {podeVerDetalhes && (
+                                                <Tooltip title="Ver Detalhes">
+                                                    <IconButton component={Link} to={`/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
+                                                        <Visibility className="text-blue-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {podeEditar && (
+                                                <Tooltip title="Editar">
+                                                    <IconButton component={Link} to={`/candidaturas/editar/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                        <Edit className="text-yellow-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {podeExcluir && (
+                                                <Tooltip title="Excluir">
+                                                    <IconButton onClick={() => excluirCandidatura(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                        <Delete className="text-red-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
                                         </td>
                                     </tr>
-                                )) }
+                                ))}
                         </tbody>
-
                     </table>
                     <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
                         <TablePagination
