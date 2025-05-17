@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import AuthService from '../../services/AuthService';
-import  {AuthContext, AuthProvider } from '../AuthContext';
+import  {AuthContext} from '../AuthContext';
 import {
     Paper, Typography, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Select, MenuItem, Button, CircularProgress, Alert

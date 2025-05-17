@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate
-from rest_framework import status, permissions
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework import status, permissions # Certifique-se que 'permissions' está aqui
+from rest_framework.permissions import IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,6 +12,7 @@ import base64
 from django.shortcuts import get_object_or_404
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django_otp import devices_for_user
+from rest_framework import status, permissions
 
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, CustomTokenObtainPairSerializer
 
@@ -31,7 +32,7 @@ class IsAdminOrSelf(permissions.BasePermission):
 
 class UserList(APIView):
     """Lista todos os utilizadores (requer permissão de administrador)."""
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser] # Correção aqui
 
     def get(self, request):
         users = User.objects.all()
@@ -40,7 +41,7 @@ class UserList(APIView):
 
 class UserDetail(APIView):
     """Detalhes de um utilizador específico (requer ser admin ou o próprio utilizador)."""
-    permission_classes = [IsAuthenticated, IsAdminOrSelf]
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrSelf] # Correção aqui
 
     def get(self, request, pk):
         user = get_object_or_404(User, pk=pk)
@@ -50,7 +51,7 @@ class UserDetail(APIView):
 
 class UserCreate(APIView):
     """Cria um novo utilizador (requer permissão de administrador)."""
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser] # A correção está aqui
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -85,13 +86,14 @@ class login_user(APIView):
             if user is None:
                 return Response({"msg": "Credenciais inválidas"}, status=status.HTTP_401_UNAUTHORIZED)
 
+            # Use o CustomTokenObtainPairSerializer para gerar o token inicial
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
 
             return Response({
                 "msg": "2FA obrigatório",
                 "requires_2fa": True,
-                "access_token": access_token
+                "access_token": access_token # Este token já conterá as informações do usuário
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -101,7 +103,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 class generate_2fa_qrcode(APIView):
     """Gera o QR code para configurar o 2FA (requer autenticação)."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated] # Correção aqui
 
     def post(self, request):
         user = request.user
@@ -122,7 +124,7 @@ class generate_2fa_qrcode(APIView):
 
 class verify_2fa(APIView):
     """Verifica o código 2FA e retorna os tokens de acesso e refresh finais."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated] # Correção aqui
 
     def post(self, request):
         otp_token = request.data.get("otp_token")

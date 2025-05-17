@@ -39,71 +39,71 @@ import TwoFactorVerification from './pages/TwoFactorVerification';
 import Vagas from './components/candidaturas/Vagas';
 
 function App() {
-  return (
-    <Routes> {/* Use Routes aqui, sem BrowserRouter */}
-      {/* Rotas Públicas */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/2fa-verification" element={<TwoFactorVerification />} />
-      <Route path="*" element={<NotFound />} />
+    return (
+        <Routes> {/* Use Routes aqui, sem BrowserRouter */}
+            {/* Rotas Públicas */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/2fa-verification" element={<TwoFactorVerification />} />
+            <Route path="*" element={<NotFound />} />
 
-      {/* Rotas Protegidas */}
-      <Route path="/" element={<PrivateRoute />}>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="dashboard" element={<Dashboard />} />
+            {/* Rotas Protegidas */}
+            <Route path="/" element={<PrivateRoute />}>
+                <Route path="/" element={<Layout />}>
+                    <Route index element={<Dashboard />} /> {/* Dashboard como página inicial protegida */}
+                    <Route path="dashboard" element={<Dashboard />} />
 
-          {/* Rotas de Candidaturas */}
-          <Route path="minhacandidatura" element={<MinhaCandidatura />} />
-          <Route path="admin/candidaturas/avaliar/:id" element={<AvaliarCandidaturas />} />
-          <Route path="admin/candidaturas" element={<AdminCandidaturas />} />
-          <Route path="admin/candidaturas/gerir" element={<GerirCandidaturas />} />
-          <Route path="candidaturas" element={<CandidaturasLista />} />
-          <Route path="candidaturas/:id" element={<CandidaturaDetalhes />} />
-          <Route path="/candidaturas/nova" element={<FormularioCandidatura />} />
-          <Route path="/vagas" element={<Vagas />} />
-          <Route path="inicio" element={<Inicio />} />
+                    {/* Rotas de Candidaturas */}
+                    <Route path="minhacandidatura" element={<MinhaCandidatura />} />
+                    <Route path="admin/candidaturas/avaliar/:id" element={<AvaliarCandidaturas />} />
+                    <Route path="admin/candidaturas" element={<AdminCandidaturas />} />
+                    <Route path="admin/candidaturas/gerir" element={<GerirCandidaturas />} />
+                    <Route path="candidaturas" element={<CandidaturasLista />} />
+                    <Route path="candidaturas/:id" element={<CandidaturaDetalhes />} />
+                    <Route path="/candidaturas/nova" element={<FormularioCandidatura />} />
+                    <Route path="/vagas" element={<Vagas />} />
+                    <Route path="inicio" element={<Inicio />} />
 
-          {/* Rotas de Residentes */}
-          <Route path="residentes" element={<ResidentesLista />} />
-          <Route path="residentes/:id" element={<PerfilResidente />} />
-          <Route path="residentes/editar/:id" element={<FormularioResidente />} />
-          <Route path="residentes/criar" element={<FormularioResidente />} />
-          <Route path="gerirresidentes" element={<GerirResidentes />} />
+                    {/* Rotas de Residentes */}
+                    <Route path="residentes" element={<ResidentesLista />} />
+                    <Route path="residentes/:id" element={<PerfilResidente />} />
+                    <Route path="residentes/editar/:id" element={<FormularioResidente />} />
+                    <Route path="residentes/criar" element={<FormularioResidente />} />
+                    <Route path="gerirresidentes" element={<GerirResidentes />} />
 
-          {/* Rotas de Edifícios */}
-          <Route path="edificios" element={<EdificiosLista />} />
-          <Route path="edificios/:id" element={<EdificioDetalhes />} />
-          <Route path="edificios/editar/:id" element={<FormularioEdificio />} />
-          <Route path="edificios/criar" element={<FormularioEdificio />} />
-          <Route path="geriredificios" element={<GerirEdificios />} />
+                    {/* Rotas de Edifícios */}
+                    <Route path="edificios" element={<EdificiosLista />} />
+                    <Route path="edificios/:id" element={<EdificioDetalhes />} />
+                    <Route path="edificios/editar/:id" element={<FormularioEdificio />} />
+                    <Route path="edificios/criar" element={<FormularioEdificio />} />
+                    <Route path="geriredificios" element={<GerirEdificios />} />
 
-          {/* Rotas de Quartos */}
-          <Route path="quartos" element={<QuartosLista />} />
-          <Route path="quartos/:id" element={<QuartoDetalhes />} />
-          <Route path="quartos/editar/:id" element={<FormularioQuarto />} />
-          <Route path="quartos/criar" element={<FormularioQuarto />} />
-          <Route path="gerirquartos" element={<GerirQuartos />} />
+                    {/* Rotas de Quartos */}
+                    <Route path="quartos" element={<QuartosLista />} />
+                    <Route path="quartos/:id" element={<QuartoDetalhes />} />
+                    <Route path="quartos/editar/:id" element={<FormularioQuarto />} />
+                    <Route path="quartos/criar" element={<FormularioQuarto />} />
+                    <Route path="gerirquartos" element={<GerirQuartos />} />
 
-          {/* Rotas de Camas */}
-          <Route path="camas" element={<CamasLista />} />
-          <Route path="camas/:id" element={<CamaDetalhes />} />
-          <Route path="camas/editar/:id" element={<FormularioCama />} />
-          <Route path="camas/criar" element={<FormularioCama />} />
-          <Route path="gerircamas" element={<GerirCamas />} />
+                    {/* Rotas de Camas */}
+                    <Route path="camas" element={<CamasLista />} />
+                    <Route path="camas/:id" element={<CamaDetalhes />} />
+                    <Route path="camas/editar/:id" element={<FormularioCama />} />
+                    <Route path="camas/criar" element={<FormularioCama />} />
+                    <Route path="gerircamas" element={<GerirCamas />} />
 
-          {/* Rotas de Utilizadores */}
-          <Route path="users" element={<UserList />} />
-          <Route path="users/:id" element={<UserDetails />} />
-          <Route path="users/edit/:id" element={<UserEdit />} />
-          <Route path="gerirutilizadores" element={<GerirUtilizadores />} />
+                    {/* Rotas de Utilizadores */}
+                    <Route path="users" element={<UserList />} />
+                    <Route path="users/:id" element={<UserDetails />} />
+                    <Route path="users/edit/:id" element={<UserEdit />} />
+                    <Route path="gerirutilizadores" element={<GerirUtilizadores />} />
 
-          {/* Rotas de Relatórios */}
-          <Route path="reports" element={<Reports />} />
-        </Route>
-      </Route>
-    </Routes>
-  );
+                    {/* Rotas de Relatórios */}
+                    <Route path="reports" element={<Reports />} />
+                </Route>
+            </Route>
+        </Routes>
+    );
 }
 
 export default App;

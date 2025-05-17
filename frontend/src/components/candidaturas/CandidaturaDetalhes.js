@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import AuthService from "../../services/AuthService";
-import  {AuthContext, AuthProvider } from '../AuthContext';
+import  {AuthContext } from '../AuthContext';
 
 // E se você precisar do Provider:
 

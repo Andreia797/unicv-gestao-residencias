@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
     Paper, Typography, List, ListItem, ListItemText, Alert, CircularProgress
 } from '@mui/material';
-import  {AuthContext, AuthProvider } from '../AuthContext';
+import  {AuthContext } from '../AuthContext';
 
 const MinhaCandidatura = () => {
     const [candidatura, setCandidatura] = useState(null);

@@ -1,14 +1,20 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import AuthService from '../services/AuthService';
+import React, { useContext } from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { AuthContext } from '../components/AuthContext'; // Importe o contexto diretamente
 
 const PrivateRoute = () => {
-  const token = AuthService.getToken();
+    const { isAuthenticated, loading } = useContext(AuthContext); // Use useContext para acessar o valor do contexto
+    const location = useLocation();
 
-  // Verifica se o token está presente e tem um formato válido (mínima proteção contra string vazia)
-  const isAuthenticated = !!token && token !== 'undefined' && token !== '';
+    if (loading) {
+        return null;
+    }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+    return isAuthenticated ? (
+        <Outlet />
+    ) : (
+        <Navigate to="/login" state={{ from: location }} replace />
+    );
 };
 
 export default PrivateRoute;

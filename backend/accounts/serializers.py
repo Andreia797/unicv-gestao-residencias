@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth.models import Group
 
 User = get_user_model()
 
@@ -55,9 +56,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        # Custom claims
+
+        # Adiciona informações customizadas ao token
         token['username'] = user.username
         token['email'] = user.email
         token['first_name'] = user.first_name
         token['last_name'] = user.last_name
+
+        # Adiciona os grupos do usuário
+        token['groups'] = [group.name for group in user.groups.all()]
+
         return token

@@ -13,7 +13,7 @@ import {
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
-import  {AuthContext, AuthProvider } from '../AuthContext';
+import  {AuthContext } from '../AuthContext';
 
 function CandidaturasLista() {
     const [candidaturas, setCandidaturas] = useState([]);

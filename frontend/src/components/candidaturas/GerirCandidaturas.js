@@ -11,7 +11,7 @@ import {
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
-import  {AuthContext, AuthProvider } from '../AuthContext';
+import  {AuthContext} from '../AuthContext';
 
 function GerirCandidaturas() {
     const [candidaturas, setCandidaturas] = useState([]);
