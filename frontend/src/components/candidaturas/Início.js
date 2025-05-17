@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
 import { Paper, Typography } from '@mui/material';
-import  {AuthContext } from '../AuthContext';
+import { AuthContext } from '../AuthContext';
+
 const Inicio = () => {
     const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
 
     return (
         <Paper elevation={3} sx={{ p: 4, mt: 2 }}>
             <Typography variant="h4" gutterBottom>
-                Bem-vindo ao Portal de Candidaturas as Residencias
+                Bem-vindo ao Portal de Candidaturas às Residências
             </Typography>
             {user ? (
                 <Typography variant="body1">

@@ -11,7 +11,7 @@ import {
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
-import  {AuthContext} from '../AuthContext';
+import { AuthContext } from '../AuthContext';
 
 function GerirCandidaturas() {
     const [candidaturas, setCandidaturas] = useState([]);
@@ -43,7 +43,7 @@ function GerirCandidaturas() {
     const handleDelete = async (id) => {
         try {
             await AuthService.authenticatedRequest('delete', 'relatorios', `/candidaturas/${id}/`);
-            fetchCandidaturas();
+            fetchCandidaturas(); // Recarrega a lista após a exclusão
             setMensagem('Candidatura excluída com sucesso.');
             setTipoMensagem('success');
         } catch (error) {
@@ -154,24 +154,24 @@ function GerirCandidaturas() {
                                             </td>
                                         </tr>
                                     ))}
-                            </tbody>
-                        </table>
-                        <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={candidaturas.length}
-                                rowsPerPage={resultadosPorPagina}
-                                page={pagina}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="Candidaturas por página:"
-                                className="text-sm text-gray-700"
-                            />
-                        </div>
-                    </Paper>
-                </div>
-            )}
+                                </tbody>
+                            </table>
+                            <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    component="div"
+                                    count={candidaturas.length}
+                                    rowsPerPage={resultadosPorPagina}
+                                    page={pagina}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                    labelRowsPerPage="Candidaturas por página:"
+                                    className="text-sm text-gray-700"
+                                />
+                            </div>
+                        </Paper>
+                    </div>
+                )}
         </div>
     );
 }

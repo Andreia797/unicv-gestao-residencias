@@ -13,7 +13,7 @@ import {
 import { Visibility, Edit, Delete } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
-import  {AuthContext } from '../AuthContext';
+import { AuthContext } from '../AuthContext';
 
 function CandidaturasLista() {
     const [candidaturas, setCandidaturas] = useState([]);
@@ -74,7 +74,7 @@ function CandidaturasLista() {
                 (filtroStatus === '' || candidatura.status?.toLowerCase() === filtroStatus.toLowerCase()) &&
                 (pesquisa === '' ||
                     candidatura.estudante?.Nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-                    candidatura.DataSubmissao?.toLowerCase().includes(pesquisa.toLowerCase()) ||
+                    (candidatura.DataSubmissao && formatarData(candidatura.DataSubmissao).toLowerCase().includes(pesquisa.toLowerCase())) ||
                     candidatura.residencia?.Nome?.toLowerCase().includes(pesquisa.toLowerCase()))
         );
 
@@ -159,7 +159,7 @@ function CandidaturasLista() {
                                         <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.Nome}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.edificio}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {formatarData(candidatura.DataSubmissao)}
+                                            {candidatura.DataSubmissao && formatarData(candidatura.DataSubmissao)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
