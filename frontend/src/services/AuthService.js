@@ -3,7 +3,7 @@ import axios from 'axios';
 // URLs base da API
 const API_URL_ACCOUNTS = 'http://127.0.0.1:8000/api/accounts';
 const API_URL_RELATORIOS = 'http://127.0.0.1:8000/api/relatorios';
-const API_URL_CANDIDATURAS = 'http://127.0.0.1:8000/api/candidaturas'; // Adicione a URL base para candidaturas
+const API_URL_CANDIDATURAS = 'http://127.0.0.1:8000/api/candidaturas';
 
 // Instâncias Axios
 const apiAccounts = axios.create({
@@ -16,35 +16,26 @@ const apiRelatorios = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
-const apiCandidaturas = axios.create({ // Crie uma instância para o app candidaturas
+const apiCandidaturas = axios.create({
     baseURL: API_URL_CANDIDATURAS,
     headers: { 'Content-Type': 'application/json' },
 });
 
 // Helpers de token
-
 const getToken = () => {
-    // Tenta pegar o token do cookie
     const match = document.cookie.match(new RegExp('(^| )access_token=([^;]+)'));
     if (match) {
         return match[2];
     }
-
-    // Caso o token não esteja no cookie, tenta pegar do localStorage
-    const token = localStorage.getItem('access_token');
-    return token;
+    return localStorage.getItem('access_token');
 };
-
 
 const getRefreshToken = () => localStorage.getItem('refresh_token');
 
 const setToken = (token) => {
-
-    localStorage.setItem('access_token', token); // Salva no localStorage
-    document.cookie = `access_token=${token}; path=/; secure; SameSite=Strict`; // Salva no cookie
+    localStorage.setItem('access_token', token);
+    document.cookie = `access_token=${token}; path=/; secure; SameSite=Strict`;
 };
-
-
 
 const setRefreshToken = (token) => localStorage.setItem('refresh_token', token);
 
@@ -76,7 +67,7 @@ const refreshToken = async () => {
 };
 
 // Interceptores para incluir token nas requisições
-[apiAccounts, apiRelatorios, apiCandidaturas].forEach(api => { // Inclua apiCandidaturas nos interceptores
+[apiAccounts, apiRelatorios, apiCandidaturas].forEach(api => {
     api.interceptors.request.use(
         (config) => {
             const token = getToken();
@@ -140,12 +131,9 @@ const AuthService = {
 
     generate2FA: async () => {
         const token = getToken();
-
-
         if (!token) {
             throw new Error("Token de acesso não encontrado");
         }
-
         try {
             const response = await apiAccounts.post(
                 '/generate-2fa/',
@@ -163,27 +151,23 @@ const AuthService = {
         }
     },
 
-
     verify2FA: async ({ otp_token }) => {
         try {
             const accessToken = localStorage.getItem("access_token");
-
             const response = await apiAccounts.post(
                 "/verify-2fa/",
-                { otp_token }, // <- chave correta
+                { otp_token },
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
-
             return response.data;
         } catch (error) {
             throw error;
         }
     },
-
 
     authenticatedRequest: async (method, baseURLType, url, data = null) => {
         let apiInstance;
@@ -192,7 +176,7 @@ const AuthService = {
         } else if (baseURLType === 'candidaturas') {
             apiInstance = apiCandidaturas;
         } else {
-            apiInstance = apiAccounts; // Default para accounts
+            apiInstance = apiAccounts;
         }
         try {
             const response = await apiInstance({ method, url, data });
@@ -203,7 +187,6 @@ const AuthService = {
         }
     },
 
-    // Exporta helpers
     getToken,
     setToken,
     clearToken,

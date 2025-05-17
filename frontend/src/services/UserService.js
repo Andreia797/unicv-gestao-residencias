@@ -28,7 +28,7 @@ const UserService = {
     // Função para criar um novo utilizador
     criarUtilizador: async (utilizador) => {
         try {
-            const response = await AuthService.authenticatedRequest('post', 'accounts', API_URL, utilizador);
+            const response = await AuthService.authenticatedRequest('post', 'accounts', '/users/create/', utilizador);
             return response.data;
         } catch (error) {
             console.error('Erro ao criar utilizador:', error);

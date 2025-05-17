@@ -13,7 +13,7 @@ import {
 import { Visibility, CheckCircle, Close } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
-import  {AuthContext } from '../AuthContext';
+import { AuthContext } from '../AuthContext';
 
 
 function AdminCandidaturas() {

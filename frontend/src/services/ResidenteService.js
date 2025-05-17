@@ -62,6 +62,26 @@ const ResidenteService = {
             throw error;
         }
     },
+
+    getTotalResidentes: async () => {
+        try {
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/total/`);
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao buscar o total de residentes:', error);
+            throw error;
+        }
+    },
+
+    getResidentesPorEdificio: async () => {
+        try {
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/edificio/`);
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao buscar residentes por edifício:', error);
+            throw error;
+        }
+    },
 };
 
 export default ResidenteService;

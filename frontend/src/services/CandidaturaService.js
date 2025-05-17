@@ -34,7 +34,7 @@ const CandidaturaService = {
 
     atualizarCandidatura: async (id, candidatura) => {
         try {
-            const response = await AuthService.authenticatedRequest('PUT', 'candidaturas', `/${id}/`, candidatura);
+            const response = await AuthService.authenticatedRequest('PUT', 'candidaturas', `/atualizar/${id}/`, candidatura);
             return response.data;
         } catch (error) {
             console.error('Erro ao atualizar candidatura:', error);
@@ -68,6 +68,26 @@ const CandidaturaService = {
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar candidaturas para estudante ${estudanteId}:`, error);
+            throw error;
+        }
+    },
+
+    atualizarEstadoCandidatura: async (id, estado) => {
+        try {
+            const response = await AuthService.authenticatedRequest('PATCH', 'candidaturas', `/atualizar/${id}/`, { estado });
+            return response.data;
+        } catch (error) {
+            console.error(`Erro ao atualizar o estado da candidatura ${id}:`, error);
+            throw error;
+        }
+    },
+
+    getMinhaCandidatura: async () => {
+        try {
+            const response = await AuthService.authenticatedRequest('GET', 'candidaturas', '/minha/');
+            return response.data;
+        } catch (error) {
+            console.error('Erro ao buscar a minha candidatura:', error);
             throw error;
         }
     },

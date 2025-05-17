@@ -80,7 +80,8 @@ function GerirCamas() {
                         <thead className="bg-gray-100">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Quarto</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Edifício</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
                             </tr>
@@ -91,7 +92,8 @@ function GerirCamas() {
                                 .map((cama) => (
                                     <tr key={cama.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 text-sm text-gray-900">{cama.id}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">{cama.quarto?.tipo}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">{cama.numero}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">{cama.quarto?.edificio?.nome}</td>
                                         <td className="px-6 py-4 text-sm text-gray-900">{cama.status}</td>
                                         <td className="px-6 py-4 text-right text-sm font-medium">
                                             {podeVerDetalhesCama && (

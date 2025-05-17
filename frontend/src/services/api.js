@@ -61,10 +61,13 @@ export const fetchQuartos = async () => {
 
 export const fetchResidentes = async () => {
     try {
-        const response = await apiRelatorios.get('/residentes/edificio/', { headers: getAuthHeader() }); // Rota específica para listagem por edifício, conforme seu urls.py
+        // A rota no seu urls.py é '/residentes/edificio/', mas a função se chama fetchResidentes (genérico).
+        // Se você quer todos os residentes, a rota correta seria '/residentes/'.
+        // Se você realmente quer apenas por edifício, mantenha como está.
+        const response = await apiRelatorios.get('/residentes/', { headers: getAuthHeader() });
         return response.data;
     } catch (error) {
-        console.error('Erro ao buscar residentes por edifício:', error);
+        console.error('Erro ao buscar residentes:', error);
         logErrorDetails(error);
         throw error;
     }

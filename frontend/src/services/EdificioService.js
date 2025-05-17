@@ -49,7 +49,17 @@ const EdificioService = {
             console.error('Erro ao excluir edifício:', error);
             throw error;
         }
-    }
+    },
+
+    getEdificiosPorTipo: async (tipo) => {
+        try {
+            const response = await AuthService.authenticatedRequest('GET', 'relatorios', `/edificios/tipo/?tipo=${tipo}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Erro ao buscar edifícios do tipo ${tipo}:`, error);
+            throw error;
+        }
+    },
 };
 
 export default EdificioService;
