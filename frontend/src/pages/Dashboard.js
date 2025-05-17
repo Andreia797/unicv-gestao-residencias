@@ -45,11 +45,15 @@ function Dashboard() {
             }
         };
 
-        if (AuthService.getToken()) {
-            fetchData();
-        } else {
-            navigate('/login');
-        }
+        const checkAuthAndFetch = async () => {
+            if (AuthService.getToken()) {
+                await fetchData();
+            } else {
+                navigate('/login');
+            }
+        };
+
+        checkAuthAndFetch();
     }, [navigate]);
 
     const podeVerDashboard = user?.groups?.includes("administrador") || user?.groups?.includes("funcionario");

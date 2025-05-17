@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
 import { TextField, Typography, Button, Paper, Container, Alert, CircularProgress, FormControl, InputLabel, Select, MenuItem, FormHelperText, Checkbox, FormControlLabel } from '@mui/material';
 import { AuthContext } from '../AuthContext';
+
 function UserEdit() {
     const { id } = useParams();
     const [formData, setFormData] = useState({
@@ -129,7 +130,7 @@ function UserEdit() {
                             label="Permissão"
                             onChange={handlePermissaoChange}
                         >
-                            <MenuItem value="admin">Admin</MenuItem>
+                            <MenuItem value="administrador">Administrador</MenuItem>
                             <MenuItem value="funcionario">Funcionário</MenuItem>
                             <MenuItem value="estudante">Estudante</MenuItem>
                         </Select>

@@ -113,7 +113,7 @@ function GerirUtilizadores() {
             await AuthService.authenticatedRequest('post', 'accounts', '/users/create/', {
                 username: formData.username,
                 name: formData.name,
-                email: '', // You might want to add an email field
+                email: '', // You might want to add an email field in the form
                 password: 'passwordpadrao', // Consider generating a random password or requiring the user to set it
                 profile: {
                     name: formData.name,
@@ -208,100 +208,100 @@ function GerirUtilizadores() {
                                             </td>
                                         </tr>
                                     ))}
-                            </tbody>
-                        </table>
-                        <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={utilizadores.length}
-                                rowsPerPage={resultadosPorPagina}
-                                page={pagina}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="Utilizadores por página:"
-                                className="text-sm text-gray-700"
-                            />
-                        </div>
-                    </Paper>
-                </div>
-            )}
-            <Dialog open={!!editUtilizadorId} onClose={() => setEditUtilizadorId(null)}>
-                <DialogTitle>{editUtilizadorId === 'novo' ? 'Adicionar Utilizador' : 'Editar Utilizador'}</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        label="Nome do Utilizador"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        variant="outlined"
-                        size="small"
-                    />
-                    <TextField
-                        label="Nome"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        fullWidth
-                        margin="normal"
-                        variant="outlined"
-                        size="small"
-                    />
-                    <FormControl fullWidth margin="normal" variant="outlined" size="small">
-                        <InputLabel id="permissao-label">Permissão</InputLabel>
-                        <Select
-                            labelId="permissao-label"
-                            id="permissao"
-                            name="permissao"
-                            value={formData.permissao}
-                            label="Permissão"
+                                </tbody>
+                            </table>
+                            <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    component="div"
+                                    count={utilizadores.length}
+                                    rowsPerPage={resultadosPorPagina}
+                                    page={pagina}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                    labelRowsPerPage="Utilizadores por página:"
+                                    className="text-sm text-gray-700"
+                                />
+                            </div>
+                        </Paper>
+                    </div>
+                )}
+                <Dialog open={!!editUtilizadorId} onClose={() => setEditUtilizadorId(null)}>
+                    <DialogTitle>{editUtilizadorId === 'novo' ? 'Adicionar Utilizador' : 'Editar Utilizador'}</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            label="Nome do Utilizador"
+                            name="username"
+                            value={formData.username}
                             onChange={handleChange}
-                        >
-                            <MenuItem value="admin">Admin</MenuItem>
-                            <MenuItem value="funcionario">Funcionário</MenuItem>
-                            <MenuItem value="estudante">Estudante</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl fullWidth margin="normal" variant="outlined" size="small">
-                        <InputLabel id="permissoesDetalhadas-label">Permissões Detalhadas</InputLabel>
-                        <Select
-                            labelId="permissoesDetalhadas-label"
-                            id="permissoesDetalhadas"
-                            multiple
-                            name="permissoesDetalhadas"
-                            value={formData.permissoesDetalhadas}
-                            label="Permissões Detalhadas"
-                            onChange={(e) => {
-                                const { value } = e.target;
-                                setFormData({ ...formData, permissoesDetalhadas: value });
-                            }}
-                            renderValue={(selected) => selected.join(', ')}
-                        >
-                            {permissoesDisponiveis.map((permissao) => (
-                                <MenuItem key={permissao} value={permissao}>
-                                    <FormControlLabel
-                                        control={<Checkbox checked={formData.permissoesDetalhadas.includes(permissao)} />}
-                                        label={permissao}
-                                    />
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <FormHelperText>Selecione as permissões detalhadas para este utilizador.</FormHelperText>
-                    </FormControl>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setEditUtilizadorId(null)} color="primary">
-                        Cancelar
-                    </Button>
-                    <Button onClick={editUtilizadorId === 'novo' ? handleCriarUtilizador : handleUpdate} color="primary">
-                        {editUtilizadorId === 'novo' ? 'Criar' : 'Atualizar'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-    );
-}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            size="small"
+                        />
+                        <TextField
+                            label="Nome"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            size="small"
+                        />
+                        <FormControl fullWidth margin="normal" variant="outlined" size="small">
+                            <InputLabel id="permissao-label">Permissão</InputLabel>
+                            <Select
+                                labelId="permissao-label"
+                                id="permissao"
+                                name="permissao"
+                                value={formData.permissao}
+                                label="Permissão"
+                                onChange={handleChange}
+                            >
+                                <MenuItem value="administrador">Administrador</MenuItem>
+                                <MenuItem value="funcionario">Funcionário</MenuItem>
+                                <MenuItem value="estudante">Estudante</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <FormControl fullWidth margin="normal" variant="outlined" size="small">
+                            <InputLabel id="permissoesDetalhadas-label">Permissões Detalhadas</InputLabel>
+                            <Select
+                                labelId="permissoesDetalhadas-label"
+                                id="permissoesDetalhadas"
+                                multiple
+                                name="permissoesDetalhadas"
+                                value={formData.permissoesDetalhadas}
+                                label="Permissões Detalhadas"
+                                onChange={(e) => {
+                                    const { value } = e.target;
+                                    setFormData({ ...formData, permissoesDetalhadas: value });
+                                }}
+                                renderValue={(selected) => selected.join(', ')}
+                            >
+                                {permissoesDisponiveis.map((permissao) => (
+                                    <MenuItem key={permissao} value={permissao}>
+                                        <FormControlLabel
+                                            control={<Checkbox checked={formData.permissoesDetalhadas.includes(permissao)} />}
+                                            label={permissao}
+                                        />
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            <FormHelperText>Selecione as permissões detalhadas para este utilizador.</FormHelperText>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setEditUtilizadorId(null)} color="primary">
+                            Cancelar
+                        </Button>
+                        <Button onClick={editUtilizadorId === 'novo' ? handleCriarUtilizador : handleUpdate} color="primary">
+                            {editUtilizadorId === 'novo' ? 'Criar' : 'Atualizar'}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
+        );
+    }
 
 export default GerirUtilizadores;

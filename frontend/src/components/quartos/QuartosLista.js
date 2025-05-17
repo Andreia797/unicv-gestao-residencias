@@ -60,8 +60,9 @@ function QuartosLista() {
 
     const quartosFiltrados = quartos.filter((quarto) => {
         return (
-            quarto.numero?.toLowerCase().includes(pesquisa.toLowerCase()) ||
+            quarto.tipo?.toLowerCase().includes(pesquisa.toLowerCase()) ||
             String(quarto.capacidade)?.includes(pesquisa.toLowerCase()) ||
+            String(quarto.numero)?.includes(pesquisa.toLowerCase()) ||
             quarto.edificio?.nome?.toLowerCase().includes(pesquisa.toLowerCase())
         );
     });
@@ -100,7 +101,9 @@ function QuartosLista() {
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de quarto</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID do edifício</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacidade</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edifício</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
@@ -111,7 +114,9 @@ function QuartosLista() {
                                     <tr key={quarto.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.id}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.tipo}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.edificio?.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.numero}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.capacidade}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{quarto.edificio?.nome}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <Tooltip title="Detalhes">
                                                 <IconButton component={Link} to={`/quartos/${quarto.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">

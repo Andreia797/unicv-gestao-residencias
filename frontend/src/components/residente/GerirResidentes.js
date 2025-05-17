@@ -127,24 +127,24 @@ function GerirResidentes() {
                                             </td>
                                         </tr>
                                     ))}
-                            </tbody>
-                        </table>
-                        <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={residentes.length}
-                                rowsPerPage={resultadosPorPagina}
-                                page={pagina}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="Residentes por página:"
-                                className="text-sm text-gray-700"
-                            />
-                        </div>
-                    </Paper>
-                </div>
-            )}
+                                </tbody>
+                            </table>
+                            <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    component="div"
+                                    count={residentes.length}
+                                    rowsPerPage={resultadosPorPagina}
+                                    page={pagina}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                    labelRowsPerPage="Residentes por página:"
+                                    className="text-sm text-gray-700"
+                                />
+                            </div>
+                        </Paper>
+                    </div>
+                )}
         </div>
     );
 }

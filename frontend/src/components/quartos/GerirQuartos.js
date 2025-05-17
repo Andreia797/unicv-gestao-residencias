@@ -145,8 +145,8 @@ function GerirQuartos() {
                         </Paper>
                     </div>
                 )}
-            </div>
-        );
-    }
+        </div>
+    );
+}
 
 export default GerirQuartos;

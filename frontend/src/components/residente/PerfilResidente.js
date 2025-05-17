@@ -55,7 +55,7 @@ function PerfilResidente() {
     }
 
     const podeEditar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
-    const podeVerPerfil = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador") || user?.groups?.includes("estudante");
+    const podeVerPerfil = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
 
     if (!podeVerPerfil) {
         return <Alert severity="warning">Você não tem permissão para ver o perfil deste residente.</Alert>;

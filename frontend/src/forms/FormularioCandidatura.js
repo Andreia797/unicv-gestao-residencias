@@ -49,11 +49,11 @@ function FormularioCandidatura() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const residenciasResponse = await AuthService.fetchResidencias();
+                const residenciasResponse = await AuthService.authenticatedRequest('get', 'relatorios', '/residencias/');
                 setResidencias(residenciasResponse.data);
 
                 if (id) {
-                    const candidaturaResponse = await AuthService.fetchCandidaturaDetail(id);
+                    const candidaturaResponse = await AuthService.authenticatedRequest('get', 'relatorios', `/candidaturas/${id}/`);
                     setCandidatura({
                         DataSubmissao: candidaturaResponse.data.DataSubmissao || '',
                         Residencia_idResidencia: candidaturaResponse.data.Residencia_idResidencia || '',
@@ -146,10 +146,18 @@ function FormularioCandidatura() {
             }
 
             if (id) {
-                await AuthService.putCandidatura(id, formData);
+                await AuthService.authenticatedRequest('put', 'relatorios', `/candidaturas/${id}/`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
                 setMensagem('Candidatura atualizada com sucesso.');
             } else {
-                await AuthService.postCandidatura(formData);
+                await AuthService.authenticatedRequest('post', 'relatorios', '/candidaturas/', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
                 setMensagem('Candidatura criada com sucesso.');
             }
             setTipoMensagem('success');
@@ -216,6 +224,7 @@ function FormularioCandidatura() {
                                             onChange={handleCandidaturaChange}
                                             InputLabelProps={{ shrink: true }}
                                             helperText={<span className="text-red-500">{erros.DataSubmissao}</span>}
+                                            required
                                         />
                                     </FormControl>
                                     <FormControl fullWidth margin="normal" error={!!erros.Residencia_idResidencia}>
@@ -227,6 +236,7 @@ function FormularioCandidatura() {
                                             value={candidatura.Residencia_idResidencia}
                                             onChange={handleCandidaturaChange}
                                             label="Residência"
+                                            required
                                         >
                                             {residencias.map((residencia) => (
                                                 <MenuItem key={residencia.id} value={residencia.id}>
@@ -246,6 +256,7 @@ function FormularioCandidatura() {
                                             value={candidatura.TipoQuarto}
                                             onChange={handleCandidaturaChange}
                                             label="Tipo de Quarto"
+                                            required
                                         >
                                             {tiposQuarto.map((tipo) => (
                                                 <MenuItem key={tipo} value={tipo}>
@@ -270,6 +281,7 @@ function FormularioCandidatura() {
                                         onChange={handleEstudanteChange}
                                         error={!!erros.Nome}
                                         helperText={<span className="text-red-500">{erros.Nome}</span>}
+                                        required
                                     />
                                     <TextField
                                         fullWidth
@@ -280,6 +292,7 @@ function FormularioCandidatura() {
                                         onChange={handleEstudanteChange}
                                         error={!!erros.CNIouPassaporte}
                                         helperText={<span className="text-red-500">{erros.CNIouPassaporte}</span>}
+                                        required
                                     />
                                     <TextField
                                         fullWidth
@@ -290,6 +303,7 @@ function FormularioCandidatura() {
                                         onChange={handleEstudanteChange}
                                         error={!!erros.Curso}
                                         helperText={<span className="text-red-500">{erros.Curso}</span>}
+                                        required
                                     />
                                     <TextField
                                         fullWidth
@@ -304,10 +318,12 @@ function FormularioCandidatura() {
                                         margin="normal"
                                         label="Email"
                                         name="Email"
+                                        type="email"
                                         value={estudante.Email}
                                         onChange={handleEstudanteChange}
                                         error={!!erros.Email}
                                         helperText={<span className="text-red-500">{erros.Email}</span>}
+                                        required
                                     />
                                 </div>
                             )}
@@ -357,7 +373,7 @@ function FormularioCandidatura() {
                                                 onChange={handleArquivoChange}
                                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                             />
-                                            {arquivos['DeclaracaoRendimentoEntregue'] instanceof File && (
+                                           {arquivos['DeclaracaoRendimentoEntregue'] instanceof File && (
                                                 <p className="text-gray-600 text-sm mt-1">{arquivos['DeclaracaoRendimentoEntregue'].name}</p>
                                             )}
                                             {typeof arquivos['DeclaracaoRendimentoEntregue'] === 'string' && (
@@ -365,7 +381,7 @@ function FormularioCandidatura() {
                                             )}
                                         </div>
                                         <div className="mb-4">
-                                            <label htmlFor="DeclaracaoSubsistenciaEntregue" className="block text-gray-700 text-sm font-bold mb-2"></label>
+                                            <label htmlFor="DeclaracaoSubsistenciaEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Subsistência (Opcional)</label>
                                             <input
                                                 id="DeclaracaoSubsistenciaEntregue"
                                                 type="file"
@@ -381,7 +397,7 @@ function FormularioCandidatura() {
                                             )}
                                         </div>
                                         <div className="mb-4">
-                                            <label htmlFor="DeclaracaoResidenciaEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Residência</label>
+                                            <label htmlFor="DeclaracaoResidenciaEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Residência (Opcional)</label>
                                             <input
                                                 id="DeclaracaoResidenciaEntregue"
                                                 type="file"
@@ -398,8 +414,8 @@ function FormularioCandidatura() {
                                         </div>
                                     </div>
                                     <div className="flex justify-center mt-6">
-                                        <Button type="submit" variant="contained" color="primary">
-                                            {id ? 'Atualizar Candidatura' : 'Submeter Candidatura'}
+                                        <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                                            {loading ? <CircularProgress size={24} color="inherit" /> : (id ? 'Atualizar Candidatura' : 'Submeter Candidatura')}
                                         </Button>
                                     </div>
                                 </div>
@@ -411,7 +427,7 @@ function FormularioCandidatura() {
                             Anterior
                         </Button>
                         {activeStep < steps.length - 1 && (
-                            <Button variant="contained" color="primary" onClick={handleNext}>
+                            <Button variant="contained" color="primary" onClick={handleNext} disabled={loading}>
                                 Próximo
                             </Button>
                         )}

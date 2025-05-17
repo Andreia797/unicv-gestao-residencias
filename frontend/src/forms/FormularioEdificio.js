@@ -108,6 +108,7 @@ function FormularioEdificio() {
                             error={!!erros.nome}
                             helperText={erros.nome}
                             fullWidth
+                            required
                         />
                         <TextField
                             label="Endereço"
@@ -117,6 +118,7 @@ function FormularioEdificio() {
                             error={!!erros.endereco}
                             helperText={erros.endereco}
                             fullWidth
+                            required
                         />
                         <TextField
                             label="Número de Quartos"
@@ -127,11 +129,12 @@ function FormularioEdificio() {
                             error={!!erros.numeroApartamentos}
                             helperText={erros.numeroApartamentos}
                             fullWidth
+                            required
                         />
 
                         <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-4">
-                            <Button type="submit" variant="contained" color="primary">
-                                {id ? 'Atualizar' : 'Criar'}
+                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                                {loading ? <CircularProgress size={24} color="inherit" /> : (id ? 'Atualizar' : 'Criar')}
                             </Button>
                             <Button component={Link} to="/edificios" variant="outlined">
                                 Cancelar

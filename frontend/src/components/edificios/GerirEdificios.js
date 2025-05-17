@@ -26,7 +26,7 @@ function GerirEdificios() {
         const fetchEdificios = async () => {
             setLoading(true);
             try {
-                const response = await AuthService.authenticatedRequest('get', '/edificios/');
+                const response = await AuthService.authenticatedRequest('get', 'relatorios', '/edificios/');
                 setEdificios(response.data);
             } catch (error) {
                 console.error('Erro ao buscar edifícios:', error);
@@ -42,9 +42,9 @@ function GerirEdificios() {
 
     const handleDelete = async (id) => {
         try {
-            await AuthService.authenticatedRequest('delete', `/edificios/${id}/`);
+            await AuthService.authenticatedRequest('delete', 'relatorios', `/edificios/${id}/`);
             // Após a exclusão bem-sucedida, refazer a busca de edifícios para atualizar a lista
-            const response = await AuthService.authenticatedRequest('get', '/edificios/');
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/edificios/');
             setEdificios(response.data);
             setMensagem('Edifício excluído com sucesso.');
             setTipoMensagem('success');
@@ -93,7 +93,7 @@ function GerirEdificios() {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do edificio</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do edifício</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número de Quartos</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                 </tr>
@@ -129,24 +129,24 @@ function GerirEdificios() {
                                             </td>
                                         </tr>
                                     ))}
-                            </tbody>
-                        </table>
-                        <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={edificios.length}
-                                rowsPerPage={resultadosPorPagina}
-                                page={pagina}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="Edifícios por página:"
-                                className="text-sm text-gray-700"
-                            />
-                        </div>
-                    </Paper>
-                </div>
-            )}
+                                </tbody>
+                            </table>
+                            <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    component="div"
+                                    count={edificios.length}
+                                    rowsPerPage={resultadosPorPagina}
+                                    page={pagina}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                    labelRowsPerPage="Edifícios por página:"
+                                    className="text-sm text-gray-700"
+                                />
+                            </div>
+                        </Paper>
+                    </div>
+                )}
         </div>
     );
 }

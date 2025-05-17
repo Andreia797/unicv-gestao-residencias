@@ -116,6 +116,7 @@ function FormularioQuarto() {
                             error={!!erros.numero}
                             helperText={erros.numero}
                             fullWidth
+                            required
                         />
                         <TextField
                             label="Capacidade"
@@ -126,8 +127,9 @@ function FormularioQuarto() {
                             error={!!erros.capacidade}
                             helperText={erros.capacidade}
                             fullWidth
+                            required
                         />
-                        <FormControl fullWidth error={!!erros.edificio}>
+                        <FormControl fullWidth error={!!erros.edificio} required>
                             <InputLabel id="edificio-label">Edifício</InputLabel>
                             <Select
                                 labelId="edificio-label"
@@ -155,11 +157,12 @@ function FormularioQuarto() {
                             error={!!erros.tipo}
                             helperText={erros.tipo}
                             fullWidth
+                            required
                         />
 
                         <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-4">
-                            <Button type="submit" variant="contained" color="primary">
-                                {id ? 'Atualizar' : 'Criar'}
+                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                                {loading ? <CircularProgress size={24} color="inherit" /> : (id ? 'Atualizar' : 'Criar')}
                             </Button>
                             <Button component={Link} to="/quartos" variant="outlined">
                                 Cancelar
