@@ -1,7 +1,14 @@
-import React, { createContext, useState, useEffect } from 'react';
-import AuthService from '../services/AuthService';
-import { useNavigate } from 'react-router-dom';
-import jwtDecode from 'jwt-decode';
+import React, {
+    createContext,
+    useState,
+    useEffect,
+    useContext,
+    useCallback,
+    useMemo
+} from "react";
+import { useNavigate } from "react-router-dom";
+import jwtDecode from "jwt-decode";
+import AuthService from "../services/AuthService";
 
 export const AuthContext = createContext();
 
@@ -9,97 +16,135 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [authToken, setAuthToken] = useState(AuthService.getToken());
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            const token = AuthService.getToken();
-            if (token) {
-                try {
-                    const decodedToken = jwtDecode(token); // Use jwtDecode
-                    setUser(decodedToken);
-                    setIsAuthenticated(true);
-                } catch (error) {
-                    console.error('Erro ao decodificar o token:', error);
-                    AuthService.clearToken(); // Use clearToken para remover o token
-                    setUser(null);
-                    setIsAuthenticated(false);
-                }
+    const checkAuth = useCallback(() => {
+        const token = AuthService.getToken();
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                setUser(decoded);
+                setIsAuthenticated(true);
+            } catch (error) {
+                console.error("Token inválido no checkAuth:", error);
+                AuthService.logout();
+                setUser(null);
+                setIsAuthenticated(false);
             }
-            setLoading(false);
-        };
-
-        checkAuth();
+        } else {
+            setUser(null);
+            setIsAuthenticated(false);
+        }
+        setLoading(false);
     }, []);
 
-    const login = async (credentials) => {
+    useEffect(() => {
+        checkAuth();
+    }, [authToken, checkAuth]);
+
+    const login = useCallback(async (credentials) => {
         setLoading(true);
         try {
             const response = await AuthService.login(credentials);
-            if (response?.access) { // Verifique a chave correta 'access'
-                AuthService.setToken(response.access);
-                const decodedToken = jwtDecode(response.access); // Use jwtDecode
-                setUser(decodedToken);
-                setIsAuthenticated(true);
-                navigate('/dashboard');
-                return {};
-            } else {
-                setIsAuthenticated(false);
-                setUser(null);
-                return { error: response?.detail || 'Credenciais inválidas.' }; // Use 'detail' para mensagens de erro padrão do DRF
+
+            if (response.requires_2fa && response.access_token) {
+                // Salva token temporário para 2FA
+                localStorage.setItem("tempAccessToken", response.access_token);
+                localStorage.setItem("pre_2fa_email", credentials.email);
+                navigate("/2fa-verification");
+                return { requires2fa: true };
             }
-        } catch (error) {
-            console.error('Erro ao fazer login:', error);
-            setIsAuthenticated(false);
-            setUser(null);
-            return { error: error?.response?.data?.detail || 'Erro ao fazer login.' }; // Use 'detail' para mensagens de erro padrão do DRF
+
+            if (response.access_token) {
+                AuthService.setToken(response.access_token);
+                setAuthToken(response.access_token);
+
+                const decoded = jwtDecode(response.access_token);
+                setUser(decoded);
+                setIsAuthenticated(true);
+                navigate("/dashboard");
+                return {};
+            }
+
+            if (response.error) {
+                return { error: `Falha no login: ${response.error}` };
+            }
+
+            return { error: "Erro inesperado durante o login." };
+        } catch (err) {
+            return { error: err?.response?.data?.detail || "Erro ao fazer login." };
         } finally {
             setLoading(false);
         }
-    };
+    }, [navigate]);
 
+    const verify2FA = useCallback(async (otp_token, tempToken) => {
+        setLoading(true);
+        try {
+            const response = await AuthService.verify2FA({ otp_token }, tempToken);
+            localStorage.removeItem("tempAccessToken");
+            localStorage.removeItem("pre_2fa_email");
 
-    const logout = () => {
-        AuthService.clearToken(); // Use clearToken
-        AuthService.clearRefreshToken(); // Limpe também o refresh token
+            if (response.access) {
+                AuthService.setToken(response.access);
+                setAuthToken(response.access);
+
+                const decoded = jwtDecode(response.access);
+                setUser(decoded);
+                setIsAuthenticated(true);
+                navigate("/dashboard");
+                return {};
+            }
+
+            return { error: "Token de acesso não recebido após 2FA." };
+        } catch (err) {
+            return { error: err?.response?.data?.detail || "Erro ao verificar 2FA." };
+        } finally {
+            setLoading(false);
+        }
+    }, [navigate]);
+
+    const logout = useCallback(() => {
+        AuthService.logout();
         setUser(null);
         setIsAuthenticated(false);
-        navigate('/login');
-    };
+        setAuthToken(null);
+        navigate("/login");
+    }, [navigate]);
 
-    const register = async (userData) => {
+    const register = useCallback(async (userData) => {
         setLoading(true);
         try {
             await AuthService.register(userData);
-            navigate('/login');
+            navigate("/login");
             return {};
-        } catch (error) {
-            console.error('Erro ao registrar:', error);
-            return { error: error?.response?.data?.error || 'Erro ao registrar usuário.' };
+        } catch (err) {
+            return {
+                error: err?.response?.data?.error || "Erro ao registrar."
+            };
         } finally {
             setLoading(false);
         }
-    };
+    }, [navigate]);
 
-    const value = {
+    const value = useMemo(() => ({
         user,
         isAuthenticated,
         loading,
         login,
         logout,
         register,
+        verify2FA,
         setUser,
-        setIsAuthenticated,
-    };
+        setIsAuthenticated
+    }), [user, isAuthenticated, loading, login, logout, register, verify2FA]);
 
     return (
         <AuthContext.Provider value={value}>
             {!loading && children}
-            {loading && <div className="flex justify-center items-center h-screen"><p>Carregando...</p></div>}
         </AuthContext.Provider>
     );
 };
 
-export const useAuth = () => {
-    return React.useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);

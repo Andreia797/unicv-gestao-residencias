@@ -6,23 +6,34 @@ from django.contrib.auth.models import Group
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name']
+        # Removi 'username' do fields caso seu modelo não tenha
+        fields = ['id', 'email', 'password']
 
     def validate_password(self, value):
-        if len(value) < 8:
+        if value and len(value) < 8:
             raise serializers.ValidationError("A senha deve ter pelo menos 8 caracteres.")
         return value
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
+        password = validated_data.pop('password', None)
         user = User(**validated_data)
-        user.set_password(password)
+        if password:
+            user.set_password(password)
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -31,11 +42,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password', 'password2']
+        # Removido 'username' aqui também
+        fields = ['email', 'first_name', 'last_name', 'password', 'password2']
 
     def validate(self, data):
         if data['password'] != data['password2']:
             raise serializers.ValidationError({"password": "As senhas não coincidem."})
+        if len(data['password']) < 8:
+            raise serializers.ValidationError({"password": "A senha deve ter pelo menos 8 caracteres."})
         return data
 
     def create(self, validated_data):
@@ -57,13 +71,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # Adiciona informações customizadas ao token
-        token['username'] = user.username
+        token['user_id'] = user.id
+        # Removido username, pois não existe no seu modelo
         token['email'] = user.email
-        token['first_name'] = user.first_name
-        token['last_name'] = user.last_name
-
-        # Adiciona os grupos do usuário
+        token['is_staff'] = user.is_staff
         token['groups'] = [group.name for group in user.groups.all()]
 
         return token

@@ -1,13 +1,16 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-import jwt
-from django.conf import settings
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+from django.conf import settings
+import jwt
 
 User = get_user_model()
 
 class JWTAuthentication(BaseAuthentication):
+    """
+    Autenticação baseada em JWT extraído do header Authorization.
+    """
     def authenticate(self, request):
         auth_header = request.headers.get('Authorization')
 
@@ -21,17 +24,24 @@ class JWTAuthentication(BaseAuthentication):
             return (user, token)
         except (jwt.ExpiredSignatureError, jwt.DecodeError, User.DoesNotExist):
             raise AuthenticationFailed('Token inválido ou expirado')
-        
+
+
 class EmailBackend(ModelBackend):
+    """
+    Backend de autenticação que permite login com e-mail e senha.
+    """
     def authenticate(self, request, email=None, password=None, **kwargs):
-        print(f"Autenticando usuário com email: {email}")  # Adicionando log
         User = get_user_model()
+
+        if email is None:
+            email = kwargs.get('username')  # fallback para autenticação padrão
+
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            print(f"Usuário com o email {email} não encontrado.")
             return None
+
         if user.check_password(password):
             return user
-        print("Senha inválida.")
+
         return None

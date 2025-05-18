@@ -3,7 +3,7 @@ import AuthService from './AuthService';
 const ReportService = {
     getCandidaturasPorEstado: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'candidaturas', `/estado/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/candidaturas/estado/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar candidaturas por estado:', error);
@@ -13,7 +13,7 @@ const ReportService = {
 
     getResidentesPorEdificio: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/edificio/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/residentes/edificio/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar residentes por edifício:', error);
@@ -23,7 +23,7 @@ const ReportService = {
 
     getListaResidentes: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/residentes/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar lista de residentes:', error);
@@ -53,7 +53,7 @@ const ReportService = {
 
     getTotalResidentes: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/total/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/residentes/total/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar o total de residentes:', error);
@@ -63,7 +63,7 @@ const ReportService = {
 
     getListaEdificios: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/edificios/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/edificios/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar lista de edifícios:', error);
@@ -93,7 +93,7 @@ const ReportService = {
 
     getListaQuartos: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/quartos/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/quartos/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar lista de quartos:', error);
@@ -133,7 +133,7 @@ const ReportService = {
 
     getRelatorioQuartos: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/quartos/relatorio/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/quartos/relatorio/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar relatório de quartos:', error);
@@ -143,7 +143,7 @@ const ReportService = {
 
     getListaCamas: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/camas/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/camas/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar lista de camas:', error);
@@ -183,7 +183,7 @@ const ReportService = {
 
     getRelatorioCamas: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/camas/relatorio/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/camas/relatorio/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar relatório de camas:', error);
@@ -193,7 +193,7 @@ const ReportService = {
 
     getListaResidencias: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residencias/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/residencias/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar lista de residências:', error);

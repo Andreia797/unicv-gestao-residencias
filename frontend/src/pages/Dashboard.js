@@ -1,59 +1,59 @@
 import React, { useState, useEffect, useContext } from 'react';
-import ReportService from '../services/ReportService';
-import AuthService from '../services/AuthService';
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, CartesianGrid, BarChart, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
-import { AuthContext } from '../components/AuthContext';
 import { Alert } from '@mui/material';
+import ReportService from '../services/ReportService';
+import AuthService from '../services/AuthService';
+import { AuthContext } from '../components/AuthContext';
 
 function Dashboard() {
     const [candidaturasPorEstado, setCandidaturasPorEstado] = useState([]);
     const [residentesPorEdificio, setResidentesPorEdificio] = useState([]);
     const [erroCandidaturas, setErroCandidaturas] = useState(null);
     const [erroResidentes, setErroResidentes] = useState(null);
-    const navigate = useNavigate();
     const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const candidaturasResponse = await ReportService.getCandidaturasPorEstado();
-                if (candidaturasResponse && candidaturasResponse.statusCounts) {
-                    const formattedCandidaturas = candidaturasResponse.statusCounts.map(item => ({
+                if (candidaturasResponse?.statusCounts?.length > 0) {
+                    const formatted = candidaturasResponse.statusCounts.map(item => ({
                         estado: item.status,
                         quantidadeDeCandidaturas: item.count,
                     }));
-                    setCandidaturasPorEstado(formattedCandidaturas);
+                    setCandidaturasPorEstado(formatted);
                 } else {
-                    setErroCandidaturas('Formato de dados de candidaturas inválido.');
+                    setErroCandidaturas('Dados de candidaturas não disponíveis.');
                 }
-            } catch (error) {
-                console.error('Erro ao buscar candidaturas por estado:', error);
-                setErroCandidaturas('Erro ao buscar dados de candidaturas.');
+            } catch (err) {
+                console.error(err);
+                setErroCandidaturas('Erro ao buscar candidaturas.');
             }
 
             try {
                 const residentesResponse = await ReportService.getResidentesPorEdificio();
-                const formattedResidentes = residentesResponse.map(item => ({
-                    edificio: item.nome,
-                    quantidadeDeResidentes: item.num_residentes,
-                }));
-                setResidentesPorEdificio(formattedResidentes);
-            } catch (error) {
-                console.error('Erro ao buscar residentes por edifício:', error);
-                setErroResidentes('Erro ao buscar dados de residentes.');
+                if (residentesResponse?.length > 0) {
+                    const formatted = residentesResponse.map(item => ({
+                        edificio: item.nome,
+                        quantidadeDeResidentes: item.num_residentes,
+                    }));
+                    setResidentesPorEdificio(formatted);
+                } else {
+                    setErroResidentes('Dados de residentes não disponíveis.');
+                }
+            } catch (err) {
+                console.error(err);
+                setErroResidentes('Erro ao buscar residentes.');
             }
         };
 
-        const checkAuthAndFetch = async () => {
-            if (AuthService.getToken()) {
-                await fetchData();
-            } else {
-                navigate('/login');
-            }
-        };
-
-        checkAuthAndFetch();
+        if (AuthService.getToken()) {
+            fetchData();
+        } else {
+            navigate('/login');
+        }
     }, [navigate]);
 
     const podeVerDashboard = user?.groups?.includes("administrador") || user?.groups?.includes("funcionario");
@@ -71,10 +71,10 @@ function Dashboard() {
             <h2 className="text-3xl font-semibold mb-6 text-gray-800">Visão Geral da Gestão das Residências</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Candidaturas por Estado */}
+                {/* Gráfico de Candidaturas */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h3 className="text-xl font-semibold mb-4 text-gray-700">Candidaturas por Estado</h3>
-                    {erroCandidaturas && <Alert severity="error" className="mb-4">{erroCandidaturas}</Alert>}
+                    {erroCandidaturas && <Alert severity="error">{erroCandidaturas}</Alert>}
                     {candidaturasPorEstado.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={candidaturasPorEstado}>
@@ -87,14 +87,14 @@ function Dashboard() {
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <p className="text-gray-600">Não há dados de candidaturas disponíveis.</p>
+                        !erroCandidaturas && <p className="text-gray-600">Nenhum dado disponível.</p>
                     )}
                 </div>
 
-                {/* Residentes por Edifício */}
+                {/* Gráfico de Residentes */}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <h3 className="text-xl font-semibold mb-4 text-gray-700">Residentes por Edifício</h3>
-                    {erroResidentes && <Alert severity="error" className="mb-4">{erroResidentes}</Alert>}
+                    {erroResidentes && <Alert severity="error">{erroResidentes}</Alert>}
                     {residentesPorEdificio.length > 0 ? (
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={residentesPorEdificio}>
@@ -107,7 +107,7 @@ function Dashboard() {
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <p className="text-gray-600">Não há dados de residentes disponíveis.</p>
+                        !erroResidentes && <p className="text-gray-600">Nenhum dado disponível.</p>
                     )}
                 </div>
             </div>

@@ -1,86 +1,78 @@
-import axios from 'axios';
+// services/AuthService.js
+import axios from "axios";
 
 // URLs base da API
-const API_URL_ACCOUNTS = 'http://127.0.0.1:8000/api/accounts';
-const API_URL_RELATORIOS = 'http://127.0.0.1:8000/api/relatorios';
-const API_URL_CANDIDATURAS = 'http://127.0.0.1:8000/api/candidaturas';
+const API_URL_ACCOUNTS = "http://127.0.0.1:8000/api/accounts";
+const API_URL_RELATORIOS = "http://127.0.0.1:8000/api/relatorios";
+const API_URL_CANDIDATURAS = "http://127.0.0.1:8000/api/candidaturas";
 
 // Instâncias Axios
-const apiAccounts = axios.create({
-    baseURL: API_URL_ACCOUNTS,
-    headers: { 'Content-Type': 'application/json' },
-});
+const apiAccounts = axios.create({ baseURL: API_URL_ACCOUNTS });
+const apiRelatorios = axios.create({ baseURL: API_URL_RELATORIOS });
+const apiCandidaturas = axios.create({ baseURL: API_URL_CANDIDATURAS });
 
-const apiRelatorios = axios.create({
-    baseURL: API_URL_RELATORIOS,
-    headers: { 'Content-Type': 'application/json' },
-});
-
-const apiCandidaturas = axios.create({
-    baseURL: API_URL_CANDIDATURAS,
-    headers: { 'Content-Type': 'application/json' },
-});
-
-// Helpers de token
-const getToken = () => {
-    const match = document.cookie.match(new RegExp('(^| )access_token=([^;]+)'));
-    if (match) {
-        return match[2];
+// Helpers de token usando cookies
+const getCookie = (name) => {
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookies = decodedCookie.split(";");
+    for (let c of cookies) {
+        while (c.charAt(0) === " ") c = c.substring(1);
+        if (c.indexOf(name + "=") === 0) return c.substring(name.length + 1);
     }
-    return localStorage.getItem('access_token');
+    return null;
 };
 
-const getRefreshToken = () => localStorage.getItem('refresh_token');
-
-const setToken = (token) => {
-    localStorage.setItem('access_token', token);
-    document.cookie = `access_token=${token}; path=/; secure; SameSite=Strict`;
+const setCookie = (name, value, days) => {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; secure; SameSite=Strict`;
 };
 
-const setRefreshToken = (token) => localStorage.setItem('refresh_token', token);
+const deleteCookie = (name) => {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=Strict`;
+};
 
-const clearToken = () => localStorage.removeItem('access_token');
-const clearRefreshToken = () => localStorage.removeItem('refresh_token');
+// Token functions
+const getToken = () => getCookie("access_token");
+const getRefreshToken = () => getCookie("refresh_token");
+const setToken = (token) => setCookie("access_token", token, 1 / 24); // 1h
+const setRefreshToken = (token) => setCookie("refresh_token", token, 7);
+const clearToken = () => deleteCookie("access_token");
+const clearRefreshToken = () => deleteCookie("refresh_token");
 
 const logout = () => {
     clearToken();
     clearRefreshToken();
-    window.location.href = '/login';
+    window.location.href = "/login";
 };
 
 const refreshToken = async () => {
     const refresh = getRefreshToken();
-    if (!refresh) {
-        throw new Error('Nenhum refresh token disponível.');
-    }
-
+    if (!refresh) throw new Error("Nenhum refresh token disponível.");
     try {
-        const response = await apiAccounts.post('/token/refresh/', { refresh });
+        const response = await apiAccounts.post("/token/refresh/", { refresh });
         const { access } = response.data;
         setToken(access);
         return access;
     } catch (error) {
-        clearToken();
-        clearRefreshToken();
+        logout();
         throw error;
     }
 };
 
-// Interceptores para incluir token nas requisições
-[apiAccounts, apiRelatorios, apiCandidaturas].forEach(api => {
+// Adiciona interceptores para todas as instâncias
+[apiAccounts, apiRelatorios, apiCandidaturas].forEach((api) => {
     api.interceptors.request.use(
         (config) => {
             const token = getToken();
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
+            if (token) config.headers.Authorization = `Bearer ${token}`;
             return config;
         },
         (error) => Promise.reject(error)
     );
 });
 
-// Interceptor para renovar token automaticamente
+// Renova token automaticamente em caso de 401
 apiAccounts.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -103,93 +95,55 @@ apiAccounts.interceptors.response.use(
 // Serviço principal
 const AuthService = {
     login: async (credenciais) => {
-        try {
-            const response = await apiAccounts.post('/login/', credenciais);
-            const { access, refresh, requires_2fa } = response.data;
+        const response = await apiAccounts.post("/login/", credenciais);
+        const { requires_2fa, access_token, refresh_token } = response.data;
 
-            if (access) setToken(access);
-            if (refresh) setRefreshToken(refresh);
-
-            return { requires_2fa: !!requires_2fa, ...response.data };
-        } catch (error) {
-            console.error('Erro no login:', error.response?.data || error);
-            throw error;
-        }
+        if (refresh_token) setRefreshToken(refresh_token);
+        return { requires_2fa: !!requires_2fa, access_token };
     },
 
     register: async (dadosUtilizador) => {
-        try {
-            const response = await apiAccounts.post('/register/', dadosUtilizador);
-            return response.data;
-        } catch (error) {
-            console.error('Erro no registro:', error.response?.data || error);
-            throw error;
-        }
+        const response = await apiAccounts.post("/register/", dadosUtilizador);
+        return response.data;
     },
 
     logout,
+    getToken,
+    setToken,
+    setRefreshToken,
+    clearToken,
+    clearRefreshToken,
 
-    generate2FA: async () => {
-        const token = getToken();
-        if (!token) {
-            throw new Error("Token de acesso não encontrado");
-        }
-        try {
-            const response = await apiAccounts.post(
-                '/generate-2fa/',
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            return response.data;
-        } catch (error) {
-            console.error("Erro ao gerar 2FA:", error.response?.data || error);
-            throw error;
-        }
+    generate2FA: async (tempAccessToken) => {
+        const response = await apiAccounts.post(
+            "/2fa/generate/",
+            {},
+            { headers: { Authorization: `Bearer ${tempAccessToken}` } }
+        );
+        return response.data;
     },
 
-    verify2FA: async ({ otp_token }) => {
-        try {
-            const accessToken = localStorage.getItem("access_token");
-            const response = await apiAccounts.post(
-                "/verify-2fa/",
-                { otp_token },
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-            return response.data;
-        } catch (error) {
-            throw error;
+    verify2FA: async ({ otp_token }, tempAccessToken) => {
+        const response = await apiAccounts.post(
+            "/login/verify-2fa/",
+            { otp_token },
+            { headers: { Authorization: `Bearer ${tempAccessToken}` } }
+        );
+        const { access, refresh } = response.data;
+        if (access && refresh) {
+            setToken(access);
+            setRefreshToken(refresh);
         }
+        return response.data;
     },
 
     authenticatedRequest: async (method, baseURLType, url, data = null) => {
-        let apiInstance;
-        if (baseURLType === 'relatorios') {
-            apiInstance = apiRelatorios;
-        } else if (baseURLType === 'candidaturas') {
-            apiInstance = apiCandidaturas;
-        } else {
-            apiInstance = apiAccounts;
-        }
-        try {
-            const response = await apiInstance({ method, url, data });
-            return response;
-        } catch (error) {
-            console.error("Erro na requisição autenticada:", error.response?.data || error);
-            throw error;
-        }
-    },
+        let apiInstance = apiAccounts;
+        if (baseURLType === "relatorios") apiInstance = apiRelatorios;
+        else if (baseURLType === "candidaturas") apiInstance = apiCandidaturas;
 
-    getToken,
-    setToken,
-    clearToken,
+        return await apiInstance({ method, url, data });
+    },
 };
 
 export default AuthService;

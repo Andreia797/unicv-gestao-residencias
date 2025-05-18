@@ -30,6 +30,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    has_2fa = models.BooleanField(default=False)  # Adicione este campo
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -39,13 +40,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    def has_2fa_enabled(self):
+        return self.has_2fa  # Use o campo 'has_2fa'
+
+
 # Perfil de usuário
 class UserProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
     nome = models.CharField(max_length=255, blank=True)
 
     PERMISSAO_CHOICES = [
-        ('admin', 'Admin'),
+        ('administrador', 'Administrador'),
         ('funcionario', 'Funcionário'),
         ('estudante', 'Estudante'),
     ]
@@ -54,7 +59,7 @@ class UserProfile(models.Model):
         choices=PERMISSAO_CHOICES,
         default='estudante',
     )
-    
+
     permissoes_detalhadas = models.JSONField(default=list, blank=True)
 
     def __str__(self):
