@@ -17,7 +17,8 @@ function AvaliarCandidaturas() {
     useEffect(() => {
         const fetchCandidaturas = async () => {
             try {
-                const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/listar/');
+                // Corrigido para usar a rota base '/' com o tipo 'candidaturas'
+                const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/');
                 setCandidaturas(response.data);
                 const initialStatusMap = {};
                 response.data.forEach(c => { initialStatusMap[c.id] = c.estado });
@@ -37,6 +38,7 @@ function AvaliarCandidaturas() {
 
     const atualizarEstado = async (id) => {
         try {
+            // Corrigido para usar a rota base e o ID corretamente, e o método PATCH
             await AuthService.authenticatedRequest('patch', 'candidaturas', `/atualizar/${id}/`, { estado: statusMap[id] });
             setSuccessMsg(`Estado da candidatura ${id} atualizado para "${statusMap[id]}"`);
             // Opcional: Atualizar a lista localmente para refletir a mudança imediatamente

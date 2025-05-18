@@ -8,11 +8,13 @@ urlpatterns = [
     path('residentes/quarto/<int:quarto_id>/', views.residentes_por_quarto, name='residentes_por_quarto'),
     path('residentes/total/', views.total_residentes, name='total_residentes'),
     path('residentes/edificio/<int:edificio_id>/', views.residentes_por_edificio, name='residentes_por_edificio'),
+    path('residentes/edificio/', views.residentes_por_edificio, name='residentes_por_edificio'),
 
     # Rotas de Edifícios
     path('edificios/', views.lista_edificios, name='lista_edificios'),
     path('edificios/<int:pk>/', views.detalhe_edificio, name='detalhe_edificio'),
     path('edificios/tipo/<str:tipo>/', views.edificios_por_tipo, name='edificios_por_tipo'),
+    
 
     # Rotas de Quartos
     path('quartos/', views.lista_quartos, name='lista_quartos'),

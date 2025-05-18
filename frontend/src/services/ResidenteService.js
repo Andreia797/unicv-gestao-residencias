@@ -5,7 +5,7 @@ const API_URL = '/residentes/';
 const ResidenteService = {
     getResidentes: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `${API_URL}`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', API_URL);
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar residentes:', error);
@@ -25,7 +25,7 @@ const ResidenteService = {
 
     criarResidente: async (residente) => {
         try {
-            const response = await AuthService.authenticatedRequest('post', 'relatorios', `${API_URL}`, residente);
+            const response = await AuthService.authenticatedRequest('post', 'relatorios', API_URL, residente);
             return response.data;
         } catch (error) {
             console.error('Erro ao criar residente:', error);

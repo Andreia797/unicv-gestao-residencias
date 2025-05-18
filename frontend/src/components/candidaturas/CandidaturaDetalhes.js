@@ -3,9 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import AuthService from "../../services/AuthService";
 import { AuthContext } from '../AuthContext';
 
-// E se você precisar do Provider:
-
-
 import {
     Paper,
     Typography,
@@ -33,10 +30,11 @@ function CandidaturaDetalhes() {
         const fetchCandidatura = async () => {
             setLoading(true);
             try {
+                // Corrigido para usar o tipo 'candidaturas' e a rota com o ID
                 const response = await AuthService.authenticatedRequest(
                     "get",
-                    "relatorios",
-                    `/candidaturas/${id}/`
+                    "candidaturas",
+                    `/${id}/`
                 );
                 setCandidatura(response.data);
             } catch (err) {

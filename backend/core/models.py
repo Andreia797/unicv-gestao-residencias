@@ -27,7 +27,7 @@ class Quarto(models.Model):
 
     numero = models.CharField(max_length=50, unique=True)
     capacidade = models.IntegerField()
-    edificio = models.ForeignKey(Edificio, on_delete=models.CASCADE)
+    edificio = models.ForeignKey(Edificio, on_delete=models.CASCADE, related_name='quartos')
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='individual')
 
     def __str__(self):
@@ -39,19 +39,20 @@ class Residente(models.Model):
     email = models.EmailField(null=True, blank=True)
     telefone = models.CharField(max_length=20, null=True, blank=True)
     endereco = models.CharField(max_length=255, null=True, blank=True)
+    cama = models.ForeignKey('Cama', on_delete=models.SET_NULL, null=True, blank=True, related_name='residentes')
 
     def __str__(self):
         return self.nome
 
 class Cama(models.Model):
     numero = models.CharField(max_length=50)
-    quarto = models.ForeignKey(Quarto, on_delete=models.CASCADE)
+    quarto = models.ForeignKey(Quarto, on_delete=models.CASCADE, related_name='camas')
     STATUS_CHOICES = [
         ('Disponível', 'Disponível'),
         ('Ocupado', 'Ocupado'),
     ]
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Disponível')
-    residente = models.ForeignKey(Residente, on_delete=models.SET_NULL, null=True, blank=True)
+    residente = models.ForeignKey(Residente, on_delete=models.SET_NULL, null=True, blank=True, related_name='camas')
 
     class Meta:
         unique_together = ('numero', 'quarto')
@@ -61,7 +62,7 @@ class Cama(models.Model):
 
 class Residencia(models.Model):
     Nome = models.CharField(max_length=255)
-    edificio = models.ForeignKey(Edificio, on_delete=models.CASCADE)
+    edificio = models.ForeignKey(Edificio, on_delete=models.CASCADE, related_name='residencias')
 
     def __str__(self):
         return self.Nome

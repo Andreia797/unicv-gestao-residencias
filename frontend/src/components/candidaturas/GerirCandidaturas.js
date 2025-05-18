@@ -25,7 +25,8 @@ function GerirCandidaturas() {
     const fetchCandidaturas = async () => {
         setLoading(true);
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/candidaturas/');
+            // Corrigido para usar o tipo 'candidaturas' e a rota base '/'
+            const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/');
             setCandidaturas(response.data);
         } catch (error) {
             console.error('Erro ao buscar candidaturas:', error);
@@ -42,7 +43,8 @@ function GerirCandidaturas() {
 
     const handleDelete = async (id) => {
         try {
-            await AuthService.authenticatedRequest('delete', 'relatorios', `/candidaturas/${id}/`);
+            // Corrigido para usar o tipo 'candidaturas' e a rota com o ID
+            await AuthService.authenticatedRequest('delete', 'candidaturas', `/${id}/`);
             fetchCandidaturas(); // Recarrega a lista após a exclusão
             setMensagem('Candidatura excluída com sucesso.');
             setTipoMensagem('success');
@@ -154,24 +156,24 @@ function GerirCandidaturas() {
                                             </td>
                                         </tr>
                                     ))}
-                                </tbody>
-                            </table>
-                            <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-                                <TablePagination
-                                    rowsPerPageOptions={[5, 10, 25]}
-                                    component="div"
-                                    count={candidaturas.length}
-                                    rowsPerPage={resultadosPorPagina}
-                                    page={pagina}
-                                    onPageChange={handleChangePage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                    labelRowsPerPage="Candidaturas por página:"
-                                    className="text-sm text-gray-700"
-                                />
-                            </div>
-                        </Paper>
-                    </div>
-                )}
+                            </tbody>
+                        </table>
+                        <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
+                            <TablePagination
+                                rowsPerPageOptions={[5, 10, 25]}
+                                component="div"
+                                count={candidaturas.length}
+                                rowsPerPage={resultadosPorPagina}
+                                page={pagina}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                labelRowsPerPage="Candidaturas por página:"
+                                className="text-sm text-gray-700"
+                            />
+                        </div>
+                    </Paper>
+                </div>
+            )}
         </div>
     );
 }

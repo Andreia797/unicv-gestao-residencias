@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, OuterRef, Subquery, F
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Residencia, Candidatura
@@ -172,8 +172,6 @@ def lista_vagas(request):
     Retorna a lista de vagas disponíveis (requer permissão de visualização de residencias).
     """
     if request.user.has_perm('core.view_residencia'):
-        # Exemplo simplificado: residências com capacidade maior que número de residentes
-        from django.db.models import F
         vagas = Residencia.objects.annotate(num_residentes=Count('residente')).filter(capacidade__gt=F('num_residentes'))
         serializer = ResidenciaSerializer(vagas, many=True)
         return Response(serializer.data)

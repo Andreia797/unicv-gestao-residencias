@@ -66,10 +66,14 @@ def residentes_por_edificio(request):
     if request.user.has_perm('core.view_residente'):
         edificio_id = request.query_params.get('edificio_id')
         if edificio_id:
-            residentes = Residente.objects.filter(quarto__edificio_id=edificio_id)
-            serializer = ResidenteSerializer(residentes, many=True)
-            return Response(serializer.data)
-        return Response({'detail': 'Por favor, forneça o ID do edifício.'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                # Filtra as camas no edifício e depois pega os residentes dessas camas
+                residentes = Residente.objects.filter(cama__quarto__edificio_id=edificio_id).distinct()
+                serializer = ResidenteSerializer(residentes, many=True)
+                return Response(serializer.data)
+            except ValueError:
+                return Response({'detail': 'O ID do edifício fornecido é inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Por favor, forneça o ID do edifício como um parâmetro de consulta (ex: ?edificio_id=...).'}, status=status.HTTP_400_BAD_REQUEST)
     return Response({'detail': 'Você não tem permissão para visualizar residentes por edifício.'}, status=status.HTTP_403_FORBIDDEN)
 
 # EDIFÍCIOS

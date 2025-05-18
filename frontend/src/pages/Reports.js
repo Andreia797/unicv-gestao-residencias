@@ -34,7 +34,8 @@ function Reports() {
             setLoading(true);
             setError(null);
             try {
-                const candidaturasData = await AuthService.authenticatedRequest('get', 'relatorios', '/candidaturas/estado/');
+                // Corrigido: 'candidaturas' e a rota correta
+                const candidaturasData = await AuthService.authenticatedRequest('get', 'candidaturas', '/estado/');
                 setCandidaturasReport(candidaturasData.data);
                 const residentesData = await AuthService.authenticatedRequest('get', 'relatorios', '/residentes/total/');
                 setResidentesReport(residentesData.data);

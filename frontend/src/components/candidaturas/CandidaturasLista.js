@@ -30,7 +30,8 @@ function CandidaturasLista() {
         const fetchCandidaturas = async () => {
             setLoading(true);
             try {
-                const response = await AuthService.authenticatedRequest('get', 'relatorios', '/candidaturas/');
+                // Corrigido para usar o tipo 'candidaturas' e a rota base '/'
+                const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/');
                 setCandidaturas(response.data);
             } catch (error) {
                 console.error('Erro ao buscar candidaturas:', error);
@@ -47,7 +48,8 @@ function CandidaturasLista() {
 
     const excluirCandidatura = async (id) => {
         try {
-            await AuthService.authenticatedRequest('delete', 'relatorios', `/candidaturas/${id}/`);
+            // Corrigido para usar o tipo 'candidaturas' e a rota com o ID
+            await AuthService.authenticatedRequest('delete', 'candidaturas', `/${id}/`);
             // Atualiza a lista localmente após a exclusão
             setCandidaturas(candidaturas.filter((candidatura) => candidatura.id !== id));
             setMensagem('Candidatura excluída com sucesso.');

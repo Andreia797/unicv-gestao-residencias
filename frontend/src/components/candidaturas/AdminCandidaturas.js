@@ -15,7 +15,6 @@ import NotificacoesCandidatura from '../NotificacoesCandidatura';
 import AuthService from '../../services/AuthService';
 import { AuthContext } from '../AuthContext';
 
-
 function AdminCandidaturas() {
     const [candidaturas, setCandidaturas] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -30,7 +29,8 @@ function AdminCandidaturas() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const response = await AuthService.authenticatedRequest('get', 'relatorios', '/admin/candidaturas/');
+                // Corrigido para usar a rota base '/' com o tipo 'candidaturas'
+                const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/');
                 setCandidaturas(response.data);
             } catch (error) {
                 console.error('Erro ao buscar candidaturas:', error);
@@ -45,9 +45,10 @@ function AdminCandidaturas() {
 
     const handleAprovar = async (id) => {
         try {
-            await AuthService.authenticatedRequest('put', 'relatorios', `/admin/candidaturas/${id}/aprovar/`);
+            // Corrigido para usar a rota base e o ID corretamente
+            await AuthService.authenticatedRequest('put', 'candidaturas', `/atualizar/${id}/`, { status: 'aprovado' });
             setCandidaturas(candidaturas.map(candidatura =>
-                candidatura.id === id ? { ...candidatura, status: 'Aprovada' } : candidatura
+                candidatura.id === id ? { ...candidatura, status: 'aprovado' } : candidatura
             ));
             setMensagem('Candidatura aprovada com sucesso.');
             setTipoMensagem('success');
@@ -60,9 +61,10 @@ function AdminCandidaturas() {
 
     const handleRejeitar = async (id) => {
         try {
-            await AuthService.authenticatedRequest('put', 'relatorios', `/admin/candidaturas/${id}/rejeitar/`);
+            // Corrigido para usar a rota base e o ID corretamente
+            await AuthService.authenticatedRequest('put', 'candidaturas', `/atualizar/${id}/`, { status: 'rejeitado' });
             setCandidaturas(candidaturas.map(candidatura =>
-                candidatura.id === id ? { ...candidatura, status: 'Rejeitada' } : candidatura
+                candidatura.id === id ? { ...candidatura, status: 'rejeitado' } : candidatura
             ));
             setMensagem('Candidatura rejeitada com sucesso.');
             setTipoMensagem('success');
@@ -78,10 +80,10 @@ function AdminCandidaturas() {
     };
 
     const candidaturasFiltradas = candidaturas.filter((candidatura) =>
-        candidatura.nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
         String(candidatura.id)?.includes(pesquisa) ||
+        candidatura.estudante?.nome?.toLowerCase().includes(pesquisa.toLowerCase()) || // Assumindo que 'estudante' tem um campo 'nome'
         candidatura.status?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-        format(new Date(candidatura.dataCriacao), 'dd/MM/yyyy', { locale: ptBR }).includes(pesquisa)
+        format(new Date(candidatura.data_submissao), 'dd/MM/yyyy', { locale: ptBR }).includes(pesquisa) // Use o campo correto da data
     );
 
     const handleChangePage = (event, novaPagina) => {
@@ -112,8 +114,8 @@ function AdminCandidaturas() {
                         <thead className="bg-gray-100">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Criação</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Estudante</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Submissão</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                             </tr>
@@ -124,9 +126,10 @@ function AdminCandidaturas() {
                                 .map((candidatura) => (
                                     <tr key={candidatura.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">{candidatura.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.nome}</td>
+                                        {/* Ajuste para acessar o nome do estudante */}
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.estudante?.nome}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {format(new Date(candidatura.dataCriacao), 'dd/MM/yyyy', { locale: ptBR })}
+                                            {format(new Date(candidatura.data_submissao), 'dd/MM/yyyy', { locale: ptBR })}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">

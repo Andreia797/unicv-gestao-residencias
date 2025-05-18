@@ -162,12 +162,89 @@ export const fetchCandidaturas = async () => {
     }
 };
 
-export const fetchCandidaturasEstado = async () => {
+export const fetchCandidaturaDetalhe = async (id) => {
+    try {
+        const response = await apiCandidaturas.get(`/${id}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar detalhes da candidatura ${id}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchCandidaturasPorResidencia = async (residenciaId) => {
+    try {
+        const response = await apiCandidaturas.get(`/residencia/${residenciaId}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar candidaturas da residência ${residenciaId}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchCandidaturasPorEstudante = async (estudanteId) => {
+    try {
+        const response = await apiCandidaturas.get(`/estudante/${estudanteId}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar candidaturas do estudante ${estudanteId}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchCandidaturasPorEstado = async () => {
     try {
         const response = await apiCandidaturas.get('/estado/', { headers: getAuthHeader() });
         return response.data;
     } catch (error) {
         console.error('Erro ao buscar candidaturas por estado:', error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchListarCandidaturasCBV = async () => {
+    try {
+        const response = await apiCandidaturas.get('/listar/', { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao listar candidaturas (CBV):', error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchAtualizarEstadoCandidatura = async (id) => {
+    try {
+        const response = await apiCandidaturas.get(`/atualizar/${id}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao atualizar o estado da candidatura ${id}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchMinhaCandidaturaCBV = async () => {
+    try {
+        const response = await apiCandidaturas.get('/minha/', { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar minha candidatura (CBV):', error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchListaVagas = async () => {
+    try {
+        const response = await apiCandidaturas.get('/vagas/', { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar vagas:', error);
         logErrorDetails(error);
         throw error;
     }

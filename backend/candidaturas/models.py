@@ -27,5 +27,10 @@ class Candidatura(models.Model):
         verbose_name='Estado da Candidatura'
     )
 
+    class Meta:
+        permissions = [
+            ('view_outras_candidaturas', 'Can view candidaturas of other students'),
+        ]
+
     def __str__(self):
         return f"Candidatura de {self.estudante.Nome} para {self.residencia.Nome} ({self.get_status_display()})"

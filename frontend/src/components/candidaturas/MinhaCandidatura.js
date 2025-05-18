@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
+import AuthService from '../../services/AuthService';
 import {
     Paper, Typography, List, ListItem, ListItemText, Alert, CircularProgress
 } from '@mui/material';
@@ -15,11 +15,8 @@ const MinhaCandidatura = () => {
         const fetchMinhaCandidatura = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('/api/candidaturas/minha/', {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`, // Inclua o token no cabeçalho
-                    },
-                });
+                // Corrigido para usar AuthService e a rota específica 'minha' dentro de 'candidaturas'
+                const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/minha/');
                 setCandidatura(response.data);
             } catch (error) {
                 console.error('Erro ao buscar minha candidatura:', error);
