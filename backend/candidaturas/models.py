@@ -10,14 +10,16 @@ class Candidatura(models.Model):
         ('em_analise', 'Em Análise'),
     ]
 
-    DataSubmissao = models.DateTimeField(auto_now_add=True)
-    residencia = models.ForeignKey(Residencia, on_delete=models.CASCADE)
-    estudante = models.ForeignKey(Estudante, on_delete=models.CASCADE)
-    CNIouPassaporteEntregue = models.CharField(max_length=255, null=True, blank=True)
-    DeclaracaoMatriculaEntregue = models.CharField(max_length=255, null=True, blank=True)
-    DeclaracaoRendimentoEntregue = models.CharField(max_length=255, null=True, blank=True)
-    DeclaracaoSubsistenciaEntregue = models.CharField(max_length=255, null=True, blank=True)
-    DeclaracaoResidenciaEntregue = models.CharField(max_length=255, null=True, blank=True)
+    data_submissao = models.DateTimeField(auto_now_add=True)
+    residencia = models.ForeignKey(Residencia, on_delete=models.CASCADE, related_name='candidaturas')
+    estudante = models.ForeignKey(Estudante, on_delete=models.CASCADE, related_name='candidaturas')
+
+    cni_ou_passaporte_entregue = models.CharField(max_length=255, null=True, blank=True)
+    declaracao_matricula_entregue = models.CharField(max_length=255, null=True, blank=True)
+    declaracao_rendimento_entregue = models.CharField(max_length=255, null=True, blank=True)
+    declaracao_subsistencia_entregue = models.CharField(max_length=255, null=True, blank=True)
+    declaracao_residencia_entregue = models.CharField(max_length=255, null=True, blank=True)
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,

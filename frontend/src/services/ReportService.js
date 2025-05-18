@@ -3,7 +3,7 @@ import AuthService from './AuthService';
 const ReportService = {
     getCandidaturasPorEstado: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/candidaturas/estado/');
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/candidaturas/por-estado/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar candidaturas por estado:', error);
@@ -13,7 +13,7 @@ const ReportService = {
 
     getResidentesPorEdificio: async () => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/residentes/edificio/');
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', '/residentes/por-edificio/');
             return response.data;
         } catch (error) {
             console.error('Erro ao buscar residentes por edifício:', error);
@@ -43,7 +43,7 @@ const ReportService = {
 
     getResidentesPorQuarto: async (quartoId) => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/quarto/${quartoId}/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/residentes/por-quarto/${quartoId}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar residentes no quarto ${quartoId}:`, error);
@@ -83,7 +83,7 @@ const ReportService = {
 
     getEdificiosPorTipo: async (tipo) => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/edificios/tipo/?tipo=${tipo}`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/edificios/por-tipo/?tipo=${tipo}`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar edifícios do tipo ${tipo}:`, error);
@@ -113,7 +113,7 @@ const ReportService = {
 
     getQuartosPorEdificio: async (edificioId) => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/quartos/edificio/${edificioId}/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/quartos/por-edificio/${edificioId}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar quartos no edifício ${edificioId}:`, error);
@@ -123,7 +123,7 @@ const ReportService = {
 
     getQuartosPorTipo: async (tipo) => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/quartos/tipo/${tipo}/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/quartos/por-tipo/${tipo}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar quartos do tipo ${tipo}:`, error);
@@ -163,7 +163,7 @@ const ReportService = {
 
     getCamasPorQuarto: async (quartoId) => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/camas/quarto/${quartoId}/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/camas/por-quarto/${quartoId}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar camas no quarto ${quartoId}:`, error);
@@ -173,7 +173,7 @@ const ReportService = {
 
     getCamasPorStatus: async (status) => {
         try {
-            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/camas/status/${status}/`);
+            const response = await AuthService.authenticatedRequest('get', 'relatorios', `/camas/por-status/${status}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar camas com status ${status}:`, error);

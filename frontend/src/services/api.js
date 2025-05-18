@@ -9,12 +9,12 @@ const apiCandidaturas = axios.create({
     baseURL: 'http://127.0.0.1:8000/api/candidaturas',
 });
 
-// Função para obter o token de autenticação
 const getAuthHeader = () => {
     const token = AuthService.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+// --- CAMAS ---
 export const fetchCamas = async () => {
     try {
         const response = await apiRelatorios.get('/camas/', { headers: getAuthHeader() });
@@ -26,17 +26,29 @@ export const fetchCamas = async () => {
     }
 };
 
-export const fetchCandidaturas = async () => {
+export const fetchCamasPorQuarto = async (quartoId) => {
     try {
-        const response = await apiCandidaturas.get('/', { headers: getAuthHeader() });
+        const response = await apiRelatorios.get(`/camas/quarto/${quartoId}/`, { headers: getAuthHeader() });
         return response.data;
     } catch (error) {
-        console.error('Erro ao buscar candidaturas:', error);
+        console.error(`Erro ao buscar camas do quarto ${quartoId}:`, error);
         logErrorDetails(error);
         throw error;
     }
 };
 
+export const fetchCamasPorStatus = async (status) => {
+    try {
+        const response = await apiRelatorios.get(`/camas/status/${status}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar camas com status ${status}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+// --- EDIFÍCIOS ---
 export const fetchEdificios = async () => {
     try {
         const response = await apiRelatorios.get('/edificios/', { headers: getAuthHeader() });
@@ -48,6 +60,18 @@ export const fetchEdificios = async () => {
     }
 };
 
+export const fetchEdificiosPorTipo = async (tipo) => {
+    try {
+        const response = await apiRelatorios.get(`/edificios/tipo/${tipo}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar edifícios do tipo ${tipo}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+// --- QUARTOS ---
 export const fetchQuartos = async () => {
     try {
         const response = await apiRelatorios.get('/quartos/', { headers: getAuthHeader() });
@@ -59,15 +83,80 @@ export const fetchQuartos = async () => {
     }
 };
 
+export const fetchQuartosPorEdificio = async (edificioId) => {
+    try {
+        const response = await apiRelatorios.get(`/quartos/edificio/${edificioId}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar quartos do edifício ${edificioId}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchQuartosPorTipo = async (tipo) => {
+    try {
+        const response = await apiRelatorios.get(`/quartos/tipo/${tipo}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar quartos do tipo ${tipo}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+// --- RESIDENTES ---
 export const fetchResidentes = async () => {
     try {
-        // A rota no seu urls.py é '/residentes/edificio/', mas a função se chama fetchResidentes (genérico).
-        // Se você quer todos os residentes, a rota correta seria '/residentes/'.
-        // Se você realmente quer apenas por edifício, mantenha como está.
         const response = await apiRelatorios.get('/residentes/', { headers: getAuthHeader() });
         return response.data;
     } catch (error) {
         console.error('Erro ao buscar residentes:', error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchResidentesPorQuarto = async (quartoId) => {
+    try {
+        const response = await apiRelatorios.get(`/residentes/quarto/${quartoId}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar residentes do quarto ${quartoId}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchResidentesPorEdificio = async (edificioId) => {
+    try {
+        const response = await apiRelatorios.get(`/residentes/edificio/${edificioId}/`, { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar residentes do edifício ${edificioId}:`, error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+export const fetchTotalResidentes = async () => {
+    try {
+        const response = await apiRelatorios.get('/residentes/total/', { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar total de residentes:', error);
+        logErrorDetails(error);
+        throw error;
+    }
+};
+
+// --- CANDIDATURAS ---
+export const fetchCandidaturas = async () => {
+    try {
+        const response = await apiCandidaturas.get('/', { headers: getAuthHeader() });
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar candidaturas:', error);
         logErrorDetails(error);
         throw error;
     }
@@ -84,6 +173,7 @@ export const fetchCandidaturasEstado = async () => {
     }
 };
 
+// --- LOG DE ERROS ---
 const logErrorDetails = (error) => {
     if (error.response) {
         console.error('Dados do erro:', error.response.data);

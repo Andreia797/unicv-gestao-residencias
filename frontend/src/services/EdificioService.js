@@ -51,9 +51,10 @@ const EdificioService = {
         }
     },
 
+    // CORREÇÃO: parâmetro "tipo" na URL, não query string
     getEdificiosPorTipo: async (tipo) => {
         try {
-            const response = await AuthService.authenticatedRequest('GET', 'relatorios', `/edificios/tipo/?tipo=${tipo}`);
+            const response = await AuthService.authenticatedRequest('GET', 'relatorios', `/edificios/tipo/${tipo}/`);
             return response.data;
         } catch (error) {
             console.error(`Erro ao buscar edifícios do tipo ${tipo}:`, error);
