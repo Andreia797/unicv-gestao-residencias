@@ -1,111 +1,133 @@
+import os
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from django.contrib.auth.models import Group
 from core.models import Edificio, Quarto, Residente, Cama, Residencia
-from candidaturas.models import Candidatura
+from candidaturas.models import Candidatura, Estudante
 from accounts.models import CustomUser
-from estudantes.models import Estudante
 
 class Command(BaseCommand):
-    help = 'Populates the database with initial data for testing'
+    help = 'Popula o banco de dados com dados de teste'
 
     def handle(self, *args, **options):
-        print("Iniciando a população completa dos dados...")
-
-        # -------------------- UTILIZADORES E GRUPOS --------------------
-        print("Criando utilizadores e grupos...")
-        grupo_estudante = Group.objects.get_or_create(name='estudante')[0]
-        grupo_funcionario = Group.objects.get_or_create(name='funcionario')[0]
-        grupo_administrador = Group.objects.get_or_create(name='administrador')[0]
-
-        user_admin = CustomUser.objects.create_superuser(email='andreia.semedo@gmail.com', password='Unicv@2025', username='admin')
-        user_admin.groups.add(grupo_administrador)
-        print(f"Utilizador administrador '{user_admin.username}' criado.")
-
-        user_func = CustomUser.objects.create_user(email='unicv@gmail.com', password='12345678', username='funcionario1')
-        user_func.groups.add(grupo_funcionario)
-        print(f"Utilizador funcionário '{user_func.username}' criado.")
-
-        user_estudante1 = CustomUser.objects.create_user(email='aluno@gmail.com', password='12345678', username='estudante1')
-        user_estudante1.groups.add(grupo_estudante)
-        print(f"Utilizador estudante '{user_estudante1.username}' criado.")
-
-        user_estudante2 = CustomUser.objects.create_user(email='estudante2@example.com', password='estudante123', username='estudante2')
-        user_estudante2.groups.add(grupo_estudante)
-        print(f"Utilizador estudante '{user_estudante2.username}' criado.")
-
         # -------------------- CORE --------------------
-        print("Criando dados do núcleo...")
-        edificio_a = Edificio.objects.create(nome='Edifício Alfa', endereco='Rua da Universidade, 100', numeroApartamentos=30, tipo='residencial')
-        edificio_b = Edificio.objects.create(nome='Residência Beta', endereco='Avenida dos Estudantes, 200', numeroApartamentos=20, tipo='residencial')
+        self.stdout.write(self.style.NOTICE("Criando dados do núcleo..."))
+        edificios = [
+            Edificio.objects.create(nome='Edifício Gama', endereco='Alameda dos Cientistas, 300', numeroApartamentos=25, tipo='residencial'),
+            Edificio.objects.create(nome='Moradia Delta', endereco='Travessa da Inovação, 400', numeroApartamentos=15, tipo='residencial'),
+            Edificio.objects.create(nome='Bloco Epsilon', endereco='Praça do Conhecimento, 500', numeroApartamentos=35, tipo='misto'),
+            Edificio.objects.create(nome='Edifício Zeta', endereco='Avenida Tecnológica, 600', numeroApartamentos=18, tipo='residencial'),
+            Edificio.objects.create(nome='Residencial Eta', endereco='Rua dos Inventores, 700', numeroApartamentos=22, tipo='residencial'),
+            Edificio.objects.create(nome='Conjunto Teta', endereco='Largo da Descoberta, 800', numeroApartamentos=28, tipo='misto'),
+            Edificio.objects.create(nome='Edifício Iota', endereco='Estrada da Pesquisa, 900', numeroApartamentos=12, tipo='residencial'),
+            Edificio.objects.create(nome='Moradas Kappa', endereco='Viela do Saber, 1000', numeroApartamentos=32, tipo='residencial'),
+            Edificio.objects.create(nome='Bloco Lambda', endereco='Rotunda do Futuro, 1100', numeroApartamentos=16, tipo='misto'),
+            Edificio.objects.create(nome='Edifício Mi', endereco='Avenida da Criatividade, 1200', numeroApartamentos=20, tipo='residencial'),
+        ]
 
-        quarto_a1 = Quarto.objects.create(numero='A1-01', capacidade=2, edificio=edificio_a, tipo='duplo')
-        quarto_a2 = Quarto.objects.create(numero='A1-02', capacidade=1, edificio=edificio_a, tipo='individual')
-        quarto_b1 = Quarto.objects.create(numero='B-1', capacidade=2, edificio=edificio_b, tipo='duplo')
+        quartos = [
+            Quarto.objects.create(numero='G-101', capacidade=2, edificio=edificios[0], tipo='duplo'),
+            Quarto.objects.create(numero='G-102', capacidade=1, edificio=edificios[0], tipo='individual'),
+            Quarto.objects.create(numero='D-201', capacidade=2, edificio=edificios[1], tipo='duplo'),
+            Quarto.objects.create(numero='E-301', capacidade=3, edificio=edificios[2], tipo='triplo'),
+            Quarto.objects.create(numero='Z-401', capacidade=1, edificio=edificios[3], tipo='individual'),
+            Quarto.objects.create(numero='H-501', capacidade=2, edificio=edificios[4], tipo='duplo'),
+            Quarto.objects.create(numero='T-601', capacidade=2, edificio=edificios[5], tipo='duplo'),
+            Quarto.objects.create(numero='I-701', capacidade=1, edificio=edificios[6], tipo='individual'),
+            Quarto.objects.create(numero='K-801', capacidade=3, edificio=edificios[7], tipo='triplo'),
+            Quarto.objects.create(numero='L-901', capacidade=2, edificio=edificios[8], tipo='duplo'),
+        ]
 
-        residente_ana = Residente.objects.create(nome='Ana Oliveira', email='ana.o@example.com', telefone='912345678')
-        residente_bruno = Residente.objects.create(nome='Bruno Santos', email='bruno.s@example.com', telefone='923456789')
-        residente_carla = Residente.objects.create(nome='Carla Gomes', email='carla.g@example.com', telefone='934567890')
+        residentes = [
+            Residente.objects.create(nome='Diana Sousa', email='diana.s@example.com', telefone='945678901'),
+            Residente.objects.create(nome='Eduardo Ferreira', email='eduardo.f@example.com', telefone='956789012'),
+            Residente.objects.create(nome='Filipa Martins', email='filipa.m@example.com', telefone='967890123'),
+            Residente.objects.create(nome='Gustavo Pereira', email='gustavo.p@example.com', telefone='978901234'),
+            Residente.objects.create(nome='Helena Rodrigues', email='helena.r@example.com', telefone='989012345'),
+            Residente.objects.create(nome='Ivo Costa', email='ivo.c@example.com', telefone='990123456'),
+            Residente.objects.create(nome='Júlia Fernandes', email='julia.f@example.com', telefone='901234567'),
+            Residente.objects.create(nome='Luís Gonçalves', email='luis.g@example.com', telefone='912345670'),
+            Residente.objects.create(nome='Mariana Alves', email='mariana.a@example.com', telefone='923456701'),
+            Residente.objects.create(nome='Nuno Ribeiro', email='nuno.r@example.com', telefone='934567012'),
+        ]
 
-        cama_a1_1 = Cama.objects.create(numero='A1-01-A', quarto=quarto_a1, status='Ocupado', residente=residente_ana)
-        cama_a1_2 = Cama.objects.create(numero='A1-01-B', quarto=quarto_a1, status='Ocupado', residente=residente_bruno)
-        cama_a2_1 = Cama.objects.create(numero='A1-02-A', quarto=quarto_a2, status='Disponível')
-        cama_b1_1 = Cama.objects.create(numero='B-1-A', quarto=quarto_b1, status='Ocupado', residente=residente_carla)
-        cama_b1_2 = Cama.objects.create(numero='B-1-B', quarto=quarto_b1, status='Disponível')
+        camas = [
+            Cama.objects.create(numero='G-101-A', quarto=quartos[0], status='Disponível'),
+            Cama.objects.create(numero='G-101-B', quarto=quartos[0], status='Ocupado', residente=residentes[0]),
+            Cama.objects.create(numero='G-102-A', quarto=quartos[1], status='Disponível'),
+            Cama.objects.create(numero='D-201-A', quarto=quartos[2], status='Ocupado', residente=residentes[1]),
+            Cama.objects.create(numero='D-201-B', quarto=quartos[2], status='Disponível'),
+            Cama.objects.create(numero='E-301-A', quarto=quartos[3], status='Ocupado', residente=residentes[2]),
+            Cama.objects.create(numero='E-301-B', quarto=quartos[3], status='Disponível'),
+            Cama.objects.create(numero='E-301-C', quarto=quartos[3], status='Ocupado', residente=residentes[3]),
+            Cama.objects.create(numero='Z-401-A', quarto=quartos[4], status='Disponível'),
+            Cama.objects.create(numero='H-501-A', quarto=quartos[5], status='Ocupado', residente=residentes[4]),
+            Cama.objects.create(numero='H-501-B', quarto=quartos[5], status='Disponível'),
+            Cama.objects.create(numero='T-601-A', quarto=quartos[6], status='Disponível'),
+            Cama.objects.create(numero='T-601-B', quarto=quartos[6], status='Ocupado', residente=residentes[5]),
+            Cama.objects.create(numero='I-701-A', quarto=quartos[7], status='Disponível'),
+            Cama.objects.create(numero='K-801-A', quarto=quartos[8], status='Ocupado', residente=residentes[6]),
+            Cama.objects.create(numero='K-801-B', quarto=quartos[8], status='Disponível'),
+            Cama.objects.create(numero='K-801-C', quarto=quartos[8], status='Ocupado', residente=residentes[7]),
+            Cama.objects.create(numero='L-901-A', quarto=quartos[9], status='Disponível'),
+            Cama.objects.create(numero='L-901-B', quarto=quartos[9], status='Ocupado', residente=residentes[8]),
+            Cama.objects.create(numero='M-1001-A', quarto=quartos[0], status='Disponível'), # Adicionando mais uma cama para completar 10
+        ]
 
-        residencia_a = Residencia.objects.create(Nome='Alojamento A1-01', edificio=edificio_a)
-        residencia_b = Residencia.objects.create(Nome='Apartamento B-1', edificio=edificio_b)
-        residencia_individual = Residencia.objects.create(Nome='Quarto Individual A1-02', edificio=edificio_a)
+        residencias = [
+            Residencia.objects.create(Nome='Alojamento G-101', edificio=edificios[0]),
+            Residencia.objects.create(Nome='Quarto Individual G-102', edificio=edificios[0]),
+            Residencia.objects.create(Nome='Apartamento D-201', edificio=edificios[1]),
+            Residencia.objects.create(Nome='Residência E-301', edificio=edificios[2]),
+            Residencia.objects.create(Nome='Quarto Individual Z-401', edificio=edificios[3]),
+            Residencia.objects.create(Nome='Alojamento H-501', edificio=edificios[4]),
+            Residencia.objects.create(Nome='Apartamento T-601', edificio=edificios[5]),
+            Residencia.objects.create(Nome='Quarto Individual I-701', edificio=edificios[6]),
+            Residencia.objects.create(Nome='Residência K-801', edificio=edificios[7]),
+            Residencia.objects.create(Nome='Alojamento L-901', edificio=edificios[8]),
+        ]
 
         # -------------------- CANDIDATURAS --------------------
-        print("Criando dados de candidaturas...")
+        self.stdout.write(self.style.NOTICE("Criando dados de candidaturas..."))
         try:
-            estudante1_user = CustomUser.objects.get(username='estudante1')
-            estudante2_user = CustomUser.objects.get(username='estudante2')
+            estudantes = list(Estudante.objects.all())
+            residencias_disponiveis = list(Residencia.objects.all())
 
-            estudante1 = Estudante.objects.create(user=estudante1_user, Nome='Estudante Um')
-            estudante2 = Estudante.objects.create(user=estudante2_user, Nome='Estudante Dois')
+            if not estudantes:
+                self.stdout.write(self.style.WARNING("Atenção: Não existem estudantes para criar candidaturas."))
+            else:
+                candidaturas_criadas = []
+                for i in range(10):
+                    estudante = estudantes[i % len(estudantes)]
+                    residencia = residencias_disponiveis[i % len(residencias_disponiveis)]
+                    data_submissao = timezone.now() - timezone.timedelta(days=i)
+                    status_opcoes = ['pendente', 'aprovado', 'em_analise', 'rejeitado']
+                    status = status_opcoes[i % len(status_opcoes)]
 
-        except CustomUser.DoesNotExist:
-            self.stdout.write(self.style.ERROR('Utilizadores estudante1 ou estudante2 não encontrados.'))
-            return
+                    # Tentar garantir que as candidaturas não sejam exatamente iguais
+                    # (você pode precisar de uma lógica mais sofisticada aqui dependendo dos seus requisitos)
+                    while Candidatura.objects.filter(estudante=estudante, residencia=residencia, data_submissao=data_submissao).exists():
+                        data_submissao = timezone.now() - timezone.timedelta(hours=i) # Varia a data um pouco
+
+                    candidatura = Candidatura.objects.create(
+                        estudante=estudante,
+                        data_submissao=data_submissao,
+                        status=status,
+                        residencia=residencia,
+                    )
+                    candidaturas_criadas.append(candidatura)
+                    self.stdout.write(self.style.SUCCESS(f"Candidatura '{candidatura.id}' criada para '{estudante.user.username}' para '{residencia.Nome}'."))
+
         except Estudante.DoesNotExist:
-            self.stdout.write(self.style.ERROR('Instâncias de Estudante não encontradas.'))
-            return
+            self.stdout.write(self.style.ERROR("Erro: Instância de Estudante não encontrada."))
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Erro ao criar/obter estudantes: {e}'))
-            return
-
-        candidatura_1 = Candidatura.objects.create(
-            estudante=estudante1,
-            data_submissao=timezone.now() - timezone.timedelta(days=5),
-            status='pendente',
-            residencia=residencia_individual,
-        )
-        print(f"Candidatura '{candidatura_1.id}' criada para '{estudante1_user.username}'.")
-
-        candidatura_2 = Candidatura.objects.create(
-            estudante=estudante2,
-            data_submissao=timezone.now() - timezone.timedelta(days=10),
-            status='aprovado',
-            residencia=residencia_b,
-        )
-        print(f"Candidatura '{candidatura_2.id}' criada e aceite para '{estudante2_user.username}'.")
-
-        candidatura_3 = Candidatura.objects.create(
-            estudante=estudante1,
-            data_submissao=timezone.now() - timezone.timedelta(hours=2),
-            status='em_analise',
-            residencia=residencia_b,
-        )
-        print(f"Segunda candidatura '{candidatura_3.id}' criada para '{estudante1_user.username}'.")
-
-        candidatura_4 = Candidatura.objects.create(
-            estudante=estudante2,
-            data_submissao=timezone.now() - timezone.timedelta(hours=1),
-            status='rejeitado',
-            residencia=residencia_a,
-        )
-        print(f"Candidatura '{candidatura_4.id}' criada e rejeitada para '{estudante2_user.username}'.")
+            self.stdout.write(self.style.ERROR(f"Erro ao criar dados de candidaturas: {e}"))
 
         self.stdout.write(self.style.SUCCESS('Dados de teste populados com sucesso!'))
+
+if __name__ == '__main__':
+    # Configurar o Django (se ainda não estiver configurado em um script standalone)
+    import django
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings") # Substitua 'backend.settings' pelo seu arquivo de settings
+    django.setup()
+    # A chamada para popular_dados() agora está dentro da classe Command
+    pass

@@ -6,8 +6,9 @@ import {
     Paper,
     IconButton,
     Tooltip,
-    TablePagination,
+    Pagination,
     TextField,
+    Typography,
     CircularProgress,
 } from '@mui/material';
 import { Visibility, CheckCircle, Close } from '@mui/icons-material';
@@ -20,16 +21,15 @@ function AdminCandidaturas() {
     const [loading, setLoading] = useState(true);
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState('success');
-    const [pagina, setPagina] = useState(0);
-    const [resultadosPorPagina, setResultadosPorPagina] = useState(10);
+    const [pagina, setPagina] = useState(1);
+    const resultadosPorPagina = 9;
     const [pesquisa, setPesquisa] = useState('');
-    const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // Corrigido para usar a rota base '/' com o tipo 'candidaturas'
                 const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/');
                 setCandidaturas(response.data);
             } catch (error) {
@@ -45,7 +45,6 @@ function AdminCandidaturas() {
 
     const handleAprovar = async (id) => {
         try {
-            // Corrigido para usar a rota base e o ID corretamente
             await AuthService.authenticatedRequest('put', 'candidaturas', `/atualizar/${id}/`, { status: 'aprovado' });
             setCandidaturas(candidaturas.map(candidatura =>
                 candidatura.id === id ? { ...candidatura, status: 'aprovado' } : candidatura
@@ -61,7 +60,6 @@ function AdminCandidaturas() {
 
     const handleRejeitar = async (id) => {
         try {
-            // Corrigido para usar a rota base e o ID corretamente
             await AuthService.authenticatedRequest('put', 'candidaturas', `/atualizar/${id}/`, { status: 'rejeitado' });
             setCandidaturas(candidaturas.map(candidatura =>
                 candidatura.id === id ? { ...candidatura, status: 'rejeitado' } : candidatura
@@ -81,23 +79,25 @@ function AdminCandidaturas() {
 
     const candidaturasFiltradas = candidaturas.filter((candidatura) =>
         String(candidatura.id)?.includes(pesquisa) ||
-        candidatura.estudante?.nome?.toLowerCase().includes(pesquisa.toLowerCase()) || // Assumindo que 'estudante' tem um campo 'nome'
+        candidatura.estudante?.Nome?.toLowerCase().includes(pesquisa.toLowerCase()) ||
         candidatura.status?.toLowerCase().includes(pesquisa.toLowerCase()) ||
-        format(new Date(candidatura.data_submissao), 'dd/MM/yyyy', { locale: ptBR }).includes(pesquisa) // Use o campo correto da data
+        format(new Date(candidatura.data_submissao), 'dd/MM/yyyy', { locale: ptBR }).includes(pesquisa)
     );
 
     const handleChangePage = (event, novaPagina) => {
         setPagina(novaPagina);
     };
 
-    const handleChangeRowsPerPage = (event) => {
-        setResultadosPorPagina(parseInt(event.target.value, 10));
-        setPagina(0);
-    };
+    const totalPaginas = Math.ceil(candidaturasFiltradas.length / resultadosPorPagina);
 
-    // Lógica de controle de acesso para as ações (assumindo que apenas administradores podem aprovar/rejeitar)
+    const candidaturasPaginadas = React.useMemo(() => {
+        const inicio = (pagina - 1) * resultadosPorPagina;
+        const fim = inicio + resultadosPorPagina;
+        return candidaturasFiltradas.slice(inicio, fim);
+    }, [candidaturasFiltradas, pagina]);
+
     const podeAprovarRejeitar = user?.groups?.includes("administrador");
-    const podeVerDetalhes = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador"); // Exemplo: funcionários também podem ver detalhes
+    const podeVerDetalhes = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
 
     return (
         <div className="p-4">
@@ -121,57 +121,57 @@ function AdminCandidaturas() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {candidaturasFiltradas
-                                .slice(pagina * resultadosPorPagina, (pagina + 1) * resultadosPorPagina)
-                                .map((candidatura) => (
-                                    <tr key={candidatura.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.id}</td>
-                                        {/* Ajuste para acessar o nome do estudante */}
-                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.estudante?.Nome}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {format(new Date(candidatura.data_submissao), 'dd/MM/yyyy', { locale: ptBR })}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            {podeAprovarRejeitar && (
-                                                <>
-                                                    <Tooltip title="Aprovar">
-                                                        <IconButton onClick={() => handleAprovar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full">
-                                                            <CheckCircle color="success" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Rejeitar">
-                                                        <IconButton onClick={() => handleRejeitar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                            <Close color="error" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </>
-                                            )}
-                                            {podeVerDetalhes && (
-                                                <Tooltip title="Detalhes">
-                                                    <IconButton component={Link} to={`/admin/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full ml-2">
-                                                        <Visibility color="info" />
+                            {candidaturasPaginadas.map((candidatura) => (
+                                <tr key={candidatura.id}>
+                                    <td className="px-6 py-4 whitespace-nowrap">{candidatura.id}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{candidatura.estudante?.Nome}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        {format(new Date(candidatura.data_submissao), 'dd/MM/yyyy', { locale: ptBR })}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                                        {podeAprovarRejeitar && (
+                                            <>
+                                                <Tooltip title="Aprovar">
+                                                    <IconButton onClick={() => handleAprovar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-full">
+                                                        <CheckCircle color="success" />
                                                     </IconButton>
                                                 </Tooltip>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                                <Tooltip title="Rejeitar">
+                                                    <IconButton onClick={() => handleRejeitar(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                        <Close color="error" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </>
+                                        )}
+                                        {podeVerDetalhes && (
+                                            <Tooltip title="Detalhes">
+                                                <IconButton component={Link} to={`/admin/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full ml-2">
+                                                    <Visibility color="info" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
-                    <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25]}
-                            component="div"
-                            count={candidaturasFiltradas.length}
-                            rowsPerPage={resultadosPorPagina}
-                            page={pagina}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                            labelRowsPerPage="Candidaturas por página:"
-                            className="text-sm text-gray-700"
-                        />
-                    </div>
+                     {candidaturas.length > 0 && (
+                                        <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+                                          Total de Candidaturas: {candidaturas.length}
+                                        </Typography>
+                                      )}
+                    {candidaturasFiltradas.length > 0 && (
+                        <div className="px-4 py-3 bg-gray-50 flex justify-end items-center">
+                            <Pagination
+                                count={totalPaginas}
+                                page={pagina}
+                                onChange={handleChangePage}
+                                color="primary"
+                                size="large"
+                            />
+                        </div>
+                    )}
                 </Paper>
             )}
         </div>

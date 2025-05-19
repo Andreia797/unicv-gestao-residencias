@@ -165,16 +165,17 @@ def quartos_por_tipo(request, tipo):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
+@permission_classes([IsAuthenticated])
 def relatorio_quartos(request):
     total_quartos = Quarto.objects.count()
-    quartos_livres = Quarto.objects.filter(cama__residente__isnull=True).distinct().count()
+    quartos_livres = Quarto.objects.filter(camas__residente__isnull=True).distinct().count()
     quartos_ocupados = total_quartos - quartos_livres
     return Response({
         'totalQuartos': total_quartos,
         'quartosLivres': quartos_livres,
         'quartosOcupados': quartos_ocupados,
     })
+
 
 # CAMAS
 @api_view(['GET', 'POST'])
@@ -223,7 +224,7 @@ def camas_por_status(request, status_param):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
+@permission_classes([IsAuthenticated])
 def relatorio_camas(request):
     total_camas = Cama.objects.count()
     camas_livres = Cama.objects.filter(residente__isnull=True).count()

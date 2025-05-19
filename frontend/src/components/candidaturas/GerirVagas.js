@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import AuthService from '../../services/AuthService';
 import {
     Paper, Typography, List, ListItem, ListItemText, CircularProgress, Alert, Button,
-    IconButton, Tooltip
+    IconButton, Tooltip, Pagination
 } from '@mui/material';
 import { AuthContext } from '../AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
@@ -14,6 +14,9 @@ const GerenciarVagas = () => {
     const [error, setError] = useState(null);
     const { authToken, user } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    const [pagina, setPagina] = useState(1);
+    const resultadosPorPagina = 8;
 
     useEffect(() => {
         const fetchTodosQuartos = async () => {
@@ -37,6 +40,18 @@ const GerenciarVagas = () => {
         }
     }, [authToken, user, navigate]);
 
+    const handleChangePage = (event, novaPagina) => {
+        setPagina(novaPagina);
+    };
+
+    const totalPaginas = Math.ceil(quartos.length / resultadosPorPagina);
+
+    const quartosPaginados = React.useMemo(() => {
+        const inicio = (pagina - 1) * resultadosPorPagina;
+        const fim = inicio + resultadosPorPagina;
+        return quartos.slice(inicio, fim);
+    }, [quartos, pagina]);
+
     const handleEditarQuarto = (id) => {
         navigate(`/editarquarto/${id}`);
     };
@@ -57,9 +72,6 @@ const GerenciarVagas = () => {
         }
     };
 
-    // A lógica de alteração de disponibilidade pode ser mais complexa e depender do seu modelo de dados.
-    // Se você tiver um campo 'disponivel' no modelo Quarto, pode usar a lógica abaixo.
-    // Caso contrário, precisará de uma lógica mais elaborada envolvendo as 'Camas'.
     const handleAlterarDisponibilidadeQuarto = async (id) => {
         setLoading(true);
         setError(null);
@@ -91,10 +103,10 @@ const GerenciarVagas = () => {
     return (
         <Paper elevation={3} sx={{ p: 4, mt: 2 }}>
             <Typography variant="h5" gutterBottom>
-                Gestão de Quartos
+                Gestão de Vagas de Quartos
             </Typography>
             <List>
-                {quartos.map((quarto) => (
+                {quartosPaginados.map((quarto) => (
                     <ListItem key={quarto.id} divider secondaryAction={
                         <>
                             <Tooltip title="Editar">
@@ -124,6 +136,22 @@ const GerenciarVagas = () => {
                     </ListItem>
                 ))}
             </List>
+            {quartos.length > 0 && (
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+                      Total de Quartos: {quartos.length}
+                    </Typography>
+                  )}
+            {quartos.length > 0 && (
+                <div className="px-4 py-3 bg-gray-50 flex justify-end items-center">
+                    <Pagination
+                        count={totalPaginas}
+                        page={pagina}
+                        onChange={handleChangePage}
+                        color="primary"
+                        size="large"
+                    />
+                </div>
+            )}
             <Button variant="contained" color="primary" sx={{ mt: 2 }} component={Link} to="/adicionarquarto">
                 Adicionar Novo Quarto
             </Button>

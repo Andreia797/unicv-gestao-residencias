@@ -4,9 +4,10 @@ import {
     Paper,
     IconButton,
     Tooltip,
-    TablePagination,
     CircularProgress,
-    Button,
+    Typography,
+    TextField,
+    Pagination // Importe Pagination
 } from '@mui/material';
 import { Edit, Delete, Visibility } from '@mui/icons-material';
 import NotificacoesCandidatura from '../NotificacoesCandidatura';
@@ -18,14 +19,14 @@ function GerirCandidaturas() {
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState('success');
     const [loading, setLoading] = useState(true);
-    const [pagina, setPagina] = useState(0);
-    const [resultadosPorPagina, setResultadosPorPagina] = useState(5);
-    const { user } = useContext(AuthContext); // Acesse as informações do usuário logado
+    const [pagina, setPagina] = useState(1); // Começa na página 1
+    const resultadosPorPagina = 9; // Definição fixa de 9 por 
+    const [pesquisa, setPesquisa] = useState('');
+    const { user } = useContext(AuthContext);
 
     const fetchCandidaturas = async () => {
         setLoading(true);
         try {
-            // Corrigido para usar o tipo 'candidaturas' e a rota base '/'
             const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/');
             setCandidaturas(response.data);
         } catch (error) {
@@ -43,9 +44,8 @@ function GerirCandidaturas() {
 
     const handleDelete = async (id) => {
         try {
-            // Corrigido para usar o tipo 'candidaturas' e a rota com o ID
             await AuthService.authenticatedRequest('delete', 'candidaturas', `/${id}/`);
-            fetchCandidaturas(); // Recarrega a lista após a exclusão
+            fetchCandidaturas();
             setMensagem('Candidatura excluída com sucesso.');
             setTipoMensagem('success');
         } catch (error) {
@@ -68,27 +68,22 @@ function GerirCandidaturas() {
         setPagina(novaPagina);
     };
 
-    const handleChangeRowsPerPage = (event) => {
-        setResultadosPorPagina(parseInt(event.target.value, 10));
-        setPagina(0);
-    };
+    const totalPaginas = Math.ceil(candidaturas.length / resultadosPorPagina);
 
-    // Lógica de controle de acesso para as ações
+    const candidaturasPaginadas = React.useMemo(() => {
+        const inicio = (pagina - 1) * resultadosPorPagina;
+        const fim = inicio + resultadosPorPagina;
+        return candidaturas.slice(inicio, fim);
+    }, [candidaturas, pagina]);
+
     const podeVerDetalhes = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
     const podeEditar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
     const podeExcluir = user?.groups?.includes("administrador");
-    const podeAdicionar = user?.groups?.includes("funcionario") || user?.groups?.includes("administrador");
 
     return (
         <div className="p-4">
             <NotificacoesCandidatura mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-            {podeAdicionar && (
-                <div className="flex justify-end mb-4">
-                    <Button component={Link} to="/candidaturas/nova" variant="contained" color="primary">
-                        Adicionar Nova Candidatura
-                    </Button>
-                </div>
-            )}
+             <TextField label="Pesquisar" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)} className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" variant="outlined" size="small" />
             {loading ? (
                 <div className="flex justify-center items-center h-32">
                     <CircularProgress />
@@ -120,57 +115,58 @@ function GerirCandidaturas() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {candidaturas
-                                    .slice(pagina * resultadosPorPagina, (pagina + 1) * resultadosPorPagina)
-                                    .map((candidatura) => (
-                                        <tr key={candidatura.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">{candidatura.estudante?.Nome}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.Nome}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.edificio}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {formatarData(candidatura.data_submissao)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                {podeVerDetalhes && (
-                                                    <Tooltip title="Ver Detalhes">
-                                                        <IconButton component={Link} to={`/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
-                                                            <Visibility className="text-blue-500" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                )}
-                                                {podeEditar && (
-                                                    <Tooltip title="Editar">
-                                                        <IconButton component={Link} to={`/candidaturas/editar/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
-                                                            <Edit className="text-yellow-500" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                )}
-                                                {podeExcluir && (
-                                                    <Tooltip title="Excluir">
-                                                        <IconButton onClick={() => handleDelete(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
-                                                            <Delete className="text-red-500" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                {candidaturasPaginadas.map((candidatura) => (
+                                    <tr key={candidatura.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.estudante?.Nome}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.Nome}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.edificio}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {formatarData(candidatura.data_submissao)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            {podeVerDetalhes && (
+                                                <Tooltip title="Ver Detalhes">
+                                                    <IconButton component={Link} to={`/candidaturas/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">
+                                                        <Visibility className="text-blue-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {podeEditar && (
+                                                <Tooltip title="Editar">
+                                                    <IconButton component={Link} to={`/candidaturas/editar/${candidatura.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                        <Edit className="text-yellow-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {podeExcluir && (
+                                                <Tooltip title="Excluir">
+                                                    <IconButton onClick={() => handleDelete(candidatura.id)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full ml-2">
+                                                        <Delete className="text-red-500" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
-                        <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={candidaturas.length}
-                                rowsPerPage={resultadosPorPagina}
-                                page={pagina}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="Candidaturas por página:"
-                                className="text-sm text-gray-700"
-                            />
-                        </div>
+                         {candidaturas.length > 0 && (
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+                      Total de Candidaturas: {candidaturas.length}
+                    </Typography>
+                  )}
+                        {candidaturas.length > 0 && (
+                            <div className="px-4 py-3 bg-gray-50 flex justify-end items-center">
+                                <Pagination
+                                    count={totalPaginas}
+                                    page={pagina}
+                                    onChange={handleChangePage}
+                                    color="primary"
+                                    size="large"
+                                />
+                            </div>
+                        )}
                     </Paper>
                 </div>
             )}
