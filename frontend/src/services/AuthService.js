@@ -11,34 +11,13 @@ const apiAccounts = axios.create({ baseURL: API_URL_ACCOUNTS });
 const apiRelatorios = axios.create({ baseURL: API_URL_RELATORIOS });
 const apiCandidaturas = axios.create({ baseURL: API_URL_CANDIDATURAS });
 
-// Helpers de token usando cookies
-const getCookie = (name) => {
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const cookies = decodedCookie.split(";");
-    for (let c of cookies) {
-        while (c.charAt(0) === " ") c = c.substring(1);
-        if (c.indexOf(name + "=") === 0) return c.substring(name.length + 1);
-    }
-    return null;
-};
-
-const setCookie = (name, value, days) => {
-    const expires = new Date();
-    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; secure; SameSite=Strict`;
-};
-
-const deleteCookie = (name) => {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=Strict`;
-};
-
-// Token functions
-const getToken = () => getCookie("access_token");
-const getRefreshToken = () => getCookie("refresh_token");
-const setToken = (token) => setCookie("access_token", token, 1 / 24); // 1h
-const setRefreshToken = (token) => setCookie("refresh_token", token, 7);
-const clearToken = () => deleteCookie("access_token");
-const clearRefreshToken = () => deleteCookie("refresh_token");
+// Helpers de token usando localStorage (mais comum para SPAs)
+const getToken = () => localStorage.getItem("access_token");
+const getRefreshToken = () => localStorage.getItem("refresh_token");
+const setToken = (token) => localStorage.setItem("access_token", token);
+const setRefreshToken = (token) => localStorage.setItem("refresh_token", token);
+const clearToken = () => localStorage.removeItem("access_token");
+const clearRefreshToken = () => localStorage.removeItem("refresh_token");
 
 const logout = () => {
     clearToken();
@@ -96,10 +75,11 @@ apiAccounts.interceptors.response.use(
 const AuthService = {
     login: async (credenciais) => {
         const response = await apiAccounts.post("/login/", credenciais);
-        const { requires_2fa, access_token, refresh_token } = response.data;
+        const { requires_2fa, access_token, refresh_token, user } = response.data; // Adicionado 'user'
 
-        if (refresh_token) setRefreshToken(refresh_token);
-        return { requires_2fa: !!requires_2fa, access_token };
+        if (access_token) setToken(access_token); // Salva access token
+        if (refresh_token) setRefreshToken(refresh_token); // Salva refresh token
+        return { requires_2fa: !!requires_2fa, access_token, user }; // Retorna 'user'
     },
 
     register: async (dadosUtilizador) => {
@@ -129,12 +109,14 @@ const AuthService = {
             { otp_token },
             { headers: { Authorization: `Bearer ${tempAccessToken}` } }
         );
-        const { access, refresh } = response.data;
-        if (access && refresh) {
-            setToken(access);
-            setRefreshToken(refresh);
-        }
-        return response.data;
+        const { access, refresh, user } = response.data; // Adicionado 'user'
+        if (access) setToken(access);
+        if (refresh) setRefreshToken(refresh);
+        return { access, refresh, user }; // Retorna 'user'
+    },
+
+    getEstadoCandidatura: async () => {
+        return await AuthService.authenticatedRequest("get", "candidaturas", "/estado/");
     },
 
     authenticatedRequest: async (method, baseURLType, url, data = null) => {

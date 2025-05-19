@@ -79,8 +79,6 @@ class login_user(APIView):
                 token_serializer = CustomTokenObtainPairSerializer()
                 token = token_serializer.get_token(user)
                 access_token = str(token.access_token)
-
-                # Se você quiser o refresh token também
                 refresh_token = str(token)
 
                 # Retornar token para frontend e informar necessidade de 2FA
@@ -88,7 +86,8 @@ class login_user(APIView):
                     "msg": "Verificação 2FA necessária",
                     "requires_2fa": True,
                     "access_token": access_token,
-                    "refresh_token": refresh_token
+                    "refresh_token": refresh_token,
+                    "user": UserSerializer(user).data
                 }, status=status.HTTP_200_OK)
             return Response({"msg": "Credenciais inválidas"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -154,7 +153,8 @@ class verify_2fa(APIView):
                 response = Response({
                     "msg": "2FA verificado com sucesso",
                     "access": access_token_final,
-                    "refresh": refresh_token_final
+                    "refresh": refresh_token_final,
+                    "user": UserSerializer(user).data
                 }, status=status.HTTP_200_OK)
 
                 response.set_cookie(

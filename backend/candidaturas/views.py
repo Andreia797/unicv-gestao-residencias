@@ -49,11 +49,15 @@ class MinhaCandidaturaView(APIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            minha_candidatura = Candidatura.objects.get(estudante=request.user.estudante)
-            serializer = CandidaturaSerializer(minha_candidatura)
-            return Response(serializer.data)
-        except Candidatura.DoesNotExist:
-            return Response({"detail": "Você não possui candidatura."}, status=status.HTTP_404_NOT_FOUND)
+            # Corrigido para retornar apenas um objeto ou None
+            minha_candidatura = Candidatura.objects.filter(estudante=request.user.estudante).first()
+            if minha_candidatura:
+                serializer = CandidaturaSerializer(minha_candidatura)
+                return Response(serializer.data)
+            else:
+                return Response({"detail": "Você não possui candidatura."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": f"Erro ao buscar candidatura: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET', 'POST'])
@@ -73,6 +77,9 @@ def lista_candidaturas(request):
 
     elif request.method == 'POST':
         if hasattr(request.user, 'estudante'):
+            # Verifica se o estudante já possui uma candidatura ativa
+            if Candidatura.objects.filter(estudante=request.user.estudante).exists():
+                return Response({"detail": "Você já possui uma candidatura."}, status=status.HTTP_400_BAD_REQUEST)
             serializer = CandidaturaSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save(estudante=request.user.estudante)
@@ -177,3 +184,26 @@ def lista_vagas(request):
         return Response(serializer.data)
     else:
         return Response({"detail": "Você não tem permissão para ver as vagas disponíveis."}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, EstudantePermission])
+def estado_candidatura(request):
+    """
+    Retorna o estado da candidatura do estudante logado.
+    """
+    try:
+        minha_candidatura = Candidatura.objects.get(estudante=request.user.estudante)
+        serializer = CandidaturaSerializer(minha_candidatura)
+        return Response(serializer.data)
+    except Candidatura.DoesNotExist:
+        return Response({"detail": "Você não possui candidatura."}, status=status.HTTP_404_NOT_FOUND)
+    except Candidatura.MultipleObjectsReturned:
+        # Correção para o erro de múltiplas candidaturas
+        # Retorna a primeira encontrada ou lida com a situação de outra forma
+        minha_candidatura = Candidatura.objects.filter(estudante=request.user.estudante).first()
+        if minha_candidatura:
+            serializer = CandidaturaSerializer(minha_candidatura)
+            return Response(serializer.data)
+        else:
+            return Response({"detail": "Erro ao buscar sua candidatura."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

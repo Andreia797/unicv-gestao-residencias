@@ -25,12 +25,12 @@ function Dashboard() {
         const fetchData = async () => {
             // Buscar candidaturas por estado
             try {
-                // Corrigido: Usando ReportService para buscar os dados
                 const responseCandidaturas = await ReportService.getCandidaturasPorEstado();
-                if (Array.isArray(responseCandidaturas) && responseCandidaturas.length > 0) {
-                    const formatted = responseCandidaturas.map(item => ({
-                        estado: item.estado, // Assumindo que a API retorna 'estado' e 'quantidade'
-                        quantidadeDeCandidaturas: item.quantidade,
+                // A correção está aqui: acessar responseCandidaturas.statusCounts
+                if (responseCandidaturas && Array.isArray(responseCandidaturas.statusCounts) && responseCandidaturas.statusCounts.length > 0) {
+                    const formatted = responseCandidaturas.statusCounts.map(item => ({
+                        estado: item.status, // A chave correta é 'status'
+                        quantidadeDeCandidaturas: item.count, // A chave correta é 'count'
                     }));
                     setCandidaturasPorEstado(formatted);
                 } else {
@@ -41,22 +41,29 @@ function Dashboard() {
                 setErroCandidaturas('Erro ao buscar candidaturas por estado.');
             }
 
-            // Buscar residentes por edifício
+            // Buscar residentes por edifício (para o gráfico diretamente)
             try {
-                // Corrigido: Usando ReportService para buscar os dados
-                const responseResidentes = await ReportService.getResidentesPorEdificio();
+                const responseResidentes = await ReportService.getListaEdificios();
                 if (Array.isArray(responseResidentes) && responseResidentes.length > 0) {
-                    const formatted = responseResidentes.map(item => ({
-                        edificio: item.nome_edificio, // Ajuste conforme a estrutura da sua resposta
-                        quantidadeDeResidentes: item.total_residentes, // Ajuste conforme a estrutura da sua resposta
-                    }));
-                    setResidentesPorEdificio(formatted);
+                    const residentesPorEdificioData = await Promise.all(
+                        responseResidentes.map(async (edificio) => {
+                            try {
+                                const residentes = await ReportService.getResidentesPorEdificio(edificio.id);
+                                return { nome_edificio: edificio.nome, total_residentes: Array.isArray(residentes) ? residentes.length : 0 };
+                            } catch (error) {
+                                console.error(`Erro ao buscar residentes para o edifício ${edificio.nome}:`, error);
+                                return { nome_edificio: edificio.nome, total_residentes: 0 };
+                            }
+                        })
+                    );
+                    setResidentesPorEdificio(residentesPorEdificioData);
+                    setErroResidentes(null);
                 } else {
-                    setErroResidentes('Dados de residentes por edifício não disponíveis.');
+                    setErroResidentes('Dados de edifícios não disponíveis para o gráfico de residentes.');
                 }
             } catch (error) {
-                console.error('Erro ao buscar residentes por edifício:', error);
-                setErroResidentes('Erro ao buscar residentes por edifício.');
+                console.error('Erro ao buscar dados para o gráfico de residentes:', error);
+                setErroResidentes('Erro ao buscar dados para o gráfico de residentes.');
             }
         };
 
@@ -67,7 +74,7 @@ function Dashboard() {
         return null;
     }
 
-    const podeVerDashboard = user.groups?.includes("administrador") || user.groups?.includes("funcionario");
+    const podeVerDashboard = user.groups?.includes("administrador") || user.groups?.includes("funcionario") || user.groups?.includes("estudante");
 
     if (!podeVerDashboard) {
         return (
@@ -110,11 +117,10 @@ function Dashboard() {
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={residentesPorEdificio}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="edificio" />
+                                <XAxis dataKey="nome_edificio" />
                                 <YAxis />
                                 <Tooltip />
-                                <Legend />
-                                <Bar dataKey="quantidadeDeResidentes" fill="#10b981" />
+                                <Bar dataKey="total_residentes" fill="#10b981" />
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (

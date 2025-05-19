@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from datetime import timedelta
+from django.conf import settings  # Adicione esta linha AQUI
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -78,13 +80,12 @@ SIMPLE_JWT = {
 
     # Algoritmo e chaves
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
+    'SIGNING_KEY': settings.SECRET_KEY,  # Agora o 'settings' está definido
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
 
     # Header de autenticação
-    'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 
     # Dados do usuário no token
@@ -101,11 +102,11 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 
     # Configurações de Cookie Seguro
-    'AUTH_COOKIE': 'access_token',                   # Nome do cookie
-    'AUTH_COOKIE_SECURE': True,                      # Apenas via HTTPS
-    'AUTH_COOKIE_HTTP_ONLY': True,                   # Não acessível via JS
-    'AUTH_COOKIE_PATH': '/',                         # Caminho padrão
-    'AUTH_COOKIE_SAMESITE': 'Lax',                   # Proteção CSRF básica
+    'AUTH_COOKIE': 'access_token',             # Nome do cookie
+    'AUTH_COOKIE_SECURE': True,                 # Apenas via HTTPS
+    'AUTH_COOKIE_HTTP_ONLY': True,             # Não acessível via JS
+    'AUTH_COOKIE_PATH': '/',                     # Caminho padrão
+    'AUTH_COOKIE_SAMESITE': 'Lax',             # Proteção CSRF básica
 }
 
 

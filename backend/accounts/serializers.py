@@ -66,13 +66,14 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
 
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
 
         token['user_id'] = user.id
-        # Removido username, pois não existe no seu modelo
         token['email'] = user.email
         token['is_staff'] = user.is_staff
         token['groups'] = [group.name for group in user.groups.all()]

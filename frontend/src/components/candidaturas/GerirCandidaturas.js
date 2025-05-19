@@ -128,7 +128,7 @@ function GerirCandidaturas() {
                                             <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.Nome}</td>
                                             <td className="px-6 py-4 whitespace-nowrap">{candidatura.residencia?.edificio}</td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {formatarData(candidatura.DataSubmissao)}
+                                                {formatarData(candidatura.data_submissao)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">{candidatura.status}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">

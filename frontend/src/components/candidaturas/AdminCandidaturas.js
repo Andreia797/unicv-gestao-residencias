@@ -127,7 +127,7 @@ function AdminCandidaturas() {
                                     <tr key={candidatura.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">{candidatura.id}</td>
                                         {/* Ajuste para acessar o nome do estudante */}
-                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.estudante?.nome}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{candidatura.estudante?.Nome}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {format(new Date(candidatura.data_submissao), 'dd/MM/yyyy', { locale: ptBR })}
                                         </td>

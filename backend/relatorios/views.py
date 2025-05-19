@@ -4,6 +4,9 @@ from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
+from rest_framework.generics import ListCreateAPIView
+from rest_framework.views import APIView
+from rest_framework import permissions
 
 from core.models import Edificio, Quarto, Residente, Cama, Residencia as ResidenciaCore
 from core.serializers import (
@@ -77,19 +80,18 @@ def residentes_por_edificio(request):
     return Response({'detail': 'Você não tem permissão para visualizar residentes por edifício.'}, status=status.HTTP_403_FORBIDDEN)
 
 # EDIFÍCIOS
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def lista_edificios(request):
-    if request.method == 'GET':
-        edificios = Edificio.objects.all()
-        serializer = EdificioSerializer(edificios, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = EdificioSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ListaEdificiosView(ListCreateAPIView):
+    queryset = Edificio.objects.all()
+    serializer_class = EdificioSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+
+lista_edificios = ListaEdificiosView.as_view()
+    
+def get_queryset_edificios():
+    return Edificio.objects.all()
+
+lista_edificios.queryset = get_queryset_edificios()    
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated, DjangoModelPermissions])
@@ -232,19 +234,25 @@ def relatorio_camas(request):
     })
 
 # RESIDÊNCIAS
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def lista_residencias_view(request):
-    if request.method == 'GET':
-        residencias = ResidenciaCore.objects.all()
+class ListaResidenciasAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
+
+    def get_queryset(self):
+        return ResidenciaCore.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        residencias = self.get_queryset()
         serializer = ResidenciaCoreSerializer(residencias, many=True)
         return Response(serializer.data)
-    elif request.method == 'POST':
+
+    def post(self, request, *args, **kwargs):
         serializer = ResidenciaCoreSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+lista_residencias_view = ListaResidenciasAPIView.as_view()
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated, DjangoModelPermissions])
