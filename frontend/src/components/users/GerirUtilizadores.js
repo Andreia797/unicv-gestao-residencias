@@ -53,10 +53,11 @@ function GerirUtilizadores() {
             const response = await AuthService.authenticatedRequest('get', 'accounts', '/users/');
             setUtilizadores(response.data.map(user => ({
                 ...user,
-                username: user.username || '',
-                name: user.profile?.name || '',
-                permissao: user.profile?.permissao || '',
-                permissoesDetalhadas: user.profile?.permissoes_detalhadas || [],
+                username: user.nome_utilizador || '', // Use nome_utilizador
+                name: user.nome || '',             // Use nome
+                permissao: user.nome_permissao || '', // Use nome_permissao
+                // Você precisará buscar as permissoesDetalhadas separadamente se elas não vierem aqui
+                permissoesDetalhadas: user.permissoes_detalhadas || [], // Assumindo que vem na resposta
             })));
         } catch (error) {
             console.error('Erro ao buscar utilizadores:', error);
@@ -70,16 +71,22 @@ function GerirUtilizadores() {
     const handleEdit = (utilizador) => {
         setEditUtilizadorId(utilizador.id);
         setFormData({
-            username: utilizador.username,
-            name: utilizador.name,
-            permissao: utilizador.permissao,
+            username: utilizador.nome_utilizador, // Use nome_utilizador
+            name: utilizador.nome,             // Use nome
+            permissao: utilizador.nome_permissao, // Use nome_permissao
             permissoesDetalhadas: utilizador.permissoesDetalhadas || [],
         });
     };
 
     const handleUpdate = async () => {
         try {
-            await AuthService.authenticatedRequest('put', 'accounts', `/users/${editUtilizadorId}/`, { profile: formData });
+            await AuthService.authenticatedRequest('put', 'accounts', `/users/${editUtilizadorId}/`, {
+                profile: {
+                    name: formData.name,
+                    permissao: formData.permissao,
+                    permissoes_detalhadas: formData.permissoesDetalhadas,
+                }
+            });
             setEditUtilizadorId(null);
             fetchUtilizadores();
             setMensagem('Utilizador atualizado com sucesso.');
@@ -180,9 +187,9 @@ function GerirUtilizadores() {
                                     .map((utilizador) => (
                                         <tr key={utilizador.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{utilizador.id}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-900">{utilizador.username}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-900">{utilizador.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{utilizador.permissao}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-900">{utilizador.nome_utilizador}</td> {/* Use nome_utilizador */}
+                                            <td className="px-6 py-4 text-sm text-gray-900">{utilizador.nome}</td>             {/* Use nome */}
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{utilizador.nome_permissao}</td> {/* Use nome_permissao */}
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {podeVerDetalhes && (
                                                     <Tooltip title="Detalhes">
@@ -194,7 +201,7 @@ function GerirUtilizadores() {
                                                 {podeEditarExcluir && (
                                                     <>
                                                         <Tooltip title="Editar">
-                                                            <IconButton onClick={() => handleEdit(utilizador)} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
+                                                            <IconButton component={Link} to={`/users/edit/${utilizador.id}`} className="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-full ml-2">
                                                                 <Edit className="text-yellow-500" />
                                                             </IconButton>
                                                         </Tooltip>
@@ -301,7 +308,7 @@ function GerirUtilizadores() {
                     </DialogActions>
                 </Dialog>
             </div>
-        );
-    }
+    );
+}
 
 export default GerirUtilizadores;
