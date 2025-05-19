@@ -4,6 +4,7 @@ from two_factor import urls as two_factor_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),  # Adicione esta linha
     path('2fa/', include(two_factor_urls.urlpatterns)),
     path('api/accounts/', include('accounts.urls')),
     path('api/candidaturas/', include('candidaturas.urls')),

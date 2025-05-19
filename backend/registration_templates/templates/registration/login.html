@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">{% endblock %}
+
+{% block userlinks %}{% if user.is_authenticated %}<a href="{% url 'admin:logout' %}">{% translate 'Log out' %}</a>{% endif %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content_title %}{% translate 'Log in' %}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+{% if form.errors %}
+<p class="errornote">
+    {% translate 'Please correct the error below.' %}
+</p>
+{% endif %}
+
+<div id="content-main">
+    <form method="post" action="{% url 'login' %}">{% csrf_token %}
+    <div class="form-row">
+        {{ form.username.errors }}
+        <label for="{{ form.username.id_for_label }}">{% translate 'Username:' %}</label>
+        {{ form.username }}
+    </div>
+    <div class="form-row">
+        {{ form.password.errors }}
+        <label for="{{ form.password.id_for_label }}">{% translate 'Password:' %}</label>
+        {{ form.password }}
+        <input type="hidden" name="next" value="{{ next }}">
+    </div>
+    {% url 'admin:password_reset' as password_reset_url %}
+    {% if password_reset_url %}
+    <p class="forgotten"><a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a></p>
+    {% endif %}
+    <div class="submit-row">
+        <input type="submit" value="{% translate 'Log in' %}">
+    </div>
+    </form>
+</div>
+{% endblock %}

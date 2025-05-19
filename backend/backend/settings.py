@@ -12,13 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-from datetime import timedelta
 from django.conf import settings  # Adicione esta linha AQUI
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -31,10 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
-
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,9 +48,9 @@ INSTALLED_APPS = [
     'core',
     'estudantes',
     'candidaturas',
-    'relatorios'
+    'relatorios',
+    'registration_templates',
 ]
-
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -102,13 +96,12 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 
     # Configurações de Cookie Seguro
-    'AUTH_COOKIE': 'access_token',             # Nome do cookie
-    'AUTH_COOKIE_SECURE': True,                 # Apenas via HTTPS
-    'AUTH_COOKIE_HTTP_ONLY': True,             # Não acessível via JS
-    'AUTH_COOKIE_PATH': '/',                     # Caminho padrão
-    'AUTH_COOKIE_SAMESITE': 'Lax',             # Proteção CSRF básica
+    'AUTH_COOKIE': 'access_token',          # Nome do cookie
+    'AUTH_COOKIE_SECURE': True,             # Apenas via HTTPS
+    'AUTH_COOKIE_HTTP_ONLY': True,         # Não acessível via JS
+    'AUTH_COOKIE_PATH': '/',               # Caminho padrão
+    'AUTH_COOKIE_SAMESITE': 'Lax',           # Proteção CSRF básica
 }
-
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -120,7 +113,6 @@ MIDDLEWARE = [
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -141,7 +133,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -175,7 +166,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -187,7 +177,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
@@ -198,20 +187,15 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
-
-
 AUTHENTICATION_BACKENDS = [
-    'accounts.authentication.EmailBackend', 
+   # 'accounts.authentication.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000", # ou a porta que seu react está rodando.
+    "http://localhost:3000",  # ou a porta que seu react está rodando.
     "http://127.0.0.1:3000",
     "http://localhost",
     "http://127.0.0.1",
@@ -234,3 +218,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+
+# Redirecionamento após o login (adicione esta linha)
+LOGIN_REDIRECT_URL = '/admin/'
