@@ -13,7 +13,7 @@ urlpatterns = [
     # Rotas de Edifícios
     path('edificios/', views.lista_edificios, name='lista_edificios'),
     path('edificios/<int:pk>/', views.detalhe_edificio, name='detalhe_edificio'),
-    path('edificios/tipo/<str:tipo>/', views.edificios_por_tipo, name='edificios_por_tipo'),
+    path('edificios/tipo/', views.edificios_por_tipo, name='edificios_por_tipo'),
     
 
     # Rotas de Quartos

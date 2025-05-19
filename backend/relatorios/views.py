@@ -58,10 +58,11 @@ def residentes_por_quarto(request, quarto_id):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
+@permission_classes([IsAuthenticated])
 def total_residentes(request):
     total = Residente.objects.count()
     return Response({'totalResidentes': total})
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -111,7 +112,7 @@ def detalhe_edificio(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
+@permission_classes([IsAuthenticated])
 def edificios_por_tipo(request):
     tipos = Edificio.objects.values('tipo').annotate(count=Count('id'))
     total_por_tipo = [{'name': t['tipo'], 'count': t['count']} for t in tipos]

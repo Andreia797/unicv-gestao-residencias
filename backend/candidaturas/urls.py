@@ -12,4 +12,8 @@ urlpatterns = [
     path('atualizar/<int:id>/', AtualizarEstadoCandidaturaView.as_view(), name='atualizar_estado'),
     path('minha/', MinhaCandidaturaView.as_view(), name='minha_candidatura_cbv'),
     path('vagas/', views.lista_vagas, name='lista_vagas'),
+    path('quartos/', views.listar_todos_quartos, name='listar_todos_quartos'),
+    path('quartos/<int:pk>/', views.editar_quarto, name='editar_quarto'),
+    path('quartos/<int:pk>/', views.excluir_quarto, name='excluir_quarto'),
+    path('quartos/<int:pk>/disponibilidade/', views.alterar_disponibilidade_quarto, name='alterar_disponibilidade_quarto'),
 ]

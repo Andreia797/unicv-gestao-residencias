@@ -101,15 +101,16 @@ const CandidaturaService = {
     },
 
     getVagas: async () => {
-        try {
-            // Corrigido para usar o tipo 'vagas' na URL base
-            const response = await AuthService.authenticatedRequest('GET', 'vagas', '/');
-            return response.data;
-        } catch (error) {
-            console.error('Erro ao buscar vagas:', error);
-            throw error;
-        }
-    },
+    try {
+        const response = await AuthService.authenticatedRequest('GET', 'candidaturas', 'vagas/');
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar vagas:', error);
+        throw error;
+    }
+},
+
 };
+
 
 export default CandidaturaService;

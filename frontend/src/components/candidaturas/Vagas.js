@@ -1,3 +1,4 @@
+// frontend/src/components/Vagas.js
 import React, { useEffect, useState, useContext } from 'react';
 import AuthService from '../../services/AuthService';
 import {
@@ -9,15 +10,14 @@ const Vagas = () => {
     const [vagas, setVagas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { authToken } = useContext(AuthContext); // token JWT
+    const { authToken } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchVagas = async () => {
             setLoading(true);
             setError(null);
             try {
-                // Corrigido para usar AuthService e a rota específica para listar vagas
-                const response = await AuthService.authenticatedRequest('get', 'vagas', '/');
+                const response = await AuthService.authenticatedRequest('get', 'candidaturas', 'vagas/');
                 setVagas(response.data);
             } catch (err) {
                 console.error('Erro ao buscar vagas:', err);
@@ -54,8 +54,8 @@ const Vagas = () => {
                 {vagas.map((vaga) => (
                     <ListItem key={vaga.id} divider>
                         <ListItemText
-                            primary={vaga.nome}
-                            secondary={`Localização: ${vaga.localizacao || 'N/A'} | Capacidade: ${vaga.capacidade || 'N/A'}`}
+                            primary={`Quarto: ${vaga.numero}`}
+                            secondary={`Edifício: ${vaga.edificio_detalhes?.nome || 'N/A'} - ${vaga.edificio_detalhes?.endereco || 'N/A'} | Capacidade: ${vaga.capacidade || 'N/A'}`}
                         />
                     </ListItem>
                 ))}

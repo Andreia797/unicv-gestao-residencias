@@ -4,7 +4,9 @@ from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, OuterRef, Subquery, F
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
+from .serializers import QuartoSerializer 
+from core.models import Quarto
 
 from .models import Residencia, Candidatura
 from .serializers import CandidaturaSerializer, ResidenciaSerializer
@@ -176,14 +178,62 @@ def candidaturas_por_estado(request):
 @permission_classes([IsAuthenticated])
 def lista_vagas(request):
     """
-    Retorna a lista de vagas disponíveis (requer permissão de visualização de residencias).
+    Retorna a lista de quartos com vagas disponíveis.
     """
-    if request.user.has_perm('core.view_residencia'):
-        vagas = Residencia.objects.annotate(num_residentes=Count('residente')).filter(capacidade__gt=F('num_residentes'))
-        serializer = ResidenciaSerializer(vagas, many=True)
+    if request.user.has_perm('core.view_quarto'):  # Verifique a permissão no modelo Quarto
+        quartos_disponiveis = Quarto.objects.annotate(
+            num_residentes=Count('camas__residente', distinct=True)
+        ).filter(capacidade__gt=F('num_residentes'))
+        serializer = QuartoSerializer(quartos_disponiveis, many=True)
         return Response(serializer.data)
     else:
         return Response({"detail": "Você não tem permissão para ver as vagas disponíveis."}, status=status.HTTP_403_FORBIDDEN)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def listar_todos_quartos(request):
+    """
+    Retorna a lista de todos os quartos para administradores e funcionários.
+    """
+    if request.user.has_perm('core.view_quarto'):
+        quartos = Quarto.objects.annotate(
+            num_residentes=Count('camas__residente', distinct=True)
+        ).order_by('edificio__nome', 'numero')
+        serializer = QuartoSerializer(quartos, many=True)
+        return Response(serializer.data)
+    else:
+        return Response({"detail": "Você não tem permissão para ver todos os quartos."}, status=status.HTTP_403_FORBIDDEN)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated, DjangoModelPermissions]) # Exemplo de permissão
+def editar_quarto(request, pk):
+    quarto = get_object_or_404(Quarto, pk=pk)
+    serializer = QuartoSerializer(quarto, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated, DjangoModelPermissions]) # Exemplo de permissão
+def excluir_quarto(request, pk):
+    quarto = get_object_or_404(Quarto, pk=pk)
+    quarto.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def alterar_disponibilidade_quarto(request, pk):
+    quarto = get_object_or_404(Quarto, pk=pk)
+    # Lógica para determinar a nova disponibilidade do quarto
+    # Isso pode depender do status das camas associadas ao quarto
+    camas_ocupadas = Cama.objects.filter(quarto=quarto, residente__isnull=False).count()
+    disponivel = quarto.capacidade > camas_ocupadas
+    quarto.save() # Se você adicionar um campo 'disponivel' ao modelo Quarto
+    return Response({"id": quarto.id, "disponivel": disponivel}) # Retorne o status atualizado
+
+
+
 
 
 @api_view(['GET'])

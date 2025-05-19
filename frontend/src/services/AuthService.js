@@ -126,6 +126,31 @@ const AuthService = {
 
         return await apiInstance({ method, url, data });
     },
+
+    async listarTodosQuartosAdmin() {
+    return this.authenticatedRequest('get', 'candidaturas', 'quartos/');
+  },
+
+  async editarQuarto(id, data) {
+    return this.authenticatedRequest('put', 'candidaturas', `quartos/${id}/`, data);
+  },
+
+  async excluirQuarto(id) {
+    return this.authenticatedRequest('delete', 'candidaturas', `quartos/${id}/`);
+  },
+
+  async alterarDisponibilidadeQuarto(id) {
+    return this.authenticatedRequest('patch', 'candidaturas', `quartos/${id}/disponibilidade/`);
+  },
+
+async obterDetalhesQuarto(id) {
+    return this.authenticatedRequest('get', 'candidaturas', `quartos/${id}/`);
+  },
+
+  async adicionarQuarto(data) {
+    return this.authenticatedRequest('post', 'candidaturas', 'quartos/', data);
+  },
+
 };
 
 export default AuthService;

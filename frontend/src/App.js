@@ -3,6 +3,9 @@ import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import FormularioCandidatura from './forms/FormularioCandidatura';
 import MinhaCandidatura from './components/candidaturas/MinhaCandidatura';
+import RequireAuth from './components/RequireAuth';
+import AdicionarNovoQuarto from './components/quartos/AdicionarNovoQuarto';
+import EditarQuarto from './components/quartos/EditarQuarto';
 import AvaliarCandidaturas from './components/candidaturas/AvaliarCandidaturas';
 import CandidaturaDetalhes from './components/candidaturas/CandidaturaDetalhes';
 import AdminCandidaturas from './components/candidaturas/AdminCandidaturas';
@@ -50,7 +53,7 @@ function App() {
 
                     {/* Rotas de Candidaturas */}
                     <Route path="minhacandidatura" element={<MinhaCandidatura />} />
-                    <Route path="admin/candidaturas/avaliar/:id" element={<AvaliarCandidaturas />} />
+                    <Route path="admin/candidaturas/avaliar" element={<AvaliarCandidaturas />} />
                     <Route path="admin/candidaturas" element={<AdminCandidaturas />} />
                      <Route path="gerirvagas" element={<GerirVagas />} />
                     <Route path="admin/candidaturas/gerir" element={<GerirCandidaturas />} />
@@ -58,6 +61,8 @@ function App() {
                     <Route path="/candidaturas/nova" element={<FormularioCandidatura />} />
                     <Route path="/vagas" element={<Vagas />} />
                     <Route path="inicio" element={<Inicio />} />
+                    <Route path="/editarquarto/:id" element={<RequireAuth roles={['funcionario', 'administrador']}><EditarQuarto /></RequireAuth>} />
+                    <Route path="/adicionarquarto" element={<RequireAuth roles={['funcionario', 'administrador']}><AdicionarNovoQuarto /></RequireAuth>} />
 
                     {/* Rotas de Residentes */}
                     <Route path="residentes/:id" element={<PerfilResidente />} />

@@ -156,8 +156,10 @@ export const AuthProvider = ({ children }) => {
         register,
         verify2FA,
         setUser,
-        setIsAuthenticated
-    }), [user, isAuthenticated, loading, login, logout, register, verify2FA]);
+        setIsAuthenticated,
+        authToken,
+         setAuthToken 
+    }), [user, isAuthenticated, loading, login, logout, register, verify2FA, authToken]); 
 
     return (
         <AuthContext.Provider value={value}>

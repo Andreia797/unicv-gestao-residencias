@@ -21,7 +21,7 @@ function AvaliarCandidaturas() {
                 const response = await AuthService.authenticatedRequest('get', 'candidaturas', '/');
                 setCandidaturas(response.data);
                 const initialStatusMap = {};
-                response.data.forEach(c => { initialStatusMap[c.id] = c.estado });
+                response.data.forEach(c => { initialStatusMap[c.id] = c.status }); // Use 'status' em vez de 'estado'
                 setStatusMap(initialStatusMap);
             } catch (err) {
                 setError('Erro ao carregar candidaturas.');
@@ -32,19 +32,19 @@ function AvaliarCandidaturas() {
         fetchCandidaturas();
     }, []);
 
-    const handleStatusChange = (id, novoEstado) => {
-        setStatusMap(prev => ({ ...prev, [id]: novoEstado }));
+    const handleStatusChange = (id, novoStatus) => { // Use 'novoStatus'
+        setStatusMap(prev => ({ ...prev, [id]: novoStatus }));
     };
 
     const atualizarEstado = async (id) => {
         try {
             // Corrigido para usar a rota base e o ID corretamente, e o método PATCH
-            await AuthService.authenticatedRequest('patch', 'candidaturas', `/atualizar/${id}/`, { estado: statusMap[id] });
+            await AuthService.authenticatedRequest('patch', 'candidaturas', `/atualizar/${id}/`, { status: statusMap[id] }); // Use 'status'
             setSuccessMsg(`Estado da candidatura ${id} atualizado para "${statusMap[id]}"`);
             // Opcional: Atualizar a lista localmente para refletir a mudança imediatamente
             setCandidaturas(prevCandidaturas =>
                 prevCandidaturas.map(c =>
-                    c.id === id ? { ...c, estado: statusMap[id] } : c
+                    c.id === id ? { ...c, status: statusMap[id] } : c // Use 'status'
                 )
             );
         } catch (err) {
@@ -77,9 +77,9 @@ function AvaliarCandidaturas() {
                         <TableBody>
                             {candidaturas.map((c) => (
                                 <TableRow key={c.id}>
-                                    <TableCell>{c.estudante_nome}</TableCell>
-                                    <TableCell>{c.residencia_nome}</TableCell>
-                                    <TableCell>{c.estado}</TableCell>
+                                    <TableCell>{c.estudante.Nome}</TableCell> {/* Acessar o nome corretamente */}
+                                    <TableCell>{c.residencia.Nome}</TableCell> {/* Acessar o nome corretamente */}
+                                    <TableCell>{c.status}</TableCell> {/* Use 'status' */}
                                     <TableCell>
                                         <Select
                                             value={statusMap[c.id] || ''}
@@ -87,8 +87,8 @@ function AvaliarCandidaturas() {
                                         >
                                             <MenuItem value="pendente">Pendente</MenuItem>
                                             <MenuItem value="em_analise">Em Análise</MenuItem>
-                                            <MenuItem value="aceite">Aceite</MenuItem>
-                                            <MenuItem value="rejeitada">Rejeitada</MenuItem>
+                                            <MenuItem value="aprovado">Aprovado</MenuItem> {/* Use 'aprovado' */}
+                                            <MenuItem value="rejeitado">Rejeitado</MenuItem>
                                         </Select>
                                     </TableCell>
                                     <TableCell>
