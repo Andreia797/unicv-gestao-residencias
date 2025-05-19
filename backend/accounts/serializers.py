@@ -79,3 +79,27 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['groups'] = [group.name for group in user.groups.all()]
 
         return token
+
+
+class DetailedUserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    nome_utilizador = serializers.CharField(source='email', read_only=True)  # Ou 'username'
+    nome_permissao = serializers.CharField(source='profile.get_permissao_display', read_only=True)
+    nome = serializers.CharField(source='profile.nome', read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'nome', 'nome_utilizador', 'nome_permissao']
+
+    def get_nome_utilizador(self, obj):
+        return obj.username if hasattr(obj, 'username') and obj.username else obj.email
+
+    def get_nome_permissao(self, obj):
+        if hasattr(obj, 'profile'):
+            return obj.profile.get_permissao_display()
+        return None
+
+    def get_nome(self, obj):
+        if hasattr(obj, 'profile'):
+            return obj.profile.nome
+        return None

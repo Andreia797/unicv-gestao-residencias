@@ -9,11 +9,12 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django_otp import devices_for_user
+
 import qrcode
 from io import BytesIO
 import base64
 
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, CustomTokenObtainPairSerializer
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, CustomTokenObtainPairSerializer, DetailedUserSerializer
 
 User = get_user_model()
 SECURE_COOKIE = not settings.DEBUG
@@ -27,11 +28,10 @@ class IsAdminOrSelf(permissions.BasePermission):
 class UserList(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
-    def get(self, request):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+    def get(self, request, format=None):
+        utilizadores = User.objects.all()
+        serializer = DetailedUserSerializer(utilizadores, many=True) # Use DetailedUserSerializer aqui
         return Response(serializer.data)
-
 
 class UserDetail(APIView):
     permission_classes = [IsAuthenticated, IsAdminOrSelf]
@@ -197,3 +197,5 @@ class RefreshTokenView(APIView):
             return response
         except Exception:
             return Response({'error': 'Token de refresh inválido'}, status=status.HTTP_400_BAD_REQUEST)
+        
+

@@ -22,7 +22,7 @@ function AdminCandidaturas() {
     const [mensagem, setMensagem] = useState(null);
     const [tipoMensagem, setTipoMensagem] = useState('success');
     const [pagina, setPagina] = useState(1);
-    const resultadosPorPagina = 9;
+    const resultadosPorPagina = 7;
     const [pesquisa, setPesquisa] = useState('');
     const { user } = useContext(AuthContext);
 

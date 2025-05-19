@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import CamaListCreateView, QuartoListCreateView
 
 urlpatterns = [
     # Rotas de Residentes
@@ -17,14 +18,14 @@ urlpatterns = [
     
 
     # Rotas de Quartos
-    path('quartos/', views.lista_quartos, name='lista_quartos'),
+    path('quartos/', QuartoListCreateView.as_view(), name='lista_quartos'),
     path('quartos/<int:pk>/', views.detalhe_quarto, name='detalhe_quarto'),
     path('quartos/edificio/<int:edificio_id>/', views.quartos_por_edificio, name='quartos_por_edificio'),
     path('quartos/tipo/<str:tipo>/', views.quartos_por_tipo, name='quartos_por_tipo'),
     path('quartos/relatorio/', views.relatorio_quartos, name='relatorio_quartos'),
 
     # Rotas de Camas
-    path('camas/', views.lista_camas, name='lista_camas'),
+    path('camas/', CamaListCreateView.as_view(), name='lista_camas'),
     path('camas/<int:pk>/', views.detalhe_cama, name='detalhe_cama'),
     path('camas/quarto/<int:quarto_id>/', views.camas_por_quarto, name='camas_por_quarto'),
     path('camas/status/<str:status>/', views.camas_por_status, name='camas_por_status'),

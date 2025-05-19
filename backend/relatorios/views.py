@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.views import APIView
-from rest_framework import permissions
+from rest_framework import permissions, generics
 
 from core.models import Edificio, Quarto, Residente, Cama, Residencia as ResidenciaCore
 from core.serializers import (
@@ -77,7 +77,6 @@ def residentes_por_edificio(request):
                 return Response(serializer.data)
             except ValueError:
                 return Response({'detail': 'O ID do edifício fornecido é inválido.'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'detail': 'Por favor, forneça o ID do edifício como um parâmetro de consulta (ex: ?edificio_id=...).'}, status=status.HTTP_400_BAD_REQUEST)
     return Response({'detail': 'Você não tem permissão para visualizar residentes por edifício.'}, status=status.HTTP_403_FORBIDDEN)
 
 # EDIFÍCIOS
@@ -119,19 +118,12 @@ def edificios_por_tipo(request):
     return Response({'totalPorTipo': total_por_tipo})
 
 # QUARTOS
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def lista_quartos(request):
-    if request.method == 'GET':
-        quartos = Quarto.objects.all()
-        serializer = QuartoSerializer(quartos, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = QuartoSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class QuartoListCreateView(generics.ListCreateAPIView):
+    queryset = Quarto.objects.all()
+    serializer_class = QuartoSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated, DjangoModelPermissions])
@@ -178,19 +170,11 @@ def relatorio_quartos(request):
 
 
 # CAMAS
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def lista_camas(request):
-    if request.method == 'GET':
-        camas = Cama.objects.all()
-        serializer = CamaSerializer(camas, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = CamaSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class CamaListCreateView(generics.ListCreateAPIView):
+    queryset = Cama.objects.all()
+    serializer_class = CamaSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated, DjangoModelPermissions])
