@@ -28,6 +28,7 @@ function FormularioQuarto() {
     const [edificios, setEdificios] = useState([]);
     const [erros, setErros] = useState({});
     const [mensagem, setMensagem] = useState(null);
+    const [tipo, setTipo] = useState('');
     const [tipoMensagem, setTipoMensagem] = useState('success');
     const [loading, setLoading] = useState(true);
 
@@ -96,7 +97,7 @@ function FormularioQuarto() {
     return (
         <Container maxWidth="xl" className="py-6">
             <Paper className="p-8 shadow-md rounded-lg">
-                <Typography variant="h5" className="mb-6 font-semibold text-center">
+                <Typography variant="h5" gutterBottom>
                     {id ? 'Editar Quarto' : 'Criar Novo Quarto'}
                 </Typography>
 
@@ -149,16 +150,20 @@ function FormularioQuarto() {
                         </FormControl>
 
                         {/* Novo campo para o tipo de quarto */}
-                        <TextField
-                            label="Tipo de Quarto"
-                            name="tipo"
-                            value={quarto.tipo}
-                            onChange={handleChange}
-                            error={!!erros.tipo}
-                            helperText={erros.tipo}
-                            fullWidth
-                            required
-                        />
+                         <FormControl fullWidth required>
+                                            <InputLabel id="tipo-label">Tipo</InputLabel>
+                                            <Select
+                                                labelId="tipo-label"
+                                                id="tipo"
+                                                value={tipo}
+                                                label="Tipo"
+                                                onChange={(e) => setTipo(e.target.value)}
+                                            >
+                                                <MenuItem value="individual">Individual</MenuItem>
+                                                <MenuItem value="duplo">Duplo</MenuItem>
+                                                <MenuItem value="triplo">Triplo</MenuItem>
+                                            </Select>
+                            </FormControl>
 
                         <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-4">
                             <Button type="submit" variant="contained" color="primary" disabled={loading}>

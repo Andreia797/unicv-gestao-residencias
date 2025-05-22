@@ -20,7 +20,7 @@ const Vagas = () => {
   const { authToken } = useContext(AuthContext);
 
   const [pagina, setPagina] = useState(1); // Começa na página 1
-  const resultadosPorPagina = 9; // Definição fixa de 9 vagas por página
+  const resultadosPorPagina = 8; // Definição fixa de 9 vagas por página
 
   useEffect(() => {
     const fetchVagas = async () => {

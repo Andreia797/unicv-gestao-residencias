@@ -33,17 +33,17 @@ function Sidebar() {
                 { to: "/inicio", label: "Início", icon: HomeIcon, roles: ["estudante"] },
 
                 // Candidaturas (Estudante)
-                { to: "/candidaturas/nova", label: "Nova Candidatura", icon: PlusCircleIcon, roles: ["estudante", "administrador"] },
-                { to: "/minhacandidatura", label: "Minha Candidatura", icon: UserIcon, roles: ["estudante", "administrador"] },
+                { to: "/candidaturas/nova", label: "Nova Candidatura", icon: PlusCircleIcon, roles: ["estudante"] },
+                { to: "/minhacandidatura", label: "Minha Candidatura", icon: UserIcon, roles: ["estudante"] },
 
                 // Vagas (Geral e Gestão)
-                { to: "/vagas", label: "Vagas", icon: MapPinIcon, roles: ["estudante", "funcionario", "administrador"] },
+                { to: "/vagas", label: "Vagas", icon: MapPinIcon, roles: ["estudante"] },
                 { to: "/gerirvagas", label: "Gerir Vagas", icon: MapPinIcon, roles: ["funcionario", "administrador"] },
 
-                // Gestão de Candidaturas (Funcionário e Administrador)
-                { to: "/admin/candidaturas/gerir", label: "Verificar Candidaturas", icon: EyeIcon, roles: ["administrador", "funcionario"] },
-                { to: "/admin/candidaturas/avaliar", label: "Avaliar Candidaturas", icon: CheckCircleIcon, roles: ["administrador", "funcionario"] },
-                { to: "/admin/candidaturas", label: "Gerir Candidaturas", icon: DocumentDuplicateIcon, roles: ["administrador"] },
+                // Gestão de Candidaturas (Funcionário e Administrador
+                { to: "/admin/candidaturas/avaliar", label: "Avaliar Candidaturas", icon: CheckCircleIcon, roles: [ "funcionario"] },
+                { to: "/admin/candidaturas", label: "Verificar Candidaturas", icon: EyeIcon, roles: ["administrador"] },
+                { to: "/admin/candidaturas/gerir", label: "Gerir Candidaturas", icon: DocumentDuplicateIcon, roles: ["administrador", "funcionario"] },
 
                 // Gestão de Residência (Funcionário e Administrador)
                 { to: "/gerirresidentes", label: "Gerir Residentes", icon: UsersIcon, roles: ["administrador", "funcionario"] },

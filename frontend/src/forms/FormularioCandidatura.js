@@ -31,6 +31,7 @@ function FormularioCandidatura() {
     const [estudante, setEstudante] = useState({
         Nome: '',
         CNIouPassaporte: '',
+        Nif: '',
         Curso: '',
         Telefone: '',
         Email: '',
@@ -63,6 +64,7 @@ function FormularioCandidatura() {
                     setEstudante({
                         Nome: candidaturaResponse.data.estudante?.Nome || '',
                         CNIouPassaporte: candidaturaResponse.data.estudante?.CNIouPassaporte || '',
+                        Nif: candidaturaResponse.data.estudante?.Nif || '',
                         Curso: candidaturaResponse.data.estudante?.Curso || '',
                         Telefone: candidaturaResponse.data.estudante?.Telefone || '',
                         Email: candidaturaResponse.data.estudante?.Email || '',
@@ -112,6 +114,7 @@ function FormularioCandidatura() {
         let novosErros = { ...erros };
         if (!estudante.Nome) novosErros.Nome = 'Nome do estudante é obrigatório.';
         if (!estudante.CNIouPassaporte) novosErros.CNIouPassaporte = 'CNI ou Passaporte é obrigatório.';
+        if (!estudante.Nif) novosErros.Nif = 'Nif obrigatório.';
         if (!estudante.Curso) novosErros.Curso = 'O curso é obrigatório.';
         if (!estudante.Email) novosErros.Email = 'Email é obrigatório.';
         setErros(novosErros);
@@ -135,6 +138,7 @@ function FormularioCandidatura() {
             formData.append('TipoQuarto', candidatura.TipoQuarto); // Adiciona o TipoQuarto ao formData
             formData.append('Nome', estudante.Nome);
             formData.append('CNIouPassaporte', estudante.CNIouPassaporte);
+            formData.append('Nif', estudante.Nif);
             formData.append('Curso', estudante.Curso);
             formData.append('Telefone', estudante.Telefone);
             formData.append('Email', estudante.Email);
@@ -292,6 +296,17 @@ function FormularioCandidatura() {
                                         onChange={handleEstudanteChange}
                                         error={!!erros.CNIouPassaporte}
                                         helperText={<span className="text-red-500">{erros.CNIouPassaporte}</span>}
+                                        required
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        margin="normal"
+                                        label="Nif"
+                                        name="Nif"
+                                        value={estudante.Nif}
+                                        onChange={handleEstudanteChange}
+                                        error={!!erros.Nif}
+                                        helperText={<span className="text-red-500">{erros.Nif}</span>}
                                         required
                                     />
                                     <TextField

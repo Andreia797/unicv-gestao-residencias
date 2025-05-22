@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import AuthService from '../../services/AuthService';
 import {
-    Paper, Typography, List, ListItem, ListItemText, Alert, CircularProgress
+    Paper, Typography, List, ListItem, ListItemText, Alert, CircularProgress,
 } from '@mui/material';
 import { AuthContext } from '../AuthContext';
 
@@ -10,6 +10,10 @@ const MinhaCandidatura = () => {
     const [erro, setErro] = useState(false);
     const [loading, setLoading] = useState(true);
     const { authToken } = useContext(AuthContext); // Acesse o token de autenticação
+    const formatarData = (dataISO) => {
+        const data = new Date(dataISO);
+        return data.toLocaleDateString();
+    };
 
     useEffect(() => {
         const fetchMinhaCandidatura = async () => {
@@ -40,14 +44,23 @@ const MinhaCandidatura = () => {
     if (!candidatura) return null;
 
     return (
-        <Paper elevation={3} sx={{ p: 4, mt: 2 }}>
+        <Paper className="p-8 shadow-md rounded-lg">
             <Typography variant="h5" gutterBottom>
                 Minha Candidatura
             </Typography>
             <List>
                 <ListItem>
-                    <ListItemText primary="Residência" secondary={candidatura.residencia?.Nome || 'N/A'} />
+                    <ListItemText primary="ID" secondary={candidatura.id || 'N/A'} />
                 </ListItem>
+                <ListItem>
+                    <ListItemText primary="Quarto" secondary={candidatura.residencia?.Nome || 'N/A'} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Edificio" secondary={candidatura.residencia?.edificio || 'N/A'} />
+                </ListItem>
+                <ListItem>
+                    <ListItemText primary="Data de Candidatura" secondary={formatarData(candidatura.data_submissao)} />
+                 </ListItem>
                 <ListItem>
                     <ListItemText primary="Status" secondary={candidatura.status || 'N/A'} />
                 </ListItem>

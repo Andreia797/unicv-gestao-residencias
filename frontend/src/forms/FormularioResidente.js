@@ -87,7 +87,7 @@ function FormularioResidente() {
     return (
         <Container maxWidth="xl" className="py-6">
             <Paper className="p-8 shadow-md rounded-lg">
-                <Typography variant="h5" className="mb-6 font-semibold text-center">
+                <Typography variant="h5" gutterBottom>
                     {id ? 'Editar Residente' : 'Criar Novo Residente'}
                 </Typography>
 

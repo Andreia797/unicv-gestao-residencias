@@ -16,7 +16,7 @@ const GerenciarVagas = () => {
     const navigate = useNavigate();
 
     const [pagina, setPagina] = useState(1);
-    const resultadosPorPagina = 8;
+    const resultadosPorPagina = 7;
 
     useEffect(() => {
         const fetchTodosQuartos = async () => {

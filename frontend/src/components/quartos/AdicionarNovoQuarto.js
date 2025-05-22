@@ -18,7 +18,7 @@ const AdicionarNovoQuarto = () => {
     useEffect(() => {
         const fetchEdificios = async () => {
             try {
-                const response = await AuthService.authenticatedRequest('get', 'core', 'edificios/');
+                const response = await AuthService.authenticatedRequest('get', 'relatorios', 'edificios/');
                 setEdificiosOptions(response.data);
             } catch (err) {
                 console.error('Erro ao buscar edifícios:', err);
@@ -60,11 +60,11 @@ const AdicionarNovoQuarto = () => {
     }
 
     return (
-        <Paper elevation={3} sx={{ p: 4, mt: 2, maxWidth: 600, mx: 'auto' }}>
+        <Paper className="p-8 shadow-md rounded-lg">
             <Typography variant="h5" gutterBottom>
                 Adicionar Novo Quarto
             </Typography>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <TextField
                     label="Número"
                     fullWidth
@@ -111,12 +111,14 @@ const AdicionarNovoQuarto = () => {
                         ))}
                     </Select>
                 </FormControl>
+                 <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-4">
                 <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
                     Adicionar Quarto
                 </Button>
                 <Button onClick={handleCancelar} sx={{ mt: 2, ml: 2 }}>
                     Cancelar
                 </Button>
+                </div>
             </form>
         </Paper>
     );

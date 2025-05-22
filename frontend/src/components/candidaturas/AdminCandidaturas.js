@@ -101,7 +101,7 @@ function AdminCandidaturas() {
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Gestão de Candidaturas</h1>
+           <Typography variant="h5" className="mb-4">Verificar Candidaturas</Typography>
             <NotificacoesCandidatura mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
             <TextField label="Pesquisar" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)} className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" variant="outlined" size="small" />
             {loading ? (

@@ -20,7 +20,7 @@ function GerirCandidaturas() {
     const [tipoMensagem, setTipoMensagem] = useState('success');
     const [loading, setLoading] = useState(true);
     const [pagina, setPagina] = useState(1); // Começa na página 1
-    const resultadosPorPagina = 9; // Definição fixa de 9 por 
+    const resultadosPorPagina = 8; // Definição fixa de 9 por 
     const [pesquisa, setPesquisa] = useState('');
     const { user } = useContext(AuthContext);
 
@@ -83,7 +83,8 @@ function GerirCandidaturas() {
     return (
         <div className="p-4">
             <NotificacoesCandidatura mensagem={mensagem} tipo={tipoMensagem} limparMensagem={limparMensagem} />
-             <TextField label="Pesquisar" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)} className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" variant="outlined" size="small" />
+           <h2 className="text-2xl font-semibold mb-4">Gestão de Candidaturas</h2>    
+          <TextField label="Pesquisar" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)} className="mb-4 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" variant="outlined" size="small" />
             {loading ? (
                 <div className="flex justify-center items-center h-32">
                     <CircularProgress />

@@ -58,17 +58,23 @@ function UserEdit() {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
-        try {
+
+    setLoading(true);
+    setError(null); 
+
+    try {
+        if (id) { 
             await AuthService.authenticatedRequest('put', 'accounts', `/users/${id}/`, { profile: formData });
-            navigate('/gerirutilizadores');
-        } catch (err) {
-            console.error('Erro ao atualizar utilizador:', err);
-            setError('Erro ao atualizar utilizador.');
-        } finally {
-            setLoading(false);
+        } else { 
+            await AuthService.authenticatedRequest('post', 'accounts', '/users/create/', { profile: formData }); 
         }
+        navigate('/gerirutilizadores'); 
+    } catch (err) {
+        console.error('Erro ao salvar utilizador:', err);
+        setError('Erro ao salvar utilizador.'); 
+    } finally {
+        setLoading(false);
+    }
     };
 
     const podeEditar = user?.groups?.includes("administrador");
@@ -103,10 +109,10 @@ function UserEdit() {
     }
 
     return (
-        <Container maxWidth="sm">
-            <Paper className="p-6 mt-4 shadow-md rounded-lg">
-                <Typography variant="h6" gutterBottom className="font-semibold text-xl">
-                    Editar Utilizador
+        <Container maxWidth="xl" className="py-6">
+            <Paper className="p-8 shadow-md rounded-lg">
+                <Typography variant="h5" gutterBottom>
+                    Criar Novo Utilizador
                 </Typography>
                 <form onSubmit={handleUpdate}>
                     <TextField
@@ -151,13 +157,14 @@ function UserEdit() {
                         />
                     ))}
                     <FormHelperText>Selecione as permissões detalhadas para este utilizador.</FormHelperText>
-
+                     <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-4 mt-4">
                     <Button type="submit" variant="contained" color="primary" disabled={loading} className="mt-4">
-                        {loading ? 'A Atualizar...' : 'Atualizar'}
+                        {loading ? 'A Atualizar...' : 'Criar'}
                     </Button>
                     <Button component={Link} to="/gerirutilizadores" variant="outlined" className="mt-4 ml-2">
                         Cancelar
                     </Button>
+                    </div>
                 </form>
             </Paper>
         </Container>

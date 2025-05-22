@@ -12,7 +12,7 @@ const Inicio = () => {
             </Typography>
             {user ? (
                 <Typography variant="body1">
-                    Olá, {user.username}! Aqui você pode visualizar vagas disponíveis, submeter sua candidatura e acompanhar o estado da sua candidatura.
+                    Olá, {user.nome}! Aqui você pode visualizar vagas disponíveis, submeter sua candidatura e acompanhar o estado da sua candidatura.
                 </Typography>
             ) : (
                 <Typography variant="body1">

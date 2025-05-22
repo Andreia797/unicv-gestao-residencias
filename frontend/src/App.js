@@ -3,7 +3,6 @@ import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import FormularioCandidatura from './forms/FormularioCandidatura';
 import MinhaCandidatura from './components/candidaturas/MinhaCandidatura';
-import RequireAuth from './components/RequireAuth';
 import AdicionarNovoQuarto from './components/quartos/AdicionarNovoQuarto';
 import EditarQuarto from './components/quartos/EditarQuarto';
 import AvaliarCandidaturas from './components/candidaturas/AvaliarCandidaturas';
@@ -61,8 +60,8 @@ function App() {
                     <Route path="/candidaturas/nova" element={<FormularioCandidatura />} />
                     <Route path="/vagas" element={<Vagas />} />
                     <Route path="inicio" element={<Inicio />} />
-                    <Route path="/editarquarto/:id" element={<RequireAuth roles={['funcionario', 'administrador']}><EditarQuarto /></RequireAuth>} />
-                    <Route path="/adicionarquarto" element={<RequireAuth roles={['funcionario', 'administrador']}><AdicionarNovoQuarto /></RequireAuth>} />
+                    <Route path="/editarquarto/:id" element={<EditarQuarto />} />
+                    <Route path="/adicionarquarto" element={<AdicionarNovoQuarto />} />
 
                     {/* Rotas de Residentes */}
                     <Route path="residentes/:id" element={<PerfilResidente />} />
@@ -91,6 +90,7 @@ function App() {
                     {/* Rotas de Utilizadores */}
                     <Route path="users/:id" element={<UserDetails />} />
                     <Route path="users/edit/:id" element={<UserEdit />} />
+                    <Route path="users/criar" element={<UserEdit />} />
                     <Route path="gerirutilizadores" element={<GerirUtilizadores />} />
 
                     {/* Rotas de Relatórios */}

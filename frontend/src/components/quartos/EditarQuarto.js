@@ -38,7 +38,7 @@ const EditarQuarto = () => {
 
         const fetchEdificios = async () => {
             try {
-                const response = await AuthService.authenticatedRequest('get', 'core', 'edificios/');
+                const response = await AuthService.authenticatedRequest('get', 'relatorios', 'edificios/');
                 setEdificiosOptions(response.data);
             } catch (err) {
                 console.error('Erro ao buscar edifícios:', err);
@@ -62,7 +62,7 @@ const EditarQuarto = () => {
         try {
             const data = { numero, capacidade, tipo, edificio };
             await AuthService.editarQuarto(id, data);
-            navigate('/gerenciar-vagas'); // Redirecionar após a edição
+            navigate('/gerirvagas'); // Redirecionar após a edição
         } catch (err) {
             console.error('Erro ao editar o quarto:', err);
             setError('Erro ao salvar as alterações.');
@@ -72,7 +72,7 @@ const EditarQuarto = () => {
     };
 
     const handleCancelar = () => {
-        navigate('/gerenciar-vagas');
+        navigate('/gerirvagas');
     };
 
     if (loading) {

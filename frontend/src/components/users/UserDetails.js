@@ -61,13 +61,13 @@ function UserDetails() {
                     <ListItemText primary="ID" secondary={user.id} />
                 </ListItem>
                 <ListItem>
-                    <ListItemText primary="Nome de Utilizador" secondary={user.username} />
+                    <ListItemText primary="Nome de Utilizador" secondary={user.nome} />
                 </ListItem>
                 <ListItem>
-                    <ListItemText primary="Nome" secondary={user.profile?.name} />
+                    <ListItemText primary="Email" secondary={user.nome_utilizador} />
                 </ListItem>
                 <ListItem>
-                    <ListItemText primary="Permissão" secondary={user.profile?.permissao} />
+                    <ListItemText primary="Permissão" secondary={user.nome_permissao} />
                 </ListItem>
                 {user.profile?.permissoes_detalhadas && user.profile.permissoes_detalhadas.length > 0 && (
                     <ListItem>

@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # Removi 'username' do fields caso seu modelo não tenha
-        fields = ['id', 'email', 'password']
+        fields = ['id', 'email', 'password', 'groups']
 
     def validate_password(self, value):
         if value and len(value) < 8:

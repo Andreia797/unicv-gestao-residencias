@@ -159,7 +159,7 @@ function GerirUtilizadores() {
             <h2 className="text-2xl font-semibold mb-4">Gestão de Utilizadores</h2>
             {podeAdicionar && (
                 <div className="flex justify-end mb-4">
-                    <Button variant="contained" color="primary" onClick={() => setEditUtilizadorId('novo')} className="mb-4">
+                    <Button component={Link} to="/users/criar" variant="contained" color="primary" className="mb-4">
                         Adicionar Utilizador
                     </Button>
                 </div>
@@ -175,8 +175,7 @@ function GerirUtilizadores() {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Utilizador</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permissão</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                 </tr>
@@ -187,8 +186,7 @@ function GerirUtilizadores() {
                                     .map((utilizador) => (
                                         <tr key={utilizador.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{utilizador.id}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-900">{utilizador.nome_utilizador}</td> {/* Use nome_utilizador */}
-                                            <td className="px-6 py-4 text-sm text-gray-900">{utilizador.nome}</td>             {/* Use nome */}
+                                            <td className="px-6 py-4 text-sm text-gray-900">{utilizador.nome_utilizador}</td> {/* Use nome_utilizador */}         {/* Use nome */}
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{utilizador.nome_permissao}</td> {/* Use nome_permissao */}
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {podeVerDetalhes && (
@@ -233,80 +231,7 @@ function GerirUtilizadores() {
                         </Paper>
                     </div>
                 )}
-                <Dialog open={!!editUtilizadorId} onClose={() => setEditUtilizadorId(null)}>
-                    <DialogTitle>{editUtilizadorId === 'novo' ? 'Adicionar Utilizador' : 'Editar Utilizador'}</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            label="Nome do Utilizador"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                            size="small"
-                        />
-                        <TextField
-                            label="Nome"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                            size="small"
-                        />
-                        <FormControl fullWidth margin="normal" variant="outlined" size="small">
-                            <InputLabel id="permissao-label">Permissão</InputLabel>
-                            <Select
-                                labelId="permissao-label"
-                                id="permissao"
-                                name="permissao"
-                                value={formData.permissao}
-                                label="Permissão"
-                                onChange={handleChange}
-                            >
-                                <MenuItem value="administrador">Administrador</MenuItem>
-                                <MenuItem value="funcionario">Funcionário</MenuItem>
-                                <MenuItem value="estudante">Estudante</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth margin="normal" variant="outlined" size="small">
-                            <InputLabel id="permissoesDetalhadas-label">Permissões Detalhadas</InputLabel>
-                            <Select
-                                labelId="permissoesDetalhadas-label"
-                                id="permissoesDetalhadas"
-                                multiple
-                                name="permissoesDetalhadas"
-                                value={formData.permissoesDetalhadas}
-                                label="Permissões Detalhadas"
-                                onChange={(e) => {
-                                    const { value } = e.target;
-                                    setFormData({ ...formData, permissoesDetalhadas: value });
-                                }}
-                                renderValue={(selected) => selected.join(', ')}
-                            >
-                                {permissoesDisponiveis.map((permissao) => (
-                                    <MenuItem key={permissao} value={permissao}>
-                                        <FormControlLabel
-                                            control={<Checkbox checked={formData.permissoesDetalhadas.includes(permissao)} />}
-                                            label={permissao}
-                                        />
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            <FormHelperText>Selecione as permissões detalhadas para este utilizador.</FormHelperText>
-                        </FormControl>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setEditUtilizadorId(null)} color="primary">
-                            Cancelar
-                        </Button>
-                        <Button onClick={editUtilizadorId === 'novo' ? handleCriarUtilizador : handleUpdate} color="primary">
-                            {editUtilizadorId === 'novo' ? 'Criar' : 'Atualizar'}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+
             </div>
     );
 }
