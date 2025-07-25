@@ -26,7 +26,7 @@ function FormularioCandidatura() {
         DataSubmissao: '',
         Residencia_idResidencia: '',
         Estado: 'Pendente',
-        TipoQuarto: '', // Adicionado o campo TipoQuarto
+        TipoQuarto: '', 
     });
     const [estudante, setEstudante] = useState({
         Nome: '',
@@ -59,7 +59,7 @@ function FormularioCandidatura() {
                         DataSubmissao: candidaturaResponse.data.DataSubmissao || '',
                         Residencia_idResidencia: candidaturaResponse.data.Residencia_idResidencia || '',
                         Estado: candidaturaResponse.data.Estado || 'Pendente',
-                        TipoQuarto: candidaturaResponse.data.TipoQuarto || '', // Carrega o TipoQuarto
+                        TipoQuarto: candidaturaResponse.data.TipoQuarto || '', 
                     });
                     setEstudante({
                         Nome: candidaturaResponse.data.estudante?.Nome || '',
@@ -157,7 +157,7 @@ function FormularioCandidatura() {
                 });
                 setMensagem('Candidatura atualizada com sucesso.');
             } else {
-                await AuthService.authenticatedRequest('post', 'relatorios', '/candidaturas/', formData, {
+                await AuthService.authenticatedRequest('post', '/candidaturas/', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -348,7 +348,7 @@ function FormularioCandidatura() {
                                     <Typography variant="h6" className="mb-4">Documentos</Typography>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="mb-4">
-                                            <label htmlFor="CNIouPassaporteEntregue" className="block text-gray-700 text-sm font-bold mb-2">CNI ou Passaporte</label>
+                                            <label htmlFor="CNIouPassaporteEntregue" className="block text-gray-700 text-sm font-bold mb-2">CNI ou Passaporte *</label>
                                             <input
                                                 id="CNIouPassaporteEntregue"
                                                 type="file"
@@ -364,7 +364,7 @@ function FormularioCandidatura() {
                                             )}
                                         </div>
                                         <div className="mb-4">
-                                            <label htmlFor="DeclaracaoMatriculaEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Matrícula</label>
+                                            <label htmlFor="DeclaracaoMatriculaEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Matrícula *</label>
                                             <input
                                                 id="DeclaracaoMatriculaEntregue"
                                                 type="file"
@@ -380,7 +380,7 @@ function FormularioCandidatura() {
                                             )}
                                         </div>
                                         <div className="mb-4">
-                                            <label htmlFor="DeclaracaoRendimentoEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Rendimento</label>
+                                            <label htmlFor="DeclaracaoRendimentoEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Rendimento *</label>
                                             <input
                                                 id="DeclaracaoRendimentoEntregue"
                                                 type="file"
@@ -396,7 +396,7 @@ function FormularioCandidatura() {
                                             )}
                                         </div>
                                         <div className="mb-4">
-                                            <label htmlFor="DeclaracaoSubsistenciaEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Subsistência (Opcional)</label>
+                                            <label htmlFor="DeclaracaoSubsistenciaEntregue" className="block text-gray-700 text-sm font-bold mb-2">Declaração de Subsistência * </label>
                                             <input
                                                 id="DeclaracaoSubsistenciaEntregue"
                                                 type="file"

@@ -12,9 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-from django.conf import settings  # Adicione esta linha AQUI
+from django.conf import settings  
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r1-3l0q-u5@t&2blri^96@fcl0l+o=*@4ei2e*841=hge*@lew'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -141,10 +141,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'residencia_unicv',
-        'USER': 'postgres',  # Substitua pelo seu usuário PostgreSQL
-        'PASSWORD': '12345',  # Substitua pela sua senha PostgreSQL
-        'HOST': 'localhost',  # Ou o endereço do seu servidor PostgreSQL
-        'PORT': '5432',      # Porta padrão do PostgreSQL
+        'USER': 'postgres', 
+        'PASSWORD': '12345', 
+        'HOST': 'localhost',  
+        'PORT': '5432',     
     }
 }
 

@@ -4,6 +4,7 @@ from .views import ListarCandidaturasView, AtualizarEstadoCandidaturaView, Minha
 
 urlpatterns = [
     path('', views.lista_candidaturas, name='lista_candidaturas'),
+    path('candidaturas/', views.lista_candidaturas, name='candidaturas'),
     path('<int:pk>/', views.detalhe_candidatura, name='detalhe_candidatura'),
     path('residencia/<int:residencia_id>/', views.candidaturas_por_residencia, name='candidaturas_por_residencia'),
     path('estudante/<int:estudante_id>/', views.candidaturas_por_estudante, name='candidaturas_por_estudante'),

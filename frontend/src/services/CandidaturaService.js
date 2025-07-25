@@ -25,15 +25,15 @@ const CandidaturaService = {
 
     criarCandidatura: async (candidatura) => {
         try {
-            // Corrigido para usar o tipo 'candidaturas' na URL base
-            const response = await AuthService.authenticatedRequest('POST', 'candidaturas', '/');
+            // Corrigido para usar o tipo 'candidaturas' na URL base e enviar o objeto candidatura no corpo da requisição POST
+            const response = await AuthService.authenticatedRequest('POST', 'candidaturas', '/', candidatura);
             return response.data;
         } catch (error) {
             console.error('Erro ao criar candidatura:', error);
             throw error;
         }
     },
-
+    
     atualizarCandidatura: async (id, candidatura) => {
         try {
             // Corrigido para usar o tipo 'candidaturas' na URL base e a rota com o ID
