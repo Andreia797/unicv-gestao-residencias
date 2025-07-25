@@ -44,7 +44,7 @@ function FormularioCandidatura() {
     const [activeStep, setActiveStep] = useState(0);
     const [residencias, setResidencias] = useState([]);
     const [steps] = useState(['Dados da Candidatura', 'Dados do Estudante', 'Documentos']);
-    const tiposQuarto = ['Individual', 'Duplo', 'Triplo']; // Opções de tipo de quarto
+    const tiposQuarto = ['Individual', 'Duplo', 'Triplo']; 
 
     useEffect(() => {
         const fetchData = async () => {
@@ -105,7 +105,7 @@ function FormularioCandidatura() {
         let novosErros = {};
         if (!candidatura.DataSubmissao) novosErros.DataSubmissao = 'Data de Submissão é obrigatória.';
         if (!candidatura.Residencia_idResidencia) novosErros.Residencia_idResidencia = 'Residência é obrigatória.';
-        if (!candidatura.TipoQuarto) novosErros.TipoQuarto = 'Tipo de Quarto é obrigatório.'; // Validação do TipoQuarto
+        if (!candidatura.TipoQuarto) novosErros.TipoQuarto = 'Tipo de Quarto é obrigatório.'; 
         setErros(novosErros);
         return Object.keys(novosErros).length === 0;
     };
@@ -135,7 +135,7 @@ function FormularioCandidatura() {
             formData.append('DataSubmissao', candidatura.DataSubmissao);
             formData.append('Residencia_idResidencia', candidatura.Residencia_idResidencia);
             formData.append('Estado', candidatura.Estado);
-            formData.append('TipoQuarto', candidatura.TipoQuarto); // Adiciona o TipoQuarto ao formData
+            formData.append('TipoQuarto', candidatura.TipoQuarto); 
             formData.append('Nome', estudante.Nome);
             formData.append('CNIouPassaporte', estudante.CNIouPassaporte);
             formData.append('Nif', estudante.Nif);
@@ -157,7 +157,7 @@ function FormularioCandidatura() {
                 });
                 setMensagem('Candidatura atualizada com sucesso.');
             } else {
-                await AuthService.authenticatedRequest('post', '/candidaturas/', formData, {
+                await AuthService.authenticatedRequest('post', 'candidaturas', '/', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
