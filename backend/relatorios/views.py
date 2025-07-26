@@ -1,258 +1,295 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
-from rest_framework import status
+from rest_framework import status, permissions, generics
+# Removido: from rest_framework.decorators import api_view, permission_classes # Não é mais necessário para as views refatoradas
 from django.shortcuts import get_object_or_404
-from django.db.models import Count
-from rest_framework.generics import ListCreateAPIView
-from rest_framework.views import APIView
-from rest_framework import permissions, generics
-
+from django.db.models import Count, F # Mantido para queries de anotação
 from core.models import Edificio, Quarto, Residente, Cama, Residencia as ResidenciaCore
 from core.serializers import (
     EdificioSerializer, QuartoSerializer, ResidenteSerializer,
     CamaSerializer, ResidenciaSerializer as ResidenciaCoreSerializer
 )
 
-# RESIDENTES
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def lista_residentes(request):
-    if request.method == 'GET':
-        if request.user.has_perm('core.view_residente'):
-            residentes = Residente.objects.all()
-            serializer = ResidenteSerializer(residentes, many=True)
-            return Response(serializer.data)
-        return Response({'detail': 'Você não tem permissão para listar residentes.'}, status=status.HTTP_403_FORBIDDEN)
-    elif request.method == 'POST':
-        if request.user.has_perm('core.add_residente'):
-            serializer = ResidenteSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'detail': 'Você não tem permissão para adicionar residentes.'}, status=status.HTTP_403_FORBIDDEN)
+# ----- RESIDENTES -----
 
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def detalhe_residente(request, pk):
-    residente = get_object_or_404(Residente, pk=pk)
-    if request.method == 'GET':
-        serializer = ResidenteSerializer(residente)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = ResidenteSerializer(residente, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        residente.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class ResidenteListCreateView(generics.ListCreateAPIView):
+    """
+    Lista todos os residentes e permite a criação de novos.
+    Requer permissão de visualização (GET) e adição (POST) de residente.
+    """
+    queryset = Residente.objects.all()
+    serializer_class = ResidenteSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def residentes_por_quarto(request, quarto_id):
-    residentes = Residente.objects.filter(cama__quarto_id=quarto_id).distinct()
-    serializer = ResidenteSerializer(residentes, many=True)
-    return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        # DjangoModelPermissions já verifica 'core.view_residente'
+        return super().get(request, *args, **kwargs)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def total_residentes(request):
-    total = Residente.objects.count()
-    return Response({'totalResidentes': total})
+    def post(self, request, *args, **kwargs):
+        # DjangoModelPermissions já verifica 'core.add_residente'
+        return super().post(request, *args, **kwargs)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def residentes_por_edificio(request):
-    if request.user.has_perm('core.view_residente'):
+class ResidenteDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retorna, atualiza ou deleta um residente específico.
+    Requer permissões de visualização, alteração ou exclusão de residente.
+    """
+    queryset = Residente.objects.all()
+    serializer_class = ResidenteSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+
+
+class ResidentesPorQuartoView(APIView):
+    """
+    Lista os residentes em um quarto específico.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_residente
+
+    def get(self, request, quarto_id, *args, **kwargs):
+        if not request.user.has_perm('core.view_residente'):
+            return Response({'detail': 'Você não tem permissão para listar residentes por quarto.'}, status=status.HTTP_403_FORBIDDEN)
+        residentes = Residente.objects.filter(cama__quarto_id=quarto_id).distinct()
+        serializer = ResidenteSerializer(residentes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TotalResidentesView(APIView):
+    """
+    Retorna o número total de residentes.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_residente
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.has_perm('core.view_residente'):
+            return Response({'detail': 'Você não tem permissão para ver o total de residentes.'}, status=status.HTTP_403_FORBIDDEN)
+        total = Residente.objects.count()
+        return Response({'totalResidentes': total}, status=status.HTTP_200_OK)
+
+
+class ResidentesPorEdificioView(APIView):
+    """
+    Lista residentes de um edifício específico.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_residente
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.has_perm('core.view_residente'):
+            return Response({'detail': 'Você não tem permissão para visualizar residentes por edifício.'}, status=status.HTTP_403_FORBIDDEN)
+
         edificio_id = request.query_params.get('edificio_id')
-        if edificio_id:
-            try:
-                # Filtra as camas no edifício e depois pega os residentes dessas camas
-                residentes = Residente.objects.filter(cama__quarto__edificio_id=edificio_id).distinct()
-                serializer = ResidenteSerializer(residentes, many=True)
-                return Response(serializer.data)
-            except ValueError:
-                return Response({'detail': 'O ID do edifício fornecido é inválido.'}, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'detail': 'Você não tem permissão para visualizar residentes por edifício.'}, status=status.HTTP_403_FORBIDDEN)
+        if not edificio_id:
+            return Response({'detail': 'ID do edifício não fornecido.'}, status=status.HTTP_400_BAD_REQUEST)
 
-# EDIFÍCIOS
-class ListaEdificiosView(ListCreateAPIView):
+        try:
+            residentes = Residente.objects.filter(cama__quarto__edificio_id=edificio_id).distinct()
+        except ValueError:
+            return Response({'detail': 'O ID do edifício fornecido é inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ResidenteSerializer(residentes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# ----- EDIFÍCIOS -----
+
+class ListaEdificiosView(generics.ListCreateAPIView):
+    """
+    Lista todos os edifícios e permite a criação de novos.
+    Requer permissão de visualização (GET) e adição (POST) de edifício.
+    """
     queryset = Edificio.objects.all()
     serializer_class = EdificioSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
 
-lista_edificios = ListaEdificiosView.as_view()
-    
-def get_queryset_edificios():
-    return Edificio.objects.all()
+    def get(self, request, *args, **kwargs):
+        # DjangoModelPermissions já verifica 'core.view_edificio'
+        return super().get(request, *args, **kwargs)
 
-lista_edificios.queryset = get_queryset_edificios()    
+    def post(self, request, *args, **kwargs):
+        # DjangoModelPermissions já verifica 'core.add_edificio'
+        return super().post(request, *args, **kwargs)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def detalhe_edificio(request, pk):
-    edificio = get_object_or_404(Edificio, pk=pk)
-    if request.method == 'GET':
-        serializer = EdificioSerializer(edificio)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = EdificioSerializer(edificio, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        edificio.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class DetalheEdificioView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retorna, atualiza ou deleta um edifício específico.
+    Requer permissões de visualização, alteração ou exclusão de edifício.
+    """
+    queryset = Edificio.objects.all()
+    serializer_class = EdificioSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def edificios_por_tipo(request):
-    tipos = Edificio.objects.values('tipo').annotate(count=Count('id'))
-    total_por_tipo = [{'name': t['tipo'], 'count': t['count']} for t in tipos]
-    return Response({'totalPorTipo': total_por_tipo})
 
-# QUARTOS
+class EdificiosPorTipoView(APIView):
+    """
+    Retorna a contagem de edifícios por tipo.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_edificio
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.has_perm('core.view_edificio'):
+            return Response({'detail': 'Você não tem permissão para ver edifícios por tipo.'}, status=status.HTTP_403_FORBIDDEN)
+        tipos = Edificio.objects.values('tipo').annotate(count=Count('id'))
+        total_por_tipo = [{'name': t['tipo'], 'count': t['count']} for t in tipos]
+        return Response({'totalPorTipo': total_por_tipo}, status=status.HTTP_200_OK)
+
+
+# ----- QUARTOS -----
+
 class QuartoListCreateView(generics.ListCreateAPIView):
+    """
+    Lista todos os quartos e permite a criação de novos.
+    Requer permissão de visualização (GET) e adição (POST) de quarto.
+    """
     queryset = Quarto.objects.all()
     serializer_class = QuartoSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
 
 
-
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def detalhe_quarto(request, pk):
-    quarto = get_object_or_404(Quarto, pk=pk)
-    if request.method == 'GET':
-        serializer = QuartoSerializer(quarto)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = QuartoSerializer(quarto, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        quarto.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def quartos_por_edificio(request, edificio_id):
-    quartos = Quarto.objects.filter(edificio_id=edificio_id)
-    serializer = QuartoSerializer(quartos, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def quartos_por_tipo(request, tipo):
-    quartos = Quarto.objects.filter(tipo=tipo)
-    serializer = QuartoSerializer(quartos, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def relatorio_quartos(request):
-    total_quartos = Quarto.objects.count()
-    quartos_livres = Quarto.objects.filter(camas__residente__isnull=True).distinct().count()
-    quartos_ocupados = total_quartos - quartos_livres
-    return Response({
-        'totalQuartos': total_quartos,
-        'quartosLivres': quartos_livres,
-        'quartosOcupados': quartos_ocupados,
-    })
+class DetalheQuartoView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retorna, atualiza ou deleta um quarto específico.
+    Requer permissões de visualização, alteração ou exclusão de quarto.
+    """
+    queryset = Quarto.objects.all()
+    serializer_class = QuartoSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
 
 
-# CAMAS
+class QuartosPorEdificioView(APIView):
+    """
+    Lista os quartos de um edifício específico.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_quarto
+
+    def get(self, request, edificio_id, *args, **kwargs):
+        if not request.user.has_perm('core.view_quarto'):
+            return Response({'detail': 'Você não tem permissão para listar quartos por edifício.'}, status=status.HTTP_403_FORBIDDEN)
+        quartos = Quarto.objects.filter(edificio_id=edificio_id)
+        serializer = QuartoSerializer(quartos, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class QuartosPorTipoView(APIView):
+    """
+    Lista os quartos de um tipo específico.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_quarto
+
+    def get(self, request, tipo, *args, **kwargs):
+        if not request.user.has_perm('core.view_quarto'):
+            return Response({'detail': 'Você não tem permissão para listar quartos por tipo.'}, status=status.HTTP_403_FORBIDDEN)
+        quartos = Quarto.objects.filter(tipo=tipo)
+        serializer = QuartoSerializer(quartos, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RelatorioQuartosView(APIView):
+    """
+    Retorna um relatório sobre o total de quartos, livres e ocupados.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_quarto
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.has_perm('core.view_quarto'):
+            return Response({'detail': 'Você não tem permissão para ver o relatório de quartos.'}, status=status.HTTP_403_FORBIDDEN)
+        total_quartos = Quarto.objects.count()
+        quartos_livres = Quarto.objects.filter(camas__residente__isnull=True).distinct().count()
+        quartos_ocupados = total_quartos - quartos_livres
+        return Response({
+            'totalQuartos': total_quartos,
+            'quartosLivres': quartos_livres,
+            'quartosOcupados': quartos_ocupados,
+        }, status=status.HTTP_200_OK)
+
+
+# ----- CAMAS -----
+
 class CamaListCreateView(generics.ListCreateAPIView):
+    """
+    Lista todas as camas e permite a criação de novas.
+    Requer permissão de visualização (GET) e adição (POST) de cama.
+    """
     queryset = Cama.objects.all()
     serializer_class = CamaSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def detalhe_cama(request, pk):
-    cama = get_object_or_404(Cama, pk=pk)
-    if request.method == 'GET':
-        serializer = CamaSerializer(cama)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = CamaSerializer(cama, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        cama.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class DetalheCamaView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retorna, atualiza ou deleta uma cama específica.
+    Requer permissões de visualização, alteração ou exclusão de cama.
+    """
+    queryset = Cama.objects.all()
+    serializer_class = CamaSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def camas_por_quarto(request, quarto_id):
-    camas = Cama.objects.filter(quarto_id=quarto_id)
-    serializer = CamaSerializer(camas, many=True)
-    return Response(serializer.data)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def camas_por_status(request, status_param):
-    camas = Cama.objects.filter(status=status_param)
-    serializer = CamaSerializer(camas, many=True)
-    return Response(serializer.data)
+class CamasPorQuartoView(APIView):
+    """
+    Lista as camas de um quarto específico.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_cama
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def relatorio_camas(request):
-    total_camas = Cama.objects.count()
-    camas_livres = Cama.objects.filter(residente__isnull=True).count()
-    camas_ocupadas = total_camas - camas_livres
-    return Response({
-        'totalCamas': total_camas,
-        'camasLivres': camas_livres,
-        'camasOcupadas': camas_ocupadas,
-    })
+    def get(self, request, quarto_id, *args, **kwargs):
+        if not request.user.has_perm('core.view_cama'):
+            return Response({'detail': 'Você não tem permissão para listar camas por quarto.'}, status=status.HTTP_403_FORBIDDEN)
+        camas = Cama.objects.filter(quarto_id=quarto_id)
+        serializer = CamaSerializer(camas, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-# RESIDÊNCIAS
-class ListaResidenciasAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated, permissions.DjangoModelPermissions]
 
-    def get_queryset(self):
-        return ResidenciaCore.objects.all()
+class CamasPorStatusView(APIView):
+    """
+    Lista as camas com um status específico.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_cama
+
+    def get(self, request, status_param, *args, **kwargs):
+        if not request.user.has_perm('core.view_cama'):
+            return Response({'detail': 'Você não tem permissão para listar camas por status.'}, status=status.HTTP_403_FORBIDDEN)
+        camas = Cama.objects.filter(status=status_param)
+        serializer = CamaSerializer(camas, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RelatorioCamasView(APIView):
+    """
+    Retorna um relatório sobre o total de camas, livres e ocupadas.
+    """
+    permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_cama
 
     def get(self, request, *args, **kwargs):
-        residencias = self.get_queryset()
-        serializer = ResidenciaCoreSerializer(residencias, many=True)
-        return Response(serializer.data)
+        if not request.user.has_perm('core.view_cama'):
+            return Response({'detail': 'Você não tem permissão para ver o relatório de camas.'}, status=status.HTTP_403_FORBIDDEN)
+        total_camas = Cama.objects.count()
+        camas_livres = Cama.objects.filter(residente__isnull=True).count()
+        camas_ocupadas = total_camas - camas_livres
+        return Response({
+            'totalCamas': total_camas,
+            'camasLivres': camas_livres,
+            'camasOcupadas': camas_ocupadas,
+        }, status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
-        serializer = ResidenciaCoreSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-lista_residencias_view = ListaResidenciasAPIView.as_view()
+# ----- RESIDÊNCIAS -----
 
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated, DjangoModelPermissions])
-def detalhe_residencia_view(request, pk):
-    residencia = get_object_or_404(ResidenciaCore, pk=pk)
-    if request.method == 'GET':
-        serializer = ResidenciaCoreSerializer(residencia)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = ResidenciaCoreSerializer(residencia, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        residencia.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class ListaResidenciasAPIView(generics.ListCreateAPIView):
+    """
+    Lista todas as residências e permite a criação de novas.
+    Requer permissão de visualização (GET) e adição (POST) de residência.
+    """
+    queryset = ResidenciaCore.objects.all()
+    serializer_class = ResidenciaCoreSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]
+
+
+class DetalheResidenciaView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retorna, atualiza ou deleta uma residência específica.
+    Requer permissões de visualização, alteração ou exclusão de residência.
+    """
+    queryset = ResidenciaCore.objects.all()
+    serializer_class = ResidenciaCoreSerializer
+    permission_classes = [IsAuthenticated, DjangoModelPermissions]

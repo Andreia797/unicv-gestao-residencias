@@ -46,10 +46,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['email', 'first_name', 'last_name', 'password', 'password2']
 
     def validate(self, data):
-        if data['password'] != data['password2']:
-            raise serializers.ValidationError({"password": "As senhas não coincidem."})
-        if len(data['password']) < 8:
-            raise serializers.ValidationError({"password": "A senha deve ter pelo menos 8 caracteres."})
+        PASSWORD_FIELD_KEY = 'password'
+        PASSWORD2_FIELD_KEY = 'password2'
+
+        password = data.get(PASSWORD_FIELD_KEY)
+        password2 = data.get(PASSWORD2_FIELD_KEY)
+
+        # Validação: As senhas devem coincidir
+        if password != password2:
+            raise serializers.ValidationError({PASSWORD_FIELD_KEY: "As senhas não coincidem."})
+
+        # Validação: A senha deve ter pelo menos 8 caracteres
+        if len(password) < 8:
+            raise serializers.ValidationError({PASSWORD_FIELD_KEY: "A senha deve ter pelo menos 8 caracteres."})
+
         return data
 
     def create(self, validated_data):
