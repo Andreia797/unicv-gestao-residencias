@@ -5,6 +5,10 @@ from rest_framework import status, generics # Removido 'permissions' daqui
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, F
 
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions
+from django.db.models import Count, F
+
 # Importações de modelos e serializers da aplicação 'candidaturas'
 from .models import Candidatura
 from .serializers import CandidaturaSerializer
@@ -232,24 +236,18 @@ class CandidaturasPorEstadoView(APIView):
 # Estas classes foram movidas para cá para resolver o problema no seu 'candidaturas/views.py'.
 # Idealmente, se Quarto e Cama pertencem à app 'core', estas views deveriam estar em 'core/views.py'.
 
-class ListaVagasView(APIView):
+class ListaVagasView(ListAPIView):
     """
     Retorna a lista de quartos com vagas disponíveis.
-    Método suportado: GET.
     Requer autenticação e permissão de visualização de quarto.
     """
+    serializer_class = QuartoSerializer
     permission_classes = [IsAuthenticated, DjangoModelPermissions]
 
-    def get(self, request, *args, **kwargs):
-        """
-        Recupera os quartos com vagas disponíveis.
-        """
-        quartos_disponiveis = Quarto.objects.annotate(
+    def get_queryset(self):
+        return Quarto.objects.annotate(
             num_residentes=Count('camas__residente', distinct=True)
         ).filter(capacidade__gt=F('num_residentes'))
-        serializer = QuartoSerializer(quartos_disponiveis, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class ListarTodosQuartosView(APIView):
     """

@@ -11,6 +11,12 @@ from core.serializers import (
     CamaSerializer, ResidenciaSerializer as ResidenciaCoreSerializer
 )
 
+# Definindo constantes para permissões
+PERM_VIEW_RESIDENTE = 'core.view_residente'
+PERM_VIEW_EDIFICIO = 'core.view_edificio'
+PERM_VIEW_QUARTO = 'core.view_quarto'
+PERM_VIEW_CAMA = 'core.view_cama'
+
 # ----- RESIDENTES -----
 
 class ResidenteListCreateView(generics.ListCreateAPIView):
@@ -48,7 +54,7 @@ class ResidentesPorQuartoView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_residente
 
     def get(self, request, quarto_id, *args, **kwargs):
-        if not request.user.has_perm('core.view_residente'):
+        if not request.user.has_perm(PERM_VIEW_RESIDENTE):
             return Response({'detail': 'Você não tem permissão para listar residentes por quarto.'}, status=status.HTTP_403_FORBIDDEN)
         residentes = Residente.objects.filter(cama__quarto_id=quarto_id).distinct()
         serializer = ResidenteSerializer(residentes, many=True)
@@ -62,7 +68,7 @@ class TotalResidentesView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_residente
 
     def get(self, request, *args, **kwargs):
-        if not request.user.has_perm('core.view_residente'):
+        if not request.user.has_perm(PERM_VIEW_RESIDENTE):
             return Response({'detail': 'Você não tem permissão para ver o total de residentes.'}, status=status.HTTP_403_FORBIDDEN)
         total = Residente.objects.count()
         return Response({'totalResidentes': total}, status=status.HTTP_200_OK)
@@ -75,7 +81,7 @@ class ResidentesPorEdificioView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_residente
 
     def get(self, request, *args, **kwargs):
-        if not request.user.has_perm('core.view_residente'):
+        if not request.user.has_perm(PERM_VIEW_RESIDENTE):
             return Response({'detail': 'Você não tem permissão para visualizar residentes por edifício.'}, status=status.HTTP_403_FORBIDDEN)
 
         edificio_id = request.query_params.get('edificio_id')
@@ -128,7 +134,7 @@ class EdificiosPorTipoView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_edificio
 
     def get(self, request, *args, **kwargs):
-        if not request.user.has_perm('core.view_edificio'):
+        if not request.user.has_perm(PERM_VIEW_EDIFICIO):
             return Response({'detail': 'Você não tem permissão para ver edifícios por tipo.'}, status=status.HTTP_403_FORBIDDEN)
         tipos = Edificio.objects.values('tipo').annotate(count=Count('id'))
         total_por_tipo = [{'name': t['tipo'], 'count': t['count']} for t in tipos]
@@ -164,7 +170,7 @@ class QuartosPorEdificioView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_quarto
 
     def get(self, request, edificio_id, *args, **kwargs):
-        if not request.user.has_perm('core.view_quarto'):
+        if not request.user.has_perm(PERM_VIEW_QUARTO):
             return Response({'detail': 'Você não tem permissão para listar quartos por edifício.'}, status=status.HTTP_403_FORBIDDEN)
         quartos = Quarto.objects.filter(edificio_id=edificio_id)
         serializer = QuartoSerializer(quartos, many=True)
@@ -178,7 +184,7 @@ class QuartosPorTipoView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_quarto
 
     def get(self, request, tipo, *args, **kwargs):
-        if not request.user.has_perm('core.view_quarto'):
+        if not request.user.has_perm(PERM_VIEW_QUARTO):
             return Response({'detail': 'Você não tem permissão para listar quartos por tipo.'}, status=status.HTTP_403_FORBIDDEN)
         quartos = Quarto.objects.filter(tipo=tipo)
         serializer = QuartoSerializer(quartos, many=True)
@@ -192,7 +198,7 @@ class RelatorioQuartosView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_quarto
 
     def get(self, request, *args, **kwargs):
-        if not request.user.has_perm('core.view_quarto'):
+        if not request.user.has_perm(PERM_VIEW_QUARTO):
             return Response({'detail': 'Você não tem permissão para ver o relatório de quartos.'}, status=status.HTTP_403_FORBIDDEN)
         total_quartos = Quarto.objects.count()
         quartos_livres = Quarto.objects.filter(camas__residente__isnull=True).distinct().count()
@@ -233,7 +239,7 @@ class CamasPorQuartoView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_cama
 
     def get(self, request, quarto_id, *args, **kwargs):
-        if not request.user.has_perm('core.view_cama'):
+        if not request.user.has_perm(PERM_VIEW_CAMA):
             return Response({'detail': 'Você não tem permissão para listar camas por quarto.'}, status=status.HTTP_403_FORBIDDEN)
         camas = Cama.objects.filter(quarto_id=quarto_id)
         serializer = CamaSerializer(camas, many=True)
@@ -247,7 +253,7 @@ class CamasPorStatusView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_cama
 
     def get(self, request, status_param, *args, **kwargs):
-        if not request.user.has_perm('core.view_cama'):
+        if not request.user.has_perm(PERM_VIEW_CAMA):
             return Response({'detail': 'Você não tem permissão para listar camas por status.'}, status=status.HTTP_403_FORBIDDEN)
         camas = Cama.objects.filter(status=status_param)
         serializer = CamaSerializer(camas, many=True)
@@ -261,7 +267,7 @@ class RelatorioCamasView(APIView):
     permission_classes = [IsAuthenticated, DjangoModelPermissions] # Adicione permissão de modelo para view_cama
 
     def get(self, request, *args, **kwargs):
-        if not request.user.has_perm('core.view_cama'):
+        if not request.user.has_perm(PERM_VIEW_CAMA):
             return Response({'detail': 'Você não tem permissão para ver o relatório de camas.'}, status=status.HTTP_403_FORBIDDEN)
         total_camas = Cama.objects.count()
         camas_livres = Cama.objects.filter(residente__isnull=True).count()

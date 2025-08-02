@@ -121,16 +121,17 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [navigate]);
+    }, []);
 
     const logout = useCallback(() => {
-        AuthService.logout();
-        setUser(null);
-        setIsAuthenticated(false);
-        setAuthToken(null);
-        setInitialRedirectDone(false); // Resetar ao fazer logout
-        navigate("/login");
-    }, [navigate]);
+    AuthService.logout();
+    setUser(null);
+    setIsAuthenticated(false);
+    setAuthToken(null);
+    setInitialRedirectDone(false); 
+    navigate("/login");
+}, [navigate]); 
+
 
     const register = useCallback(async (userData) => {
         setLoading(true);

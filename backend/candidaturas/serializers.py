@@ -18,16 +18,18 @@ class EdificioSerializerParaQuarto(serializers.ModelSerializer):
         fields = ['nome', 'endereco']
 
 class QuartoSerializer(serializers.ModelSerializer):
-    num_residentes = serializers.IntegerField(read_only=True)
-    edificio_detalhes = serializers.SerializerMethodField()
+    descricao = serializers.SerializerMethodField()
 
     class Meta:
         model = Quarto
-        fields = ['id', 'numero', 'capacidade', 'tipo', 'edificio', 'num_residentes', 'edificio_detalhes']
-        depth = 0  # Não precisa de depth aqui, pois usaremos SerializerMethodField
+        fields = ['id', 'numero', 'capacidade', 'tipo', 'edificio', 'descricao']
 
-    def get_edificio_detalhes(self, instance):
-        return EdificioSerializerParaQuarto(instance.edificio).data
+    def get_descricao(self, obj):
+        return (
+            f"Quarto: {obj.numero} | "
+            f"Edifício: {obj.edificio.nome} - {obj.edificio.endereco} | "
+            f"Capacidade: {obj.capacidade}"
+        )
 
 class CandidaturaSerializer(serializers.ModelSerializer):
     # Para leitura: mostra dados aninhados completos

@@ -2,5 +2,5 @@ projectKey=Unicv
 serverUrl=http://localhost:9000
 serverVersion=25.7.0.110598
 dashboardUrl=http://localhost:9000/dashboard?id=Unicv
-ceTaskId=1213c753-124f-4391-94d9-416b686e4e0e
-ceTaskUrl=http://localhost:9000/api/ce/task?id=1213c753-124f-4391-94d9-416b686e4e0e
+ceTaskId=78bb5f9f-0be8-4a62-8728-2f703ec09e62
+ceTaskUrl=http://localhost:9000/api/ce/task?id=78bb5f9f-0be8-4a62-8728-2f703ec09e62

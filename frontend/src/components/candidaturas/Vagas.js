@@ -19,8 +19,8 @@ const Vagas = () => {
   const [error, setError] = useState(null);
   const { authToken } = useContext(AuthContext);
 
-  const [pagina, setPagina] = useState(1); // Começa na página 1
-  const resultadosPorPagina = 8; // Definição fixa de 9 vagas por página
+  const [pagina, setPagina] = useState(1);
+  const resultadosPorPagina = 8;
 
   useEffect(() => {
     const fetchVagas = async () => {
@@ -85,30 +85,30 @@ const Vagas = () => {
           <ListItem key={vaga.id} divider>
             <ListItemText
               primary={`Quarto: ${vaga.numero}`}
-              secondary={`Edifício: ${
-                vaga.edificio_detalhes?.nome || "N/A"
-              } - ${vaga.edificio_detalhes?.endereco || "N/A"} | Capacidade: ${
-                vaga.capacidade || "N/A"
-              }`}
+              secondary={
+                vaga.edificio
+                  ? `Edifício: ${vaga.edificio.nome} - ${vaga.edificio.endereco} | Capacidade: ${vaga.capacidade}`
+                  : `Capacidade: ${vaga.capacidade}`
+              }
             />
           </ListItem>
         ))}
       </List>
       {vagas.length > 0 && (
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-          Total de Vagas: {vagas.length}
-        </Typography>
-      )}
-      {vagas.length > 0 && (
-        <div className="px-4 py-3 bg-gray-50 flex justify-end items-center">
-          <Pagination
-            count={totalPaginas}
-            page={pagina}
-            onChange={handleChangePage}
-            color="primary"
-            size="large"
-          />
-        </div>
+        <>
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+            Total de Vagas: {vagas.length}
+          </Typography>
+          <div className="px-4 py-3 bg-gray-50 flex justify-end items-center">
+            <Pagination
+              count={totalPaginas}
+              page={pagina}
+              onChange={handleChangePage}
+              color="primary"
+              size="large"
+            />
+          </div>
+        </>
       )}
     </Paper>
   );
